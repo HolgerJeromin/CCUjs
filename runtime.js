@@ -11,6 +11,9 @@ const statechangeUrl = host + baseXMLAPIpath + 'statechange.cgi';
 /** @type document */
 let devicelistDocument;
 
+/** @type document */
+let stateListDocument;
+
 // const xhr = new XMLHttpRequest();
 // xhr.open('GET', statelistUrl,false);
 // xhr.send();
@@ -26,7 +29,7 @@ const outputFnc = (message, cssText = '') => {
 }
 
 outputFnc('loading...');
-fetch(  devicelistUrl)
+fetch(devicelistUrl)
 .then((response) => {
   if (response&&response.ok) {
     return response.text();
@@ -41,63 +44,99 @@ fetch(  devicelistUrl)
     let allHomematicDivs = document.querySelectorAll('[data-hm-adress]');
 
     for (const homematicDiv of allHomematicDivs) {
-      const deviceType = homematicDiv.dataset.homematicType;
       const deviceBaseadress = homematicDiv.dataset.hmAdress;
-      let deviceNode = devicelistDocument.querySelector('device[address="'+homematicDiv.dataset.hmAdress+'"]');
-      if(!deviceNode){
+      let deviceNode = devicelistDocument.querySelector(
+        'device[address="' + homematicDiv.dataset.hmAdress + '"]'
+      );
+      if (!deviceNode) {
         continue;
       }
       homematicDiv.appendChild(document.createTextNode(deviceNode.getAttribute('name')));
       /** @type number|undefined */
-      let actorAdress = undefined;
-      /** @type number|undefined */
-      let iseOffset = 0;
+      let actorIndex = undefined;
+      /** @type string|undefined */
+      let datapointType;
       switch (deviceNode.getAttribute('device_type')) {
         case 'HmIP-BROLL': // UP Rolladen
-          actorAdress = 4;
-          homematicDiv.appendChild(createButton('Hoch', '1', actorAdress));
-          homematicDiv.appendChild(createButton('Halb', '0.6', actorAdress));
-          homematicDiv.appendChild(createButton('Streifen', '0.2', actorAdress));
-          homematicDiv.appendChild(createButton('Runter', '0', actorAdress));
+          actorIndex = 4;
+          datapointType = 'LEVEL';
+          // let datapoint_ise_id = getDatapointId(
+          //   homematicDiv.dataset.hmAdress,
+          //   actorIndex,
+          //   datapointType
+          // );
+          homematicDiv.appendChild(createButton('Hoch', '1', actorIndex, datapointType));
+          homematicDiv.appendChild(createButton('Halb', '0.6', actorIndex, datapointType));
+          homematicDiv.appendChild(createButton('Streifen', '0.2', actorIndex, datapointType));
+          homematicDiv.appendChild(createButton('Runter', '0', actorIndex, datapointType));
+          addHmMonitoring(homematicDiv, 3, datapointType);
           break;
         case 'HMIP-PSM': // Power Switch Measurement
-            actorAdress = 3;
-            homematicDiv.appendChild(createButton('An', 'true', actorAdress));
-            homematicDiv.appendChild(createButton('Aus', 'false', actorAdress));
-            break;
+          actorIndex = 3;
+          datapointType = 'STATE';
+          homematicDiv.appendChild(createButton('An', 'true', actorIndex, datapointType));
+          homematicDiv.appendChild(createButton('Aus', 'false', actorIndex, datapointType));
+          addHmMonitoring(homematicDiv, 2, datapointType);
+          break;
         case 'HmIP-BSM': // UP Switch Measurement
-          actorAdress = 5;
-          iseOffset = -1;
-          homematicDiv.appendChild(createButton('An', 'true', actorAdress, iseOffset));
-          homematicDiv.appendChild(createButton('Aus', 'false', actorAdress, iseOffset));
-        break;
+          actorIndex = 4;
+          datapointType = 'STATE';
+          homematicDiv.appendChild(createButton('An', 'true', actorIndex, datapointType));
+          homematicDiv.appendChild(createButton('Aus', 'false', actorIndex, datapointType));
+          addHmMonitoring(homematicDiv, 3, datapointType);
+          break;
 
 
-        case 'HmIP-RCV-50XX':
+        case 'HmIP-RCV-50':
           // Special
-          actorAdress = 1;
-          homematicDiv.appendChild(createButton('Kurz', '1', actorAdress));
-          //homematicDiv.appendChild(createButton('Aus', 'false', actorAdress));
+          actorIndex = 1;
+          datapointType = 'PRESS_SHORT';
+          homematicDiv.appendChild(createButton('Kurz', '1', actorIndex, datapointType));
           break;
         default:
           const errorDiv = document.createElement('div');
-          errorDiv.innerHTML='Aktor des Typs <span style="color:red;">'+deviceNode.getAttribute('device_type')+'</span> nicht bekannt.';
+          errorDiv.innerHTML = 'Aktor des Typs <span style="color:red;">' + deviceNode.getAttribute('device_type') + '</span> nicht bekannt.';
           homematicDiv.appendChild(errorDiv);
           break;
       }
     }
     outputFnc('');
   })
-  .catch(ex => {
-    console.error(ex);
-    if (ex instanceof TypeError) {
-      outputFnc('Error in request(parsing): ' + ex +
-        '<br>You could try to open the <a href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
+  .catch (ex => {
+  console.error(ex);
+  if (ex instanceof TypeError) {
+    outputFnc('Error in request(parsing): ' + ex +
+      '<br>You could try to open the <a href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
+  } else {
+    outputFnc('Error in request(parsing): ' + ex, 'color: red;');
+  }
+})
+;
+fetch(statelistUrl)
+  .then((response) => {
+    if (response && response.ok) {
+      return response.text();
     } else {
-      outputFnc('Error in request(parsing): ' + ex, 'color: red;');
+      throw new Error('Something went wrong');
     }
   })
+  .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+  .then(data => {
+    stateListDocument = data;
+  })
   ;
+
+function getDatapointId(hmAdress, actorIndex, datapointType) {
+  let channel_ise_id = devicelistDocument.querySelector(
+    'channel[address="'
+    + hmAdress + ':' + actorIndex
+    + '"]'
+  ).getAttribute('ise_id');
+  let datapointNode = stateListDocument.querySelector(
+    'channel[ise_id="' + channel_ise_id + '"] datapoint[type="' + datapointType + '"]'
+  );
+  return datapointNode.getAttribute('ise_id');
+}
 
 
 /**
@@ -106,18 +145,13 @@ fetch(  devicelistUrl)
  */
 function clickHandler(evt) {
   const target = this;
-//  console.log('target', target, 'parent', target.parentElement);
-  let channelNode = devicelistDocument.querySelector(
-    'channel[address="'
-    +target.parentElement.dataset.hmAdress+':'+target.dataset.hmActorAdress
-    +'"]'
+  let datapoint_ise_id = getDatapointId(
+    target.parentElement.dataset.hmAdress,
+    target.dataset.hmActorIndex,
+    target.dataset.hmDatapointType
   );
-  let ise_id = parseInt(channelNode.getAttribute('ise_id'), 10);
-  if(target.dataset.hmIseOffset){
-    ise_id += parseInt(target.dataset.hmIseOffset, 10);
-  }
   setHomematicValue(
-    ise_id,
+    datapoint_ise_id,
     target.dataset.hmActorValue
   )
   .then(data => {
@@ -130,23 +164,23 @@ function clickHandler(evt) {
  *
  * @param {string} title
  * @param {string} value
- * @param {number} actorAdress
- * @param {number} iseOffset
+ * @param {number} actorIndex
+ * @param {string} datapointType
  */
-function createButton(title, value, actorAdress, iseOffset = 0, classList = []) {
+function createButton(title, value, actorIndex, datapointType = '', classList = []) {
   const button = document.createElement('button');
   button.addEventListener('click', clickHandler);
   button.innerText = title;
   button.dataset.hmActorValue = value;
-  button.dataset.hmActorAdress = actorAdress.toString();
-  button.dataset.hmIseOffset = iseOffset.toString();
+  button.dataset.hmActorIndex = actorIndex.toString();
+  button.dataset.hmDatapointType = datapointType;
   button.classList.add(...classList);
   return button;
 }
 
 /**
  *
- * @param {number|number[]} ise_id
+ * @param {string|string[]} ise_id
  * @param {string|string[]} value
  */
 function setHomematicValue(ise_id, value) {
@@ -167,4 +201,19 @@ function setHomematicValue(ise_id, value) {
       console.error(ex);
     })
     ;
+}
+/** @type {Map<HTMLElement>} */
+const monitorList = new Map();
+/**
+ *
+ * @param {HTMLElement} homematicDiv
+ * @param {number|undefined} statusIndex
+ */
+function addHmMonitoring(homematicDiv, statusIndex, datapointType = '') {
+  let datapoint_ise_id = getDatapointId(
+    homematicDiv.dataset.hmAdress,
+    statusIndex,
+    datapointType
+  );
+  monitorList.set(homematicDiv, { statusIndex: statusIndex, datapointType: datapointType });
 }
