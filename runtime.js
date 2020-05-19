@@ -7,6 +7,7 @@ const devicelistUrl = host + baseXMLAPIpath + 'devicelist.cgi';
 const statelistUrl = host + baseXMLAPIpath + 'statelist.cgi';
 const valuechangeUrl = host + baseXMLAPIpath + 'mastervaluechange.cgi';
 const statechangeUrl = host + baseXMLAPIpath + 'statechange.cgi';
+const stateUrl = host + baseXMLAPIpath + 'state.cgi';
 
 /** @type document */
 let devicelistDocument;
@@ -29,6 +30,23 @@ const outputFnc = (message, cssText = '') => {
 }
 
 outputFnc('loading...');
+
+
+const statelistPromise =
+  fetch(statelistUrl)
+    .then((response) => {
+      if (response && response.ok) {
+        return response.text();
+      } else {
+        throw new Error('Something went wrong');
+      }
+    })
+    .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+    .then(data => {
+      stateListDocument = data;
+    })
+  ;
+const devicelistPromise =
 fetch(devicelistUrl)
 .then((response) => {
   if (response&&response.ok) {
@@ -39,7 +57,23 @@ fetch(devicelistUrl)
 })
   .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
   .then(dataDocument=>{
-    devicelistDocument=dataDocument;
+    devicelistDocument = dataDocument;
+
+  })
+  .catch (ex => {
+  console.error(ex);
+  if (ex instanceof TypeError) {
+    outputFnc('Error in request(parsing): ' + ex +
+      '<br>You could try to open the <a href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
+  } else {
+    outputFnc('Error in request(parsing): ' + ex, 'color: red;');
+  }
+})
+  ;
+
+Promise.all([devicelistPromise, statelistPromise])
+  .then(() => {
+
     /** @type NodeListOf<HTMLElement> */
     let allHomematicDivs = document.querySelectorAll('[data-hm-adress]');
 
@@ -54,78 +88,161 @@ fetch(devicelistUrl)
       homematicDiv.appendChild(document.createTextNode(deviceNode.getAttribute('name')));
       /** @type number|undefined */
       let actorIndex = undefined;
+      /** @type number|undefined */
+      let statusIndex = undefined;
       /** @type string|undefined */
       let datapointType;
       switch (deviceNode.getAttribute('device_type')) {
         case 'HmIP-BROLL': // UP Rolladen
-          actorIndex = 4;
-          datapointType = 'LEVEL';
-          // let datapoint_ise_id = getDatapointId(
-          //   homematicDiv.dataset.hmAdress,
-          //   actorIndex,
-          //   datapointType
-          // );
-          homematicDiv.appendChild(createButton('Hoch', '1', actorIndex, datapointType));
-          homematicDiv.appendChild(createButton('Halb', '0.6', actorIndex, datapointType));
-          homematicDiv.appendChild(createButton('Streifen', '0.2', actorIndex, datapointType));
-          homematicDiv.appendChild(createButton('Runter', '0', actorIndex, datapointType));
-          addHmMonitoring(homematicDiv, 3, datapointType);
-          break;
+          {
+            actorIndex = 4; statusIndex = 3;
+            datapointType = 'LEVEL';
+            let actorDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+              actorIndex, datapointType
+            );
+            homematicDiv.appendChild(createButton('Hoch', '1', actorDatapointId));
+            homematicDiv.appendChild(createButton('Halb', '0.6', actorDatapointId));
+            homematicDiv.appendChild(createButton('Streifen', '0.2', actorDatapointId));
+            homematicDiv.appendChild(createButton('Runter', '0', actorDatapointId));
+            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+              statusIndex, datapointType
+            );
+            setInterval(() => {
+              getHomematicValue(statusDatapointId)
+                .then((valueStr) => {
+                  let value = parseFloat(valueStr);
+                  if (isNaN(value)) {
+                    homematicDiv.style.background  = 'red';
+                  } else {
+                    homematicDiv.style.background = 'linear-gradient(0deg, green ' + (value * 100) + '%, gray 0)'
+                  }
+
+                  // if (valueStr === 'true') {
+                  //   homematicDiv.style.backgroundColor = 'yellow';
+                  // } else if (valueStr === 'false') {
+                  //   homematicDiv.style.backgroundColor = 'gray';
+                  // } else {
+                  //   homematicDiv.style.backgroundColor = 'red';
+                  // }
+                });
+            }, 1000);
+            break;
+          }
         case 'HMIP-PSM': // Power Switch Measurement
-          actorIndex = 3;
-          datapointType = 'STATE';
-          homematicDiv.appendChild(createButton('An', 'true', actorIndex, datapointType));
-          homematicDiv.appendChild(createButton('Aus', 'false', actorIndex, datapointType));
-          addHmMonitoring(homematicDiv, 2, datapointType);
-          break;
+          {
+            actorIndex = 3; statusIndex = 2;
+            datapointType = 'STATE';
+            let actorDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+              actorIndex, datapointType
+            );
+            homematicDiv.appendChild(createButton('An', 'true', actorDatapointId));
+            homematicDiv.appendChild(createButton('Aus', 'false', actorDatapointId));
+            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+              statusIndex, datapointType
+            );
+            setInterval(() => {
+              getHomematicValue(statusDatapointId)
+                .then((valueStr) => {
+                  if (valueStr === 'true') {
+                    homematicDiv.style.backgroundColor = 'yellow';
+                  } else if (valueStr === 'false') {
+                    homematicDiv.style.backgroundColor = 'gray';
+                  }
+                });
+            }, 1000);
+            break;
+          }
         case 'HmIP-BSM': // UP Switch Measurement
-          actorIndex = 4;
-          datapointType = 'STATE';
-          homematicDiv.appendChild(createButton('An', 'true', actorIndex, datapointType));
-          homematicDiv.appendChild(createButton('Aus', 'false', actorIndex, datapointType));
-          addHmMonitoring(homematicDiv, 3, datapointType);
-          break;
-
-
+          {
+            actorIndex = 4; statusIndex = 3;
+            datapointType = 'STATE';
+            let actorDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+              actorIndex, datapointType
+            );
+            homematicDiv.appendChild(createButton('An', 'true', actorDatapointId));
+            homematicDiv.appendChild(createButton('Aus', 'false', actorDatapointId));
+            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+              statusIndex, datapointType
+            );
+            setInterval(() => {
+              getHomematicValue(statusDatapointId)
+                .then((valueStr) => {
+                  if (valueStr === 'true') {
+                    homematicDiv.style.backgroundColor = 'yellow';
+                  } else if (valueStr === 'false') {
+                    homematicDiv.style.backgroundColor = 'gray';
+                  }
+                });
+            }, 1000);
+            break;
+          }
+        case 'HMIP-SWDO': // Window sensor
+          {
+            statusIndex = 1;
+            datapointType = 'STATE';
+            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+              statusIndex, datapointType
+            );
+            setInterval(() => {
+              getHomematicValue(statusDatapointId)
+                .then((valueStr) => {
+                  if (valueStr === '0') {
+                    homematicDiv.style.backgroundColor = 'green';
+                  } else if (valueStr === '1') {
+                    homematicDiv.style.backgroundColor = 'red';
+                  }
+                });
+            }, 1000);
+            break;
+          }
+        case 'HmIP-SWD': // Water sensor
+          {
+            statusIndex = 1;
+            datapointType = 'WATERLEVEL_DETECTED';
+            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+              statusIndex, datapointType
+            );
+            setInterval(() => {
+              getHomematicValue(statusDatapointId)
+                .then((valueStr) => {
+                  if (valueStr === 'true') {
+                    homematicDiv.style.backgroundColor = 'red';
+                  } else if (valueStr === 'false') {
+                    homematicDiv.style.backgroundColor = 'green';
+                  }
+                });
+            }, 1000);
+            break;
+          }
         case 'HmIP-RCV-50':
-          // Special
-          actorIndex = 1;
-          datapointType = 'PRESS_SHORT';
-          homematicDiv.appendChild(createButton('Kurz', '1', actorIndex, datapointType));
-          break;
+          {
+            // Special
+            actorIndex = 1;
+            datapointType = 'PRESS_SHORT';
+            let actorDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+              actorIndex, datapointType
+            );
+            homematicDiv.appendChild(createButton('Kurz', '1', actorDatapointId));
+            break;
+          }
         default:
-          const errorDiv = document.createElement('div');
-          errorDiv.innerHTML = 'Aktor des Typs <span style="color:red;">' + deviceNode.getAttribute('device_type') + '</span> nicht bekannt.';
-          homematicDiv.appendChild(errorDiv);
-          break;
+          {
+            const errorDiv = document.createElement('div');
+            errorDiv.innerHTML = 'Aktor des Typs <span style="color:red;">' + deviceNode.getAttribute('device_type') + '</span> nicht bekannt.';
+            homematicDiv.appendChild(errorDiv);
+            break;
+          }
       }
     }
     outputFnc('');
-  })
-  .catch (ex => {
-  console.error(ex);
-  if (ex instanceof TypeError) {
-    outputFnc('Error in request(parsing): ' + ex +
-      '<br>You could try to open the <a href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
-  } else {
-    outputFnc('Error in request(parsing): ' + ex, 'color: red;');
-  }
-})
-;
-fetch(statelistUrl)
-  .then((response) => {
-    if (response && response.ok) {
-      return response.text();
-    } else {
-      throw new Error('Something went wrong');
-    }
-  })
-  .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
-  .then(data => {
-    stateListDocument = data;
-  })
-  ;
+  });
 
+  /**
+   *
+   * @param {string} hmAdress
+   * @param {number} actorIndex
+   * @param {string} datapointType
+   */
 function getDatapointId(hmAdress, actorIndex, datapointType) {
   let channel_ise_id = devicelistDocument.querySelector(
     'channel[address="'
@@ -145,13 +262,8 @@ function getDatapointId(hmAdress, actorIndex, datapointType) {
  */
 function clickHandler(evt) {
   const target = this;
-  let datapoint_ise_id = getDatapointId(
-    target.parentElement.dataset.hmAdress,
-    target.dataset.hmActorIndex,
-    target.dataset.hmDatapointType
-  );
   setHomematicValue(
-    datapoint_ise_id,
+    target.dataset.hmActorDatapointId,
     target.dataset.hmActorValue
   )
   .then(data => {
@@ -164,16 +276,14 @@ function clickHandler(evt) {
  *
  * @param {string} title
  * @param {string} value
- * @param {number} actorIndex
- * @param {string} datapointType
+ * @param {string} datapointId
  */
-function createButton(title, value, actorIndex, datapointType = '', classList = []) {
+function createButton(title, value, datapointId, classList = []) {
   const button = document.createElement('button');
   button.addEventListener('click', clickHandler);
   button.innerText = title;
   button.dataset.hmActorValue = value;
-  button.dataset.hmActorIndex = actorIndex.toString();
-  button.dataset.hmDatapointType = datapointType;
+  button.dataset.hmActorDatapointId = datapointId;
   button.classList.add(...classList);
   return button;
 }
@@ -202,18 +312,66 @@ function setHomematicValue(ise_id, value) {
     })
     ;
 }
+/**
+ *
+ * @param {string|string[]} ise_id
+ */
+function getMultipleHomematicValue(ise_id) {
+  let iseArr;
+  if (!Array.isArray(ise_id)) {
+    iseArr = [ise_id];
+  } else {
+    iseArr = ise_id;
+  }
+  return fetch(
+    stateUrl
+    + '?' + 'datapoint_id=' + iseArr.join(',')
+  )
+    .then(response => response.text())
+    .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+    .then(data => {
+      let valueArr = [];
+      iseArr.forEach(id => {
+        valueArr.push(data.querySelector('datapoint["ise_id=' + id + '"]')?.getAttribute('value'));
+      });
+      return valueArr;
+    })
+    .catch(ex => {
+      console.error(ex);
+      throw new Error('Unexpected error');
+    })
+    ;
+}
+
+/**
+ *
+ * @param {string} ise_id
+ */
+function getHomematicValue(ise_id) {
+  return fetch(
+    stateUrl
+    + '?' + 'datapoint_id=' + ise_id
+  )
+    .then(response => response.text())
+    .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+    .then(data => {
+      return data.querySelector('datapoint[ise_id="' + ise_id + '"]')?.getAttribute('value');
+    })
+    .catch(ex => {
+      console.error(ex);
+      throw new Error('Unexpected error');
+    })
+    ;
+}
+
 /** @type {Map<HTMLElement>} */
 const monitorList = new Map();
 /**
  *
  * @param {HTMLElement} homematicDiv
- * @param {number|undefined} statusIndex
+ * @param {string|undefined} datapointId
  */
-function addHmMonitoring(homematicDiv, statusIndex, datapointType = '') {
-  let datapoint_ise_id = getDatapointId(
-    homematicDiv.dataset.hmAdress,
-    statusIndex,
-    datapointType
-  );
-  monitorList.set(homematicDiv, { statusIndex: statusIndex, datapointType: datapointType });
+function addHmMonitoring(homematicDiv, datapointId, { }) {
+
+  // monitorList.set(homematicDiv, { statusIndex: statusIndex, datapointType: datapointType });
 }
