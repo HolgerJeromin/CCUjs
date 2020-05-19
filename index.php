@@ -15,7 +15,11 @@
         [data-hm-adress] {
             display: flex;
             flex-direction: column;
-            margin: 0.5em;
+
+
+          /*  display: grid;*/
+            margin: 0.2em;
+            padding: 0.5em;
         }
         [data-hm-adress] > * {
             margin-top: 0.5em;
@@ -31,18 +35,22 @@
 <body>
     <h1>Haferkamp 16 Steuerung</h1>
     <div id="actors">
-        <div data-hm-adress="00111A498BF963"></div><!-- Roll Laura -->
-        <div data-hm-adress="00111A498BF94A"></div><!-- Roll Vera -->
-        <div data-hm-adress="00111A498BF801"></div><!-- Roll SZ -->
-        <div data-hm-adress="00111A498BF95C"></div><!-- Roll AZ -->
+        <!-- Roll Laura -->     <div data-hm-adress="00111A498BF963"></div>
+        <!-- Roll Vera -->      <div data-hm-adress="00111A498BF94A"></div>
+        <!-- Roll SZ -->        <div data-hm-adress="00111A498BF801"></div>
+        <!-- Roll AZ -->        <div data-hm-adress="00111A498BF95C"></div>
 
-        <div data-hm-adress="0001D3C99C916E"></div><!-- Licht AZ -->
-        <div data-hm-adress="001F98A9AABDDD"></div><!-- CCU3 -->
+        <!-- Licht AZ -->       <div data-hm-adress="0001D3C99C916E"></div>
 
-        <div data-hm-adress="00085A49901A88"></div><!-- Licht Laura -->
-        <div data-hm-adress="00085A49901C43"></div><!-- Licht Vera -->
+        <!-- Licht Laura -->    <div data-hm-adress="00085A49901A88"></div>
+        <!-- Licht Vera -->     <div data-hm-adress="00085A49901C43"></div>
 
-        <div data-hm-adress="00085A49901C69"></div><!-- Licht aussen -->
+        <!-- Licht aussen -->   <div data-hm-adress="00085A49901C69"></div>
+
+        <!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD"></div>
+        <!-- Fenster Bad DG --> <div data-hm-adress="0000DA498D222E"></div>
+        <!-- Wasser Sauna -->   <div data-hm-adress="001898A99F5399"></div>
+        <!-- Wasser Technik -->   <div data-hm-adress="001898A99F536C"></div>
     </div>
     <div id="output">
 
