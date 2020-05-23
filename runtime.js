@@ -38,6 +38,39 @@ function ansiToNativeString(string) {
   return string.replace(/�/g, 'ü')
 }
 
+/** @type {Cache} */
+let dataCache;
+const devicelistPromise =
+caches.open('xmlApiCache')
+  .then((cache) => {
+    dataCache = cache;
+    cache.add(devicelistUrl)
+  })
+  .then(() => dataCache.match(devicelistUrl))
+//fetch(devicelistUrl)
+  .then((response) => {
+    if (response && response.ok) {
+      return response.text();
+    } else {
+      throw new Error('Something went wrong');
+    }
+  })
+  .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+  .then(dataDocument => {
+    devicelistDocument = dataDocument;
+
+  })
+  .catch(ex => {
+    console.error(ex);
+    if (ex instanceof TypeError) {
+      outputFnc('Error in request(parsing): ' + ex +
+        '<br>You could try to open the <a target="_blank" href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
+    } else {
+      outputFnc('Error in request(parsing): ' + ex, 'color: red;');
+    }
+  })
+  ;
+
 const statelistPromise =
   fetch(statelistUrl)
     .then((response) => {
@@ -52,30 +85,7 @@ const statelistPromise =
       stateListDocument = data;
     })
   ;
-const devicelistPromise =
-fetch(devicelistUrl)
-.then((response) => {
-  if (response&&response.ok) {
-    return response.text();
-  } else {
-    throw new Error('Something went wrong');
-  }
-})
-  .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
-  .then(dataDocument=>{
-    devicelistDocument = dataDocument;
 
-  })
-  .catch (ex => {
-  console.error(ex);
-  if (ex instanceof TypeError) {
-    outputFnc('Error in request(parsing): ' + ex +
-      '<br>You could try to open the <a target="_blank" href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
-  } else {
-    outputFnc('Error in request(parsing): ' + ex, 'color: red;');
-  }
-})
-  ;
 
 Promise.all([devicelistPromise, statelistPromise])
   .then(() => {
