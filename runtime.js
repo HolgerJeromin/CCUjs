@@ -31,6 +31,12 @@ const outputFnc = (message, cssText = '') => {
 
 outputFnc('loading...');
 
+/**
+ * @param {string} string
+ */
+function ansiToNativeString(string) {
+  return string.replace(/�/g, 'ü')
+}
 
 const statelistPromise =
   fetch(statelistUrl)
@@ -85,7 +91,7 @@ Promise.all([devicelistPromise, statelistPromise])
       if (!deviceNode) {
         continue;
       }
-      homematicDiv.appendChild(document.createTextNode(deviceNode.getAttribute('name')));
+      homematicDiv.appendChild(document.createTextNode(ansiToNativeString(deviceNode.getAttribute('name'))));
       /** @type number|undefined */
       let actorIndex = undefined;
       /** @type number|undefined */
@@ -315,7 +321,6 @@ function clickHandler(evt) {
     target.dataset.hmActorValue
   )
   .then(data => {
-    console.log(data);
     outputFnc('Success in writing value: '+target.dataset.hmActorValue, 'color: green;');
   })
 }
