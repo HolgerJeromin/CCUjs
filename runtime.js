@@ -38,50 +38,6 @@ function ansiToNativeString(string) {
   return string.replace(/�/g, 'ü')
 }
 
-/** @type {Cache} */
-let dataCache;
-const devicelistPromise =
-window.caches.open('xmlApiCache2')
-  // .then((cache) => dataCache = cache)
-  //   .then(() => dataCache.match(devicelistUrl))
-  //   .then(
-  //     // tunnel the response
-  //     (response) => response,
-  //     // fetch the response
-  //     () => dataCache.add(devicelistUrl)
-  //       .then(() => dataCache.match(devicelistUrl))
-  // )
-    .then((cache) => {
-      dataCache = cache;
-      cache.add(devicelistUrl)
-    })
-    .then(() => dataCache.match(devicelistUrl))
-    .then((response) => {
-      if (response && response.ok) {
-        return response.text();
-      } else {
-        throw new Error('Something went wrong');
-      }
-    }, (ex) => {
-        debugger;
-        throw ex;
-    })
-  .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
-  .then(dataDocument => {
-    devicelistDocument = dataDocument;
-
-  })
-  .catch(ex => {
-    console.error(ex);
-    if (ex instanceof TypeError) {
-      outputFnc('Error in request(parsing): ' + ex +
-        '<br>You could try to open the <a target="_blank" href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
-    } else {
-      outputFnc('Error in request(parsing): ' + ex, 'color: red;');
-    }
-  })
-  ;
-
 const statelistPromise =
   fetch(statelistUrl)
     .then((response) => {
@@ -90,13 +46,25 @@ const statelistPromise =
       } else {
         throw new Error('Something went wrong');
       }
-    }, (ex) => {
-        debugger;
-        throw ex;
     })
     .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
     .then(data => {
       stateListDocument = data;
+    })
+  ;
+const devicelistPromise =
+  fetch(devicelistUrl)
+    .then((response) => {
+      if (response && response.ok) {
+        return response.text();
+      } else {
+        throw new Error('Something went wrong');
+      }
+    })
+    .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+    .then(dataDocument => {
+      devicelistDocument = dataDocument;
+
     })
     .catch(ex => {
       console.error(ex);
@@ -108,7 +76,6 @@ const statelistPromise =
       }
     })
   ;
-
 
 Promise.all([devicelistPromise, statelistPromise])
   .then(() => {
@@ -151,13 +118,13 @@ Promise.all([devicelistPromise, statelistPromise])
                 .then((valueStr) => {
                   let value = parseFloat(valueStr);
                   if (isNaN(value)) {
-                    homematicDiv.style.background  = 'red';
+                    homematicDiv.style.background = 'red';
                   } else if (value == 0) {
                     homematicDiv.style.background = 'gray';
                   } else if (value <= 0.2) {
-                    homematicDiv.style.background  = 'repeating-linear-gradient(gray, gray 20px, green 20px, green 25px)';
+                    homematicDiv.style.background = 'repeating-linear-gradient(gray, gray 20px, green 20px, green 25px)';
                   } else {
-                    homematicDiv.style.background = 'linear-gradient(0deg, green ' + ((value - 0.2) * (100/80))*100 + '%, gray 0)'
+                    homematicDiv.style.background = 'linear-gradient(0deg, green ' + ((value - 0.2) * (100 / 80)) * 100 + '%, gray 0)'
                   }
 
                   // if (valueStr === 'true') {
@@ -310,12 +277,12 @@ Promise.all([devicelistPromise, statelistPromise])
     outputFnc('');
   });
 
-  /**
-   *
-   * @param {string} hmAdress
-   * @param {number} actorIndex
-   * @param {string} datapointType
-   */
+/**
+ *
+ * @param {string} hmAdress
+ * @param {number} actorIndex
+ * @param {string} datapointType
+ */
 function getDatapointInfo(hmAdress, actorIndex, datapointType) {
   let deviceChannelNode = devicelistDocument.querySelector(
     'channel[address="'
@@ -353,9 +320,9 @@ function clickHandler(evt) {
     target.dataset.hmActorDatapointId,
     target.dataset.hmActorValue
   )
-  .then(data => {
-    outputFnc('Success in writing value: '+target.dataset.hmActorValue, 'color: green;');
-  })
+    .then(data => {
+      outputFnc('Success in writing value: ' + target.dataset.hmActorValue, 'color: green;');
+    })
 }
 
 /**
