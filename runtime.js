@@ -64,7 +64,7 @@ fetch(devicelistUrl)
   console.error(ex);
   if (ex instanceof TypeError) {
     outputFnc('Error in request(parsing): ' + ex +
-      '<br>You could try to open the <a href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
+      '<br>You could try to open the <a target="_blank" href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
   } else {
     outputFnc('Error in request(parsing): ' + ex, 'color: red;');
   }
@@ -97,24 +97,28 @@ Promise.all([devicelistPromise, statelistPromise])
           {
             actorIndex = 4; statusIndex = 3;
             datapointType = 'LEVEL';
-            let actorDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+            let actorDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
               actorIndex, datapointType
             );
-            homematicDiv.appendChild(createButton('Hoch', '1', actorDatapointId));
-            homematicDiv.appendChild(createButton('Halb', '0.6', actorDatapointId));
-            homematicDiv.appendChild(createButton('Streifen', '0.2', actorDatapointId));
-            homematicDiv.appendChild(createButton('Runter', '0', actorDatapointId));
-            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+            homematicDiv.appendChild(createButton('Hoch', '1', actorDatapoint.iseId));
+            homematicDiv.appendChild(createButton('Halb', '0.6', actorDatapoint.iseId));
+            homematicDiv.appendChild(createButton('Streifen', '0.2', actorDatapoint.iseId));
+            homematicDiv.appendChild(createButton('Runter', '0', actorDatapoint.iseId));
+            let statusDatapointId = getDatapointInfo(homematicDiv.dataset.hmAdress,
               statusIndex, datapointType
             );
             setInterval(() => {
-              getHomematicValue(statusDatapointId)
+              getHomematicValue(statusDatapointId.iseId)
                 .then((valueStr) => {
                   let value = parseFloat(valueStr);
                   if (isNaN(value)) {
                     homematicDiv.style.background  = 'red';
+                  } else if (value == 0) {
+                    homematicDiv.style.background = 'gray';
+                  } else if (value <= 0.2) {
+                    homematicDiv.style.background  = 'repeating-linear-gradient(gray, gray 20px, green 20px, green 25px)';
                   } else {
-                    homematicDiv.style.background = 'linear-gradient(0deg, green ' + (value * 100) + '%, gray 0)'
+                    homematicDiv.style.background = 'linear-gradient(0deg, green ' + ((value - 0.2) * (100/80))*100 + '%, gray 0)'
                   }
 
                   // if (valueStr === 'true') {
@@ -132,16 +136,40 @@ Promise.all([devicelistPromise, statelistPromise])
           {
             actorIndex = 3; statusIndex = 2;
             datapointType = 'STATE';
-            let actorDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+            let actorDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
               actorIndex, datapointType
             );
-            homematicDiv.appendChild(createButton('An', 'true', actorDatapointId));
-            homematicDiv.appendChild(createButton('Aus', 'false', actorDatapointId));
-            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+            homematicDiv.appendChild(createButton('An', 'true', actorDatapoint.iseId));
+            homematicDiv.appendChild(createButton('Aus', 'false', actorDatapoint.iseId));
+            let statusDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
               statusIndex, datapointType
             );
             setInterval(() => {
-              getHomematicValue(statusDatapointId)
+              getHomematicValue(statusDatapoint.iseId)
+                .then((valueStr) => {
+                  if (valueStr === 'true') {
+                    homematicDiv.style.backgroundColor = 'yellow';
+                  } else if (valueStr === 'false') {
+                    homematicDiv.style.backgroundColor = 'gray';
+                  }
+                });
+            }, 1000);
+            break;
+          }
+        case 'HmIP-FSM': // flush-mounted Switch Measurement
+          {
+            actorIndex = 2; statusIndex = 1;
+            datapointType = 'STATE';
+            let actorDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
+              actorIndex, datapointType
+            );
+            homematicDiv.appendChild(createButton('An', 'true', actorDatapoint.iseId));
+            homematicDiv.appendChild(createButton('Aus', 'false', actorDatapoint.iseId));
+            let statusDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
+              statusIndex, datapointType
+            );
+            setInterval(() => {
+              getHomematicValue(statusDatapoint.iseId)
                 .then((valueStr) => {
                   if (valueStr === 'true') {
                     homematicDiv.style.backgroundColor = 'yellow';
@@ -156,16 +184,16 @@ Promise.all([devicelistPromise, statelistPromise])
           {
             actorIndex = 4; statusIndex = 3;
             datapointType = 'STATE';
-            let actorDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+            let actorDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
               actorIndex, datapointType
             );
-            homematicDiv.appendChild(createButton('An', 'true', actorDatapointId));
-            homematicDiv.appendChild(createButton('Aus', 'false', actorDatapointId));
-            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+            homematicDiv.appendChild(createButton('An', 'true', actorDatapoint.iseId));
+            homematicDiv.appendChild(createButton('Aus', 'false', actorDatapoint.iseId));
+            let statusDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
               statusIndex, datapointType
             );
             setInterval(() => {
-              getHomematicValue(statusDatapointId)
+              getHomematicValue(statusDatapoint.iseId)
                 .then((valueStr) => {
                   if (valueStr === 'true') {
                     homematicDiv.style.backgroundColor = 'yellow';
@@ -180,11 +208,11 @@ Promise.all([devicelistPromise, statelistPromise])
           {
             statusIndex = 1;
             datapointType = 'STATE';
-            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+            let statusDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
               statusIndex, datapointType
             );
             setInterval(() => {
-              getHomematicValue(statusDatapointId)
+              getHomematicValue(statusDatapoint.iseId)
                 .then((valueStr) => {
                   if (valueStr === '0') {
                     homematicDiv.style.backgroundColor = 'green';
@@ -199,11 +227,11 @@ Promise.all([devicelistPromise, statelistPromise])
           {
             statusIndex = 1;
             datapointType = 'WATERLEVEL_DETECTED';
-            let statusDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+            let statusDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
               statusIndex, datapointType
             );
             setInterval(() => {
-              getHomematicValue(statusDatapointId)
+              getHomematicValue(statusDatapoint.iseId)
                 .then((valueStr) => {
                   if (valueStr === 'true') {
                     homematicDiv.style.backgroundColor = 'red';
@@ -219,10 +247,16 @@ Promise.all([devicelistPromise, statelistPromise])
             // Special
             actorIndex = 1;
             datapointType = 'PRESS_SHORT';
-            let actorDatapointId = getDatapointId(homematicDiv.dataset.hmAdress,
+            let actorDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
               actorIndex, datapointType
             );
-            homematicDiv.appendChild(createButton('Kurz', '1', actorDatapointId));
+            homematicDiv.appendChild(createButton('2&nbsp;Min', '1', actorDatapoint.iseId));
+            datapointType = 'PRESS_LONG';
+            actorDatapoint = getDatapointInfo(homematicDiv.dataset.hmAdress,
+              actorIndex, datapointType
+            );
+            homematicDiv.appendChild(createButton('10&nbsp;Min', '1', actorDatapoint.iseId));
+            homematicDiv.firstChild.nodeValue = actorDatapoint.name;
             break;
           }
         default:
@@ -243,16 +277,17 @@ Promise.all([devicelistPromise, statelistPromise])
    * @param {number} actorIndex
    * @param {string} datapointType
    */
-function getDatapointId(hmAdress, actorIndex, datapointType) {
-  let channel_ise_id = devicelistDocument.querySelector(
+function getDatapointInfo(hmAdress, actorIndex, datapointType) {
+  let deviceChannelNode = devicelistDocument.querySelector(
     'channel[address="'
     + hmAdress + ':' + actorIndex
     + '"]'
-  ).getAttribute('ise_id');
+  );
+  let channel_ise_id = deviceChannelNode.getAttribute('ise_id');
   let datapointNode = stateListDocument.querySelector(
     'channel[ise_id="' + channel_ise_id + '"] datapoint[type="' + datapointType + '"]'
   );
-  return datapointNode.getAttribute('ise_id');
+  return { name: deviceChannelNode.getAttribute('name'), iseId: datapointNode.getAttribute('ise_id') };
 }
 
 
@@ -262,6 +297,19 @@ function getDatapointId(hmAdress, actorIndex, datapointType) {
  */
 function clickHandler(evt) {
   const target = this;
+  let message;
+  if (
+    target.parentElement.firstChild.nodeValue.includes('Vera')
+    || target.parentElement.firstChild.nodeValue.includes('Laura')
+  ) {
+    message = 'Wirklich einen Aktor bei den Kindern schalten?';
+  } else if (target.parentElement.firstChild.nodeValue.includes('Heizung')) {
+    message = 'Wirklich eine Heizung schalten?';
+  }
+
+  if (message && !confirm(message)) {
+    return;
+  }
   setHomematicValue(
     target.dataset.hmActorDatapointId,
     target.dataset.hmActorValue
@@ -281,7 +329,7 @@ function clickHandler(evt) {
 function createButton(title, value, datapointId, classList = []) {
   const button = document.createElement('button');
   button.addEventListener('click', clickHandler);
-  button.innerText = title;
+  button.innerHTML = title;
   button.dataset.hmActorValue = value;
   button.dataset.hmActorDatapointId = datapointId;
   button.classList.add(...classList);
