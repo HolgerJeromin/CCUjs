@@ -4,7 +4,6 @@
     <meta charset="utf8">
     <meta name="viewport" content="width=device-width">
     <title>Haussteuerung</title>
-    <link rel="preload" href="//ccu3-wz/addons/xmlapi/devicelist.cgi" as="fetch" crossorigin>
     <script src="runtime.js<?php if($_GET['force']) echo "?random=".rand(); ?>" async defer></script>
     <link rel="shortcut icon" href="rm-favicon.ico" type="image/vnd.microsoft.icon">
     <link rel="icon" href="rm-favicon.ico" type="image/vnd.microsoft.icon">
@@ -46,10 +45,15 @@
         <!-- Licht AZ -->       <div data-hm-adress="0001D3C99C916E"></div>
         <!-- Licht aussen -->   <div data-hm-adress="00085A49901C69"></div>
 
-        <!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD"></div>
         <!-- Fenster Bad DG --> <div data-hm-adress="0000DA498D222E"></div>
+        <!-- Fenster EG WZ rechts --> <div data-hm-adress="00109A498FC33A"></div>
+        <!-- Fenster EG Küchentür --> <div data-hm-adress="00109A49A27CFF"></div>
         <!-- Wasser Sauna -->   <div data-hm-adress="001898A99F5399"></div>
+
+        <!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD"></div>
         <!-- Wasser Technik -->   <div data-hm-adress="001898A99F536C"></div>
+        <!-- Heizung KG Spielen links -->   <div data-hm-adress="0001D3C99C6BCE"></div>
+        <!-- Heizung KG Spielen rechts -->   <div data-hm-adress="0001D3C99CB1D5"></div>
 
         <!-- Rolladen EG Bad -->   <div data-hm-adress="00111A498BF96B"></div>
         <!-- Rolladen EG Gast -->   <div data-hm-adress="00111A498BF929"></div>
@@ -61,8 +65,6 @@
         <!-- Rolladen EG WZ Tür links -->   <div data-hm-adress="00111A498BF95D"></div>
         <!-- Rolladen EG WZ Tür rechts -->   <div data-hm-adress="00111A498BF92D"></div>
 
-        <!-- Heizung KG Spielen links -->   <div data-hm-adress="0001D3C99C6BCE"></div>
-        <!-- Heizung KG Spielen rechts -->   <div data-hm-adress="0001D3C99CB1D5"></div>
         <!-- Licht Hausnummer -->   <div data-hm-adress="00089A4996736F"></div>
 
     </div>
