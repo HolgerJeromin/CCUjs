@@ -162,6 +162,10 @@ function renderGui() {
 
   for (const homematicDiv of allHomematicDivs) {
     const deviceBaseadress = homematicDiv.dataset.hmAdress;
+    let overrideIndex = homematicDiv.dataset.hmOverrideIndex;
+    let overrideDatapointTypeArr = homematicDiv.dataset.hmDatapointType?.split('|');
+    let overrideDatapointTypeLabelArr = homematicDiv.dataset.hmDatapointTypeLabel?.split('|');
+    let datapointType;
     let deviceNode = devicelistDocument.querySelector(
       'device[address="' + homematicDiv.dataset.hmAdress + '"]'
     );
@@ -171,12 +175,11 @@ function renderGui() {
     homematicDiv.appendChild(document.createTextNode(ansiToNativeString(deviceNode.getAttribute('name'))));
     homematicDiv.title = deviceNode.getAttribute('device_type');
     /** @type string|undefined */
-    let datapointType;
     switch (deviceNode.getAttribute('device_type')) {
       case 'HmIP-BROLL': // UP Rolladen
         {
           datapointType = 'LEVEL';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
           homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstStateOrLevelDatapoint));
           homematicDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstStateOrLevelDatapoint));
           homematicDiv.appendChild(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevelDatapoint));
@@ -262,14 +265,21 @@ function renderGui() {
       case 'HmIP-RCV-50':
         {
           // Special
-          let overrideIndex = 1;
-          datapointType = 'PRESS_SHORT';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
-          homematicDiv.appendChild(createButton('2&nbsp;Min', '1', deviceInfo.firstStateOrLevelDatapoint));
-          datapointType = 'PRESS_LONG';
-          deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
-          homematicDiv.appendChild(createButton('10&nbsp;Min', '1', deviceInfo.firstStateOrLevelDatapoint));
-          homematicDiv.firstChild.nodeValue = deviceInfo.name;
+          if (!overrideDatapointTypeArr) {
+            homematicDiv.firstChild.nodeValue = 'needed datapoint info';
+            break;
+          }
+          for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
+            let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
+            homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevelDatapoint));
+            homematicDiv.firstChild.nodeValue = deviceInfo.name;
+          }
+          // datapointType = 'PRESS_SHORT';
+          // let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
+          // homematicDiv.appendChild(createButton('2&nbsp;Min', '1', deviceInfo.firstStateOrLevelDatapoint));
+          // datapointType = 'PRESS_LONG';
+          // deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
+          // homematicDiv.appendChild(createButton('10&nbsp;Min', '1', deviceInfo.firstStateOrLevelDatapoint));
           break;
         }
       default:
@@ -288,7 +298,7 @@ function renderGui() {
  *
  * @param {string} hmAdress
  * @param {string} datapointType
- * @param {number} overrideIndex
+ * @param {string|undefined} overrideIndex
  */
 function getDeviceInfo(hmAdress, datapointType, overrideIndex = undefined) {
   let deviceList_deviceNode = devicelistDocument.querySelector(

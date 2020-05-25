@@ -50,7 +50,7 @@
         <!-- Fenster EG Küchentür --> <div data-hm-adress="00109A49A27CFF"></div>
         <!-- Wasser Sauna -->   <div data-hm-adress="001898A99F5399"></div>
 
-        <!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD"></div>
+        <!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
         <!-- Wasser Technik -->   <div data-hm-adress="001898A99F536C"></div>
         <!-- Heizung KG Spielen links -->   <div data-hm-adress="0001D3C99C6BCE"></div>
         <!-- Heizung KG Spielen rechts -->   <div data-hm-adress="0001D3C99CB1D5"></div>
