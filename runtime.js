@@ -266,13 +266,13 @@ function renderGui() {
         {
           // Special
           if (!overrideDatapointTypeArr) {
-            homematicDiv.firstChild.nodeValue = 'needed datapoint info';
+            homematicDiv.firstChild.nodeValue = 'missing datapoint info';
             break;
           }
           for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
             let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
             homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevelDatapoint));
-            homematicDiv.firstChild.nodeValue = deviceInfo.name;
+            homematicDiv.firstChild.nodeValue = deviceInfo.firstStateOrLevelDatapointName;
           }
           // datapointType = 'PRESS_SHORT';
           // let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
@@ -325,10 +325,11 @@ function getDeviceInfo(hmAdress, datapointType, overrideIndex = undefined) {
 
   return {
     deviceType: deviceList_deviceNode.getAttribute('device_type'),
-    name: deviceList_deviceNode?.getAttribute('name'),
+    deviceName: deviceList_deviceNode?.getAttribute('name'),
     firstActorChannelIndex: firstActorChannel?.getAttribute('index'),
     firstActorChannelId: firstActorChannel?.getAttribute('ise_id'),
-    firstStateOrLevelDatapoint: firstStateOrLevelDatapoint?.getAttribute('ise_id')
+    firstStateOrLevelDatapoint: firstStateOrLevelDatapoint?.getAttribute('ise_id'),
+    firstStateOrLevelDatapointName: firstStateOrLevelDatapoint.parentElement?.getAttribute('name')
   };
 }
 
