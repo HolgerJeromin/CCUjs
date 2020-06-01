@@ -15,6 +15,7 @@ let devicelistDocument;
 /** @type document */
 let stateListDocument;
 
+let DomParser = new window.DOMParser();
 // const xhr = new XMLHttpRequest();
 // xhr.open('GET', statelistUrl,false);
 // xhr.send();
@@ -40,7 +41,7 @@ const stringToDocument = (xmlString, type) => {
   if (!xmlString) {
     return false;
   }
-  let doc = (new window.DOMParser()).parseFromString(xmlString, "text/xml");
+  let doc = (DomParser).parseFromString(xmlString, "text/xml");
   switch (type) {
     case 'devicelist':
       devicelistDocument = doc;
@@ -166,27 +167,26 @@ function renderGui() {
     let overrideDatapointTypeArr = homematicDiv.dataset.hmDatapointType?.split('|');
     let overrideDatapointTypeLabelArr = homematicDiv.dataset.hmDatapointTypeLabel?.split('|');
     let datapointType;
-    let deviceNode = devicelistDocument.querySelector(
-      'device[address="' + homematicDiv.dataset.hmAdress + '"]'
-    );
-    if (!deviceNode) {
-      continue;
-    }
-    homematicDiv.appendChild(document.createTextNode(ansiToNativeString(deviceNode.getAttribute('name'))));
-    homematicDiv.title = deviceNode.getAttribute('device_type');
+    let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
+    let labelDiv = document.createElement('div');
+    labelDiv.classList.add('label');
+    labelDiv.innerText = ansiToNativeString(deviceInfo.device.deviceName);
+    homematicDiv.appendChild(labelDiv);
+    //homematicDiv.appendChild(document.createTextNode(ansiToNativeString(deviceInfo.deviceName)));
+    homematicDiv.title = deviceInfo.device.type;
     /** @type string|undefined */
-    switch (deviceNode.getAttribute('device_type')) {
+    switch (deviceInfo.device.type) {
       case 'HmIP-BROLL': // UP Rolladen
         {
           datapointType = 'LEVEL';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
-          homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstStateOrLevelDatapoint));
-          homematicDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstStateOrLevelDatapoint));
-          homematicDiv.appendChild(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevelDatapoint));
-          homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstStateOrLevelDatapoint));
+          homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstStateOrLevel.iseId));
+          homematicDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstStateOrLevel.iseId));
+          homematicDiv.appendChild(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevel.iseId));
+          homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstStateOrLevel.iseId));
 
           const updateState = () => {
-            getHomematicValue(deviceInfo.firstStateOrLevelDatapoint)
+            getHomematicValue(deviceInfo.firstStateOrLevel.iseId)
               .then((valueStr) => {
                 let value = parseFloat(valueStr);
                 if (isNaN(value)) {
@@ -210,10 +210,10 @@ function renderGui() {
         {
           datapointType = 'STATE';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-          homematicDiv.appendChild(createButton('An', 'true', deviceInfo.firstStateOrLevelDatapoint));
-          homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.firstStateOrLevelDatapoint));
+          homematicDiv.appendChild(createButton('An', 'true', deviceInfo.firstStateOrLevel.iseId));
+          homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.firstStateOrLevel.iseId));
           const updateState = () => {
-            getHomematicValue(deviceInfo.firstStateOrLevelDatapoint)
+            getHomematicValue(deviceInfo.firstStateOrLevel.iseId)
               .then((valueStr) => {
                 if (valueStr === 'true') {
                   homematicDiv.style.backgroundColor = 'yellow';
@@ -232,7 +232,7 @@ function renderGui() {
           datapointType = 'STATE';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
           const updateState = () => {
-            getHomematicValue(deviceInfo.firstStateOrLevelDatapoint)
+            getHomematicValue(deviceInfo.firstStateOrLevel.iseId)
               .then((valueStr) => {
                 if (valueStr === '0') {
                   homematicDiv.style.backgroundColor = 'green';
@@ -249,7 +249,7 @@ function renderGui() {
           datapointType = 'WATERLEVEL_DETECTED';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
           const updateState = () => {
-            getHomematicValue(deviceInfo.firstStateOrLevelDatapoint)
+            getHomematicValue(deviceInfo.firstStateOrLevel.iseId)
               .then((valueStr) => {
                 if (valueStr === 'true') {
                   homematicDiv.style.backgroundColor = 'red';
@@ -271,24 +271,34 @@ function renderGui() {
           }
           for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
             let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
-            homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevelDatapoint));
+            homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevel.iseId));
             homematicDiv.firstChild.nodeValue = deviceInfo.firstStateOrLevelDatapointName;
           }
-          // datapointType = 'PRESS_SHORT';
-          // let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
-          // homematicDiv.appendChild(createButton('2&nbsp;Min', '1', deviceInfo.firstStateOrLevelDatapoint));
-          // datapointType = 'PRESS_LONG';
-          // deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
-          // homematicDiv.appendChild(createButton('10&nbsp;Min', '1', deviceInfo.firstStateOrLevelDatapoint));
           break;
         }
       default:
         {
           const errorDiv = document.createElement('div');
-          errorDiv.innerHTML = 'Aktor des Typs <span style="color:red;">' + deviceNode.getAttribute('device_type') + '</span> nicht bekannt.';
+          errorDiv.innerHTML = 'Aktor des Typs <span style="color:red;">' + deviceInfo.device.type + '</span> nicht bekannt.';
           homematicDiv.appendChild(errorDiv);
           break;
         }
+    }
+
+    if (deviceInfo.tempDatapoint.iseId) {
+      getHomematicValue(deviceInfo.tempDatapoint.iseId)
+        .then(data => {
+          let temp = parseFloat(data);
+          if (!Number.isNaN(temp) && temp !== 0) {
+            let tempDiv = document.createElement('div');
+            tempDiv.classList.add('temperature');
+            tempDiv.innerText = temp.toLocaleString(undefined, {
+              maximumFractionDigits: 1,
+              minimumFractionDigits: 1
+            }) + '°C';
+            homematicDiv.appendChild(tempDiv);
+          }
+        });
     }
   }
   outputFnc('');
@@ -300,36 +310,51 @@ function renderGui() {
  * @param {string} datapointType
  * @param {string|undefined} overrideIndex
  */
-function getDeviceInfo(hmAdress, datapointType, overrideIndex = undefined) {
+function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = undefined) {
   let deviceList_deviceNode = devicelistDocument.querySelector(
     'device[address="' + hmAdress + '"]'
   );
   let deviceIse = deviceList_deviceNode.getAttribute('ise_id');
-  let firstActorChannel = deviceList_deviceNode.querySelector('channel[direction="RECEIVER"]');
-  let firstActorChannelIndex = firstActorChannel?.getAttribute('index') ?? overrideIndex;
+  let firstActorChannelNode = deviceList_deviceNode.querySelector('channel[direction="RECEIVER"]');
+  let firstActorChannelIndex = firstActorChannelNode?.getAttribute('index') ?? overrideIndex;
 
   let stateList_deviceNode = stateListDocument.querySelector(
     'device[ise_id="' + deviceIse + '"]'
   );
-  let firstStateOrLevelDatapoint;
-  if (firstActorChannelIndex !== undefined) {
-    let stateList_firstActorChannelNode =
-      stateList_deviceNode.querySelector('channel[index="' + firstActorChannelIndex + '"]');
-    firstStateOrLevelDatapoint =
-      stateList_firstActorChannelNode?.querySelector('datapoint[type="' + datapointType + '"]');
-  } else {
-    // No Actor. Find first datapointType
-    firstStateOrLevelDatapoint =
-      stateList_deviceNode.querySelector('datapoint[type="' + datapointType + '"]');
+
+  let firstStateOrLevelDatapointNode;
+  if (datapointType) {
+    if (firstActorChannelIndex !== undefined) {
+      let stateList_firstActorChannelNode =
+        stateList_deviceNode.querySelector('channel[index="' + firstActorChannelIndex + '"]');
+      firstStateOrLevelDatapointNode =
+        stateList_firstActorChannelNode?.querySelector('datapoint[type="' + datapointType + '"]');
+    } else {
+      // No Actor. Find first datapointType
+      firstStateOrLevelDatapointNode =
+        stateList_deviceNode.querySelector('datapoint[type="' + datapointType + '"]');
+    }
   }
+  let tempDatapointNode =
+    stateList_deviceNode.querySelector('datapoint[type="' + 'ACTUAL_TEMPERATURE' + '"]');
 
   return {
-    deviceType: deviceList_deviceNode.getAttribute('device_type'),
-    deviceName: deviceList_deviceNode?.getAttribute('name'),
-    firstActorChannelIndex: firstActorChannel?.getAttribute('index'),
-    firstActorChannelId: firstActorChannel?.getAttribute('ise_id'),
-    firstStateOrLevelDatapoint: firstStateOrLevelDatapoint?.getAttribute('ise_id'),
-    firstStateOrLevelDatapointName: firstStateOrLevelDatapoint.parentElement?.getAttribute('name')
+    device: {
+      type: deviceList_deviceNode.getAttribute('device_type'),
+      deviceName: deviceList_deviceNode?.getAttribute('name')
+    },
+    firstActorChannel: {
+      iseId: firstActorChannelNode?.getAttribute('ise_id'),
+      index: firstActorChannelNode?.getAttribute('index')
+    },
+    firstStateOrLevel: {
+      iseId: firstStateOrLevelDatapointNode?.getAttribute('ise_id'),
+      name: firstStateOrLevelDatapointNode?.parentElement?.getAttribute('name')
+    },
+    tempDatapoint: {
+      iseId: tempDatapointNode?.getAttribute('ise_id'),
+      name: tempDatapointNode?.getAttribute('name')
+    }
   };
 }
 
@@ -341,12 +366,14 @@ function getDeviceInfo(hmAdress, datapointType, overrideIndex = undefined) {
 function clickHandler(evt) {
   const target = this;
   let message;
+  /** @type {HTMLElement} */
+  let labelDiv = target.parentElement.querySelector('.label');
   if (
-    target.parentElement.firstChild.nodeValue.includes('Vera')
-    || target.parentElement.firstChild.nodeValue.includes('Laura')
+    labelDiv.firstChild.nodeValue.includes('Vera')
+    || labelDiv.firstChild.nodeValue.includes('Laura')
   ) {
     message = 'Wirklich einen Aktor bei den Kindern schalten?';
-  } else if (target.parentElement.firstChild.nodeValue.includes('Heizung')) {
+  } else if (labelDiv.firstChild.nodeValue.includes('Heizung')) {
     message = 'Wirklich eine Heizung schalten?';
   }
 
@@ -396,7 +423,7 @@ function setHomematicValue(ise_id, value) {
     + '&' + 'new_value=' + value.join(',')
   )
     .then(response => response.text())
-    .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+    .then(str => (DomParser).parseFromString(str, "text/xml"))
     .catch(ex => {
       console.error(ex);
     })
@@ -412,7 +439,7 @@ function getMultipleHomematicValue(iseIds) {
     + '?' + 'datapoint_id=' + iseIds.join(',')
   )
     .then(response => response.text())
-    .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+    .then(str => (DomParser).parseFromString(str, "text/xml"))
     .then(data => {
       let valueArr = new Map();
       iseIds.forEach(id => {
@@ -437,7 +464,7 @@ function getHomematicValue(ise_id) {
     + '?' + 'datapoint_id=' + ise_id
   )
     .then(response => response.text())
-    .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
+    .then(str => (DomParser).parseFromString(str, "text/xml"))
     .then(data => {
       return data.querySelector('datapoint[ise_id="' + ise_id + '"]')?.getAttribute('value');
     })

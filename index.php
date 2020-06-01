@@ -17,7 +17,6 @@
             display: flex;
             flex-direction: column;
 
-
           /*  display: grid;*/
             margin: 0.2em;
             padding: 0.5em;
@@ -25,10 +24,15 @@
         [data-hm-adress] > * {
             margin-top: 0.5em;
         }
+        [data-hm-adress] > *:first-child {
+            margin-top: 0;
+        }
         [data-hm-adress] > button {
             padding-top: 1em;
             padding-bottom: 1em;
-            margin-top: 0.5em;
+        }
+        [data-hm-adress] > .temperature {
+            font-size: xx-small;
         }
     </style>
 </head>
