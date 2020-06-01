@@ -429,6 +429,7 @@ function setHomematicValue(ise_id, value) {
     })
     ;
 }
+
 /**
  *
  * @param {string[]} iseIds
@@ -441,11 +442,12 @@ function getMultipleHomematicValue(iseIds) {
     .then(response => response.text())
     .then(str => (DomParser).parseFromString(str, "text/xml"))
     .then(data => {
-      let valueArr = new Map();
+      /**@type {Map<string, string>} */
+      let valueMap = new Map();
       iseIds.forEach(id => {
-        valueArr.set(id, data.querySelector('datapoint["ise_id=' + id + '"]')?.getAttribute('value'));
+        valueMap.set(id, data.querySelector('datapoint[ise_id="' + id + '"]')?.getAttribute('value'));
       });
-      return valueArr;
+      return valueMap;
     })
     .catch(ex => {
       console.error(ex);
@@ -475,14 +477,38 @@ function getHomematicValue(ise_id) {
     ;
 }
 
-/** @type {Map<HTMLElement>} */
+/** key is the iseId
+ * @type {Map<string, Set<(hmValue: string)=>void>>} */
 const monitorList = new Map();
 /**
  *
- * @param {HTMLElement} homematicDiv
- * @param {string|undefined} datapointId
+ * @param {string|undefined} iseId
+ * @param {()=>void} callback
  */
-function addHmMonitoring(homematicDiv, datapointId, { }) {
-
-  // monitorList.set(homematicDiv, { statusIndex: statusIndex, datapointType: datapointType });
+function addHmMonitoring(iseId, callback) {
+  if (!iseId) {
+    return;
+  }
+  let subSet = monitorList.get(iseId);
+  if (!subSet) {
+    subSet = new Set();
+    monitorList.set(iseId, subSet);
+  }
+  subSet.add(callback);
 }
+
+let hmMonitoring = function () {
+  if (monitorList.size) {
+    getMultipleHomematicValue(Array.from(monitorList.keys()))
+      .then(resultMap => {
+        resultMap.forEach((hmValue, iseId) => {
+          let cbList = monitorList.get(iseId);
+          cbList.forEach(cb => {
+            cb(hmValue);
+          })
+        })
+      });
+  }
+  setTimeout(hmMonitoring, 10000);
+};
+hmMonitoring();
