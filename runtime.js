@@ -20,6 +20,12 @@ let DomParser = new window.DOMParser();
 // xhr.open('GET', statelistUrl,false);
 // xhr.send();
 const outputElem = document.getElementById('output');
+
+/** key is the iseId
+ * @type {Map<string, Set<(hmValue: string)=>void>>} */
+const monitorList = new Map();
+
+
 /**
  *
  * @param {string|object} message
@@ -185,23 +191,19 @@ function renderGui() {
           homematicDiv.appendChild(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevel.iseId));
           homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstStateOrLevel.iseId));
 
-          const updateState = () => {
-            getHomematicValue(deviceInfo.firstStateOrLevel.iseId)
-              .then((valueStr) => {
-                let value = parseFloat(valueStr);
-                if (isNaN(value)) {
-                  homematicDiv.style.background = 'red';
-                } else if (value == 0) {
-                  homematicDiv.style.background = 'gray';
-                } else if (value <= 0.2) {
-                  homematicDiv.style.background = 'repeating-linear-gradient(gray, gray 20px, green 20px, green 25px)';
-                } else {
-                  homematicDiv.style.background = 'linear-gradient(0deg, green ' + ((value - 0.2) * (100 / 80)) * 100 + '%, gray 0)'
-                }
-              });
-            setTimeout(updateState, 1000);
-          };
-          updateState();
+          addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
+              let value = parseFloat(valueStr);
+              if (isNaN(value)) {
+                homematicDiv.style.background = 'red';
+              } else if (value == 0) {
+                homematicDiv.style.background = 'gray';
+              } else if (value <= 0.2) {
+                homematicDiv.style.background = 'repeating-linear-gradient(gray, gray 20px, green 20px, green 25px)';
+              } else {
+                homematicDiv.style.background = 'linear-gradient(0deg, green ' + ((value - 0.2) * (100 / 80)) * 100 + '%, gray 0)'
+              }
+            });
+
           break;
         }
       case 'HMIP-PSM': // Power Switch Measurement
@@ -212,18 +214,13 @@ function renderGui() {
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
           homematicDiv.appendChild(createButton('An', 'true', deviceInfo.firstStateOrLevel.iseId));
           homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.firstStateOrLevel.iseId));
-          const updateState = () => {
-            getHomematicValue(deviceInfo.firstStateOrLevel.iseId)
-              .then((valueStr) => {
-                if (valueStr === 'true') {
-                  homematicDiv.style.backgroundColor = 'yellow';
-                } else if (valueStr === 'false') {
-                  homematicDiv.style.backgroundColor = 'gray';
-                }
-              })
-            setTimeout(updateState, 1000);
-          };
-          updateState();
+          addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
+              if (valueStr === 'true') {
+                homematicDiv.style.backgroundColor = 'yellow';
+              } else if (valueStr === 'false') {
+                homematicDiv.style.backgroundColor = 'gray';
+              }
+            });
           break;
         }
       case 'HMIP-SWDO': // Window sensor
@@ -231,35 +228,26 @@ function renderGui() {
         {
           datapointType = 'STATE';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-          const updateState = () => {
-            getHomematicValue(deviceInfo.firstStateOrLevel.iseId)
-              .then((valueStr) => {
-                if (valueStr === '0') {
-                  homematicDiv.style.backgroundColor = 'green';
-                } else if (valueStr === '1') {
-                  homematicDiv.style.backgroundColor = 'red';
-                }
-              })
-          };
-          setInterval(updateState, 1000);
+          addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
+            if (valueStr === '0') {
+              homematicDiv.style.backgroundColor = 'green';
+            } else if (valueStr === '1') {
+              homematicDiv.style.backgroundColor = 'red';
+            }
+          });
           break;
         }
       case 'HmIP-SWD': // Water sensor
         {
           datapointType = 'WATERLEVEL_DETECTED';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-          const updateState = () => {
-            getHomematicValue(deviceInfo.firstStateOrLevel.iseId)
-              .then((valueStr) => {
-                if (valueStr === 'true') {
-                  homematicDiv.style.backgroundColor = 'red';
-                } else if (valueStr === 'false') {
-                  homematicDiv.style.backgroundColor = 'green';
-                }
-              });
-            setTimeout(updateState, 1000);
-          };
-          updateState();
+          addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
+            if (valueStr === 'true') {
+              homematicDiv.style.backgroundColor = 'red';
+            } else if (valueStr === 'false') {
+              homematicDiv.style.backgroundColor = 'green';
+            }
+          });
           break;
         }
       case 'HmIP-RCV-50':
@@ -286,19 +274,23 @@ function renderGui() {
     }
 
     if (deviceInfo.tempDatapoint.iseId) {
-      getHomematicValue(deviceInfo.tempDatapoint.iseId)
-        .then(data => {
-          let temp = parseFloat(data);
-          if (!Number.isNaN(temp) && temp !== 0) {
-            let tempDiv = document.createElement('div');
-            tempDiv.classList.add('temperature');
-            tempDiv.innerText = temp.toLocaleString(undefined, {
-              maximumFractionDigits: 1,
-              minimumFractionDigits: 1
-            }) + '°C';
-            homematicDiv.appendChild(tempDiv);
-          }
-        });
+      let oldTempStr;
+      let tempDiv = document.createElement('div');
+      tempDiv.classList.add('temperature');
+      homematicDiv.appendChild(tempDiv);
+      addHmMonitoring(deviceInfo.tempDatapoint.iseId, (data) => {
+        if (data === oldTempStr) {
+          return;
+        }
+        oldTempStr = data;
+        let temp = parseFloat(data);
+        if (!Number.isNaN(temp) && temp !== 0) {
+          tempDiv.innerText = temp.toLocaleString(undefined, {
+            maximumFractionDigits: 1,
+            minimumFractionDigits: 1
+          }) + '°C';
+        }
+      });
     }
   }
   outputFnc('');
@@ -477,9 +469,6 @@ function getHomematicValue(ise_id) {
     ;
 }
 
-/** key is the iseId
- * @type {Map<string, Set<(hmValue: string)=>void>>} */
-const monitorList = new Map();
 /**
  *
  * @param {string|undefined} iseId
@@ -509,6 +498,6 @@ let hmMonitoring = function () {
         })
       });
   }
-  setTimeout(hmMonitoring, 10000);
+  setTimeout(hmMonitoring, 1000);
 };
 hmMonitoring();
