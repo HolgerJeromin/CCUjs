@@ -223,20 +223,35 @@ function renderGui() {
             });
           break;
         }
+      case 'HmIP-SRH':  // Window Handle Sensor
+      {
+        datapointType = 'STATE';
+        let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+        addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
+          if (valueStr === '0') {
+            homematicDiv.style.backgroundColor = 'green';
+          } else if (valueStr === '1') {
+            homematicDiv.style.backgroundColor = 'orange';
+          } else if (valueStr === '2') {
+            homematicDiv.style.backgroundColor = 'red';
+          }
+        });
+        break;
+      }
       case 'HMIP-SWDO': // Window sensor
       case 'HmIP-SWDO-I': // integrated
-        {
-          datapointType = 'STATE';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-          addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
-            if (valueStr === '0') {
-              homematicDiv.style.backgroundColor = 'green';
-            } else if (valueStr === '1') {
-              homematicDiv.style.backgroundColor = 'red';
-            }
-          });
-          break;
-        }
+      {
+        datapointType = 'STATE';
+        let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+        addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
+          if (valueStr === '0') {
+            homematicDiv.style.backgroundColor = 'green';
+          } else if (valueStr === '1') {
+            homematicDiv.style.backgroundColor = 'red';
+          }
+        });
+        break;
+      }
       case 'HmIP-SWD': // Water sensor
         {
           datapointType = 'WATERLEVEL_DETECTED';
