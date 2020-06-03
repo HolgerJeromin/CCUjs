@@ -275,7 +275,7 @@ function renderGui() {
           for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
             let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
             homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevel.iseId));
-            homematicDiv.firstChild.nodeValue = deviceInfo.firstStateOrLevelDatapointName;
+            homematicDiv.firstElementChild.firstChild.nodeValue = deviceInfo.firstStateOrLevel.name;
           }
           break;
         }
