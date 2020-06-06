@@ -198,9 +198,9 @@ function renderGui() {
               } else if (value == 0) {
                 homematicDiv.style.background = 'gray';
               } else if (value <= 0.2) {
-                homematicDiv.style.background = 'repeating-linear-gradient(gray, gray 20px, green 20px, green 25px)';
+                homematicDiv.style.background = 'repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)';
               } else {
-                homematicDiv.style.background = 'linear-gradient(0deg, green ' + ((value - 0.2) * (100 / 80)) * 100 + '%, gray 0)'
+                homematicDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value - 0.2) * (100 / 80)) * 100 + '%, gray 0)'
               }
             });
 
@@ -287,7 +287,7 @@ function renderGui() {
           break;
         }
     }
-
+    /*
     if (deviceInfo.tempDatapoint.iseId) {
       let oldTempStr;
       let tempDiv = document.createElement('div');
@@ -307,6 +307,7 @@ function renderGui() {
         }
       });
     }
+    */
   }
   outputFnc('');
 }
