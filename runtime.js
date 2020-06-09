@@ -317,9 +317,9 @@ function renderGui() {
         }
         oldLowBatStr = valueStr;
         if (valueStr !== 'true') {
-          homematicDiv.style.borderColor = 'red';
+          homematicDiv.style.border = 'green 2px solid';
         } else {
-          homematicDiv.style.borderColor = 'green';
+          homematicDiv.style.border = 'red 2px solid';
         }
       });
       addHmMonitoring(deviceInfo.batteryDatapoint.opVoltIseId, (valueStr) => {
