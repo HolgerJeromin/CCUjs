@@ -206,6 +206,7 @@ function renderGui() {
 
           break;
         }
+      case 'HMIP-PS': // Power Switch
       case 'HMIP-PSM': // Power Switch Measurement
       case 'HmIP-FSM': // flush-mounted Switch Measurement
       case 'HmIP-BSM': // UP Switch Measurement
@@ -265,6 +266,24 @@ function renderGui() {
           });
           break;
         }
+        case 'HmIP-SWSD': // Smoke Alarm
+          {
+            datapointType = 'SMOKE_DETECTOR_ALARM_STATUS';
+            let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+            addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
+              if (valueStr !== '0') {
+                homematicDiv.style.backgroundColor = 'red';
+              } else {
+                homematicDiv.style.backgroundColor = 'green';
+              }
+            });
+            break;
+          }
+      case 'HmIP-KRC4':
+        {
+          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress);
+          break;
+        }
       case 'HmIP-RCV-50':
         {
           // Special
@@ -287,27 +306,36 @@ function renderGui() {
           break;
         }
     }
-    /*
-    if (deviceInfo.tempDatapoint.iseId) {
-      let oldTempStr;
-      let tempDiv = document.createElement('div');
-      tempDiv.classList.add('temperature');
-      homematicDiv.appendChild(tempDiv);
-      addHmMonitoring(deviceInfo.tempDatapoint.iseId, (data) => {
-        if (data === oldTempStr) {
+    if (deviceInfo.batteryDatapoint.lowBatIseId) {
+      let oldLowBatStr, oldOpVoltStr;
+      let opVoltDiv = document.createElement('div');
+      opVoltDiv.classList.add('opVolt');
+      homematicDiv.appendChild(opVoltDiv);
+      addHmMonitoring(deviceInfo.batteryDatapoint.lowBatIseId, (valueStr) => {
+        if (valueStr === oldLowBatStr) {
           return;
         }
-        oldTempStr = data;
-        let temp = parseFloat(data);
-        if (!Number.isNaN(temp) && temp !== 0) {
-          tempDiv.innerText = temp.toLocaleString(undefined, {
+        oldLowBatStr = valueStr;
+        if (valueStr !== 'true') {
+          homematicDiv.style.borderColor = 'red';
+        } else {
+          homematicDiv.style.borderColor = 'green';
+        }
+      });
+      addHmMonitoring(deviceInfo.batteryDatapoint.opVoltIseId, (valueStr) => {
+        if (valueStr === oldOpVoltStr) {
+          return;
+        }
+        oldOpVoltStr = valueStr;
+        let opVolt = parseFloat(valueStr);
+        if (!Number.isNaN(opVolt) && opVolt !== 0) {
+          opVoltDiv.innerText = opVolt.toLocaleString(undefined, {
             maximumFractionDigits: 1,
             minimumFractionDigits: 1
-          }) + '°C';
+          }) + 'V';
         }
       });
     }
-    */
   }
   outputFnc('');
 }
@@ -345,6 +373,11 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
   }
   let tempDatapointNode =
     stateList_deviceNode.querySelector('datapoint[type="' + 'ACTUAL_TEMPERATURE' + '"]');
+  let lowBatDatapointNode =
+    stateList_deviceNode.querySelector('datapoint[type="' + 'LOW_BAT' + '"]');
+  let opVoltDatapointNode =
+    stateList_deviceNode.querySelector('datapoint[type="' + 'OPERATING_VOLTAGE' + '"]');
+  
 
   return {
     device: {
@@ -362,6 +395,11 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
     tempDatapoint: {
       iseId: tempDatapointNode?.getAttribute('ise_id'),
       name: tempDatapointNode?.getAttribute('name')
+    },
+    batteryDatapoint: {
+      lowBatIseId: lowBatDatapointNode?.getAttribute('ise_id'),
+      name: lowBatDatapointNode?.getAttribute('name'),
+      opVoltIseId: opVoltDatapointNode?.getAttribute('ise_id'),
     }
   };
 }
@@ -392,7 +430,7 @@ function clickHandler(evt) {
     target.dataset.hmActorDatapointId,
     target.dataset.hmActorValue
   )
-    .then(data => {
+    .then(doc => {
       outputFnc('Success in writing value: ' + target.dataset.hmActorValue, 'color: green;');
     })
 }
@@ -449,11 +487,11 @@ function getMultipleHomematicValue(iseIds) {
   )
     .then(response => response.text())
     .then(str => (DomParser).parseFromString(str, "text/xml"))
-    .then(data => {
+    .then(doc => {
       /**@type {Map<string, string>} */
       let valueMap = new Map();
       iseIds.forEach(id => {
-        valueMap.set(id, data.querySelector('datapoint[ise_id="' + id + '"]')?.getAttribute('value'));
+        valueMap.set(id, doc.querySelector('datapoint[ise_id="' + id + '"]')?.getAttribute('value'));
       });
       return valueMap;
     })
@@ -475,8 +513,8 @@ function getHomematicValue(ise_id) {
   )
     .then(response => response.text())
     .then(str => (DomParser).parseFromString(str, "text/xml"))
-    .then(data => {
-      return data.querySelector('datapoint[ise_id="' + ise_id + '"]')?.getAttribute('value');
+    .then(doc => {
+      return doc.querySelector('datapoint[ise_id="' + ise_id + '"]')?.getAttribute('value');
     })
     .catch(ex => {
       console.error(ex);
