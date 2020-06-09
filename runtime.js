@@ -160,7 +160,10 @@ if (parseSuccess) {
  * @param {string} string
  */
 function ansiToNativeString(string) {
-  return string.replace(/�/g, 'ü')
+  return string
+    .replace(/K�che/g, 'Küche')
+    .replace(/T�r/g, 'Tür')
+    .replace(/ger�t/g, 'gerät')
 }
 
 function renderGui() {
@@ -186,11 +189,12 @@ function renderGui() {
         {
           datapointType = 'LEVEL';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
-          homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstStateOrLevel.iseId));
-          homematicDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstStateOrLevel.iseId));
-          homematicDiv.appendChild(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevel.iseId));
-          homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstStateOrLevel.iseId));
-
+          if (homematicDiv.dataset.hmReadonly === undefined) {
+            homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstStateOrLevel.iseId));
+          }
           addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
               let value = parseFloat(valueStr);
               if (isNaN(value)) {
@@ -213,8 +217,10 @@ function renderGui() {
         {
           datapointType = 'STATE';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-          homematicDiv.appendChild(createButton('An', 'true', deviceInfo.firstStateOrLevel.iseId));
-          homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.firstStateOrLevel.iseId));
+          if (homematicDiv.dataset.hmReadonly === undefined){
+            homematicDiv.appendChild(createButton('An', 'true', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.firstStateOrLevel.iseId));
+          }
           addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
               if (valueStr === 'true') {
                 homematicDiv.style.backgroundColor = 'yellow';
@@ -293,7 +299,9 @@ function renderGui() {
           }
           for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
             let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
-            homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevel.iseId));
+            if (homematicDiv.dataset.hmReadonly === undefined) {
+              homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevel.iseId));
+            }
             homematicDiv.firstElementChild.firstChild.nodeValue = deviceInfo.firstStateOrLevel.name;
           }
           break;
@@ -332,11 +340,31 @@ function renderGui() {
           opVoltDiv.innerText = opVolt.toLocaleString(undefined, {
             maximumFractionDigits: 1,
             minimumFractionDigits: 1
-          }) + 'V';
+          }) + ' V';
+        }
+      });
+    }
+    if (deviceInfo.power.iseId) {
+      let oldPowerStr;
+      let powerDiv = document.createElement('div');
+      powerDiv.classList.add('power');
+      homematicDiv.appendChild(powerDiv);
+      addHmMonitoring(deviceInfo.power.iseId, (valueStr) => {
+        if (valueStr === oldPowerStr) {
+          return;
+        }
+        oldPowerStr = valueStr;
+        let power = parseFloat(valueStr);
+        if (!Number.isNaN(power)) {
+          powerDiv.innerText = power.toLocaleString(undefined, {
+            maximumFractionDigits: 1,
+            minimumFractionDigits: 1
+          }) + ' ' + deviceInfo.power.valueunit;
         }
       });
     }
   }
+  
   outputFnc('');
 }
 
@@ -371,6 +399,8 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
         stateList_deviceNode.querySelector('datapoint[type="' + datapointType + '"]');
     }
   }
+  let powerDatapointNode =
+    stateList_deviceNode.querySelector('datapoint[type="' + 'POWER' + '"]');
   let tempDatapointNode =
     stateList_deviceNode.querySelector('datapoint[type="' + 'ACTUAL_TEMPERATURE' + '"]');
   let lowBatDatapointNode =
@@ -400,6 +430,11 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
       lowBatIseId: lowBatDatapointNode?.getAttribute('ise_id'),
       name: lowBatDatapointNode?.getAttribute('name'),
       opVoltIseId: opVoltDatapointNode?.getAttribute('ise_id'),
+    },
+    power:{
+      iseId: powerDatapointNode?.getAttribute('ise_id'),
+      name: powerDatapointNode?.getAttribute('name'),
+      valueunit: powerDatapointNode?.getAttribute('valueunit')
     }
   };
 }
