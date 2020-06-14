@@ -1,6 +1,6 @@
 /// @ts-check
 
-const host = '//ccu3-wz';
+const host = '//192.168.0.46';
 const baseXMLAPIpath = '/addons/xmlapi/';
 
 const devicelistUrl = host + baseXMLAPIpath + 'devicelist.cgi';
@@ -190,10 +190,10 @@ function renderGui() {
           datapointType = 'LEVEL';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
           if (homematicDiv.dataset.hmReadonly === undefined) {
-            homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstStateOrLevel.iseId));
-            homematicDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstStateOrLevel.iseId));
-            homematicDiv.appendChild(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevel.iseId));
-            homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstStateOrLevel.iseId));
+            labelDiv.after(createButton('Hoch', '1', deviceInfo.firstStateOrLevel.iseId));
+            labelDiv.after(createButton('Halb', '0.6', deviceInfo.firstStateOrLevel.iseId));
+            labelDiv.after(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevel.iseId));
+            labelDiv.after(createButton('Runter', '0', deviceInfo.firstStateOrLevel.iseId));
           }
           addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
               let value = parseFloat(valueStr);
@@ -218,8 +218,8 @@ function renderGui() {
           datapointType = 'STATE';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
           if (homematicDiv.dataset.hmReadonly === undefined){
-            homematicDiv.appendChild(createButton('An', 'true', deviceInfo.firstStateOrLevel.iseId));
-            homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.firstStateOrLevel.iseId));
+            labelDiv.after(createButton('An', 'true', deviceInfo.firstStateOrLevel.iseId));
+            labelDiv.after(createButton('Aus', 'false', deviceInfo.firstStateOrLevel.iseId));
           }
           addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
               if (valueStr === 'true') {
@@ -277,17 +277,37 @@ function renderGui() {
             datapointType = 'SMOKE_DETECTOR_ALARM_STATUS';
             let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
             addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
-              if (valueStr !== '0') {
-                homematicDiv.style.backgroundColor = 'red';
-              } else {
+              if (valueStr === '0') {
+                // Idle Off
                 homematicDiv.style.backgroundColor = 'green';
+              } else if (valueStr === '1') {
+                // Primary (own) Alarm
+                homematicDiv.style.backgroundColor = 'red';
+              } else if (valueStr === '2') {
+                // Intrusion Detection
+                homematicDiv.style.backgroundColor = 'yellow';
+              } else if (valueStr === '3') {
+                // Secondary (remote) Alarm
+                homematicDiv.style.backgroundColor = 'indianred';
               }
             });
             break;
           }
-      case 'HmIP-KRC4':
+      case 'HmIP-KRC4': // FB 4
         {
+          let oldLowBatStr;
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress);
+          addHmMonitoring(deviceInfo.batteryDatapoint.lowBatIseId, (valueStr) => {
+            if (valueStr === oldLowBatStr) {
+              return;
+            }
+            oldLowBatStr = valueStr;
+            if (valueStr !== 'true') {
+              homematicDiv.style.backgroundColor = 'green';
+            } else {
+              homematicDiv.style.backgroundColor = 'red';
+            }
+          });
           break;
         }
       case 'HmIP-RCV-50':
@@ -300,7 +320,7 @@ function renderGui() {
           for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
             let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
             if (homematicDiv.dataset.hmReadonly === undefined) {
-              homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevel.iseId));
+              labelDiv.after(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevel.iseId));
             }
             homematicDiv.firstElementChild.firstChild.nodeValue = deviceInfo.firstStateOrLevel.name;
           }
@@ -314,7 +334,7 @@ function renderGui() {
           break;
         }
     }
-    if (deviceInfo.batteryDatapoint.lowBatIseId) {
+  if (deviceInfo.batteryDatapoint.lowBatIseId) {
       let oldLowBatStr, oldOpVoltStr;
       let opVoltDiv = document.createElement('div');
       opVoltDiv.classList.add('opVolt');
@@ -325,9 +345,9 @@ function renderGui() {
         }
         oldLowBatStr = valueStr;
         if (valueStr !== 'true') {
-          homematicDiv.style.border = 'green 2px solid';
+          homematicDiv.style.borderColor = 'green';
         } else {
-          homematicDiv.style.border = 'red 2px solid';
+          homematicDiv.style.borderColor = 'red';
         }
       });
       addHmMonitoring(deviceInfo.batteryDatapoint.opVoltIseId, (valueStr) => {
@@ -364,7 +384,7 @@ function renderGui() {
       });
     }
   }
-  
+
   outputFnc('');
 }
 
@@ -407,7 +427,7 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
     stateList_deviceNode.querySelector('datapoint[type="' + 'LOW_BAT' + '"]');
   let opVoltDatapointNode =
     stateList_deviceNode.querySelector('datapoint[type="' + 'OPERATING_VOLTAGE' + '"]');
-  
+
 
   return {
     device: {
@@ -542,6 +562,9 @@ function getMultipleHomematicValue(iseIds) {
  * @param {string} ise_id
  */
 function getHomematicValue(ise_id) {
+  if(!ise_id){
+    return new Promise(data => {});
+  }
   return fetch(
     stateUrl
     + '?' + 'datapoint_id=' + ise_id
