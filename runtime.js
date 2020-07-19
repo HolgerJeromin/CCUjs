@@ -185,15 +185,16 @@ function renderGui() {
     homematicDiv.title = deviceInfo.device.type;
     /** @type string|undefined */
     switch (deviceInfo.device.type) {
+      case 'HmIP-FROLL': // AP Rolladen
       case 'HmIP-BROLL': // UP Rolladen
         {
           datapointType = 'LEVEL';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
           if (homematicDiv.dataset.hmReadonly === undefined) {
-            labelDiv.after(createButton('Hoch', '1', deviceInfo.firstStateOrLevel.iseId));
-            labelDiv.after(createButton('Halb', '0.6', deviceInfo.firstStateOrLevel.iseId));
-            labelDiv.after(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevel.iseId));
-            labelDiv.after(createButton('Runter', '0', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('Streifen', '0.2', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstStateOrLevel.iseId));
           }
           addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
               let value = parseFloat(valueStr);
@@ -218,8 +219,8 @@ function renderGui() {
           datapointType = 'STATE';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
           if (homematicDiv.dataset.hmReadonly === undefined){
-            labelDiv.after(createButton('An', 'true', deviceInfo.firstStateOrLevel.iseId));
-            labelDiv.after(createButton('Aus', 'false', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('An', 'true', deviceInfo.firstStateOrLevel.iseId));
+            homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.firstStateOrLevel.iseId));
           }
           addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
               if (valueStr === 'true') {
@@ -320,7 +321,7 @@ function renderGui() {
           for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
             let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
             if (homematicDiv.dataset.hmReadonly === undefined) {
-              labelDiv.after(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevel.iseId));
+              homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.firstStateOrLevel.iseId));
             }
             homematicDiv.firstElementChild.firstChild.nodeValue = deviceInfo.firstStateOrLevel.name;
           }
