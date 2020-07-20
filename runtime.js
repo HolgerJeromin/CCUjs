@@ -186,7 +186,30 @@ function renderGui() {
     /** @type string|undefined */
     switch (deviceInfo.device.type) {
       case 'HmIP-FROLL': // AP Rolladen
-      case 'HmIP-BROLL': // UP Rolladen
+      {
+        datapointType = 'LEVEL';
+        let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
+        if (homematicDiv.dataset.hmReadonly === undefined) {
+          homematicDiv.appendChild(document.createElement('div'));
+          homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstStateOrLevel.iseId));
+          homematicDiv.appendChild(createButton('Halb', '0.5', deviceInfo.firstStateOrLevel.iseId));
+          homematicDiv.appendChild(createButton('80%', '0.2', deviceInfo.firstStateOrLevel.iseId));
+          homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstStateOrLevel.iseId));
+        }
+        addHmMonitoring(deviceInfo.firstStateOrLevel.iseId, (valueStr) => {
+            let value = parseFloat(valueStr);
+            if (isNaN(value)) {
+              homematicDiv.style.background = 'red';
+            } else if (value == 0) {
+              homematicDiv.style.background = 'gray';
+            } else {
+              homematicDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value ) * (100 / 100)) * 100 + '%, gray 0)'
+            }
+          });
+
+        break;
+      }
+    case 'HmIP-BROLL': // UP Rolladen
         {
           datapointType = 'LEVEL';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);

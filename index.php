@@ -13,6 +13,7 @@
         }
 
         [data-hm-adress] {
+            font-size: 0.9rem;
             display: flex;
             flex-direction: column;
 
@@ -45,6 +46,16 @@
 
 <body>
     <div class="actors">
+<!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
+<!-- Markise -->   <div data-hm-adress="00115A499F41AF" 
+style="
+grid-column-end: span 2;
+display: grid;
+grid-template-columns: repeat(2, auto);
+grid-gap:0.2em;
+    "></div>
+<!-- Licht Haus Aussen -->   <div data-hm-adress="00085A49901C69"></div>
+
 <!-- Rolladen DG Laura -->   <div data-hm-adress="00111A498BF963"></div>
 <!-- Rolladen DG Vera -->   <div data-hm-adress="00111A498BF94A"></div>
 <!-- Rolladen DG AZ -->   <div data-hm-adress="00111A498BF95C"></div>
@@ -60,31 +71,28 @@
 <!-- Verschluss DG AZ -->   <div data-hm-adress="00109A498FC33A"></div>
 <!-- Verschluss DG SZ -->   <div data-hm-adress="0007DA49992F5E"></div>
 
-<!-- Verschluss  EG Küche Tür -->   <div data-hm-adress="00109A49A27CFF"></div>
-<!-- Verschluss  EG WZ Tür rechts -->   <div data-hm-adress="0007DA4999323A"></div>
-<!-- Verschluss  EG Bad -->   <div data-hm-adress="0007DA49903277"></div>
-
+<!-- Verschluss EG Küche Tür -->   <div data-hm-adress="00109A49A27CFF"></div>
+<!-- Verschluss EG WZ Tür rechts -->   <div data-hm-adress="0007DA4999323A"></div>
+<!-- Verschluss EG Bad -->   <div data-hm-adress="0007DA49903277"></div>
 <!-- Verschluss DG Bad -->   <div data-hm-adress="0000DA498D222E"></div>
+
 <!-- Wasser KG Sauna -->   <div data-hm-adress="001898A99F5399"></div>
 <!-- Wasser KG Technik -->   <div data-hm-adress="001898A99F536C"></div>
 <!-- FB Laura -->   <div data-hm-adress="0002DA499DDD0B"></div>
-
-<!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
+<!-- FB Laura -->   <div data-hm-adress="0002DA499DDD0B"></div>
 
 <!-- Rolladen EG WZ Fenster -->   <div data-hm-adress="00111A498BF941"></div>
 <!-- Rolladen EG WZ Tür links -->   <div data-hm-adress="00111A498BF95D"></div>
 <!-- Rolladen EG WZ Tür rechts -->   <div data-hm-adress="00111A498BF92D"></div>
-
 <!-- Rolladen EG Küche Fenster -->   <div data-hm-adress="00111A498BF962"></div>
-<!-- Rolladen EG Küche Tür -->   <div data-hm-adress="00111A498BF927"></div>
 
+<!-- Rolladen EG Küche Tür -->   <div data-hm-adress="00111A498BF927"></div>
 <!-- Rolladen EG Bad -->   <div data-hm-adress="00111A498BF96B"></div>
 <!-- Rolladen EG Gast -->   <div data-hm-adress="00111A498BF929"></div>
 <!-- Rolladen EG Flur -->   <div data-hm-adress="00111A498BF945"></div>
 
 <!-- Heizung KG Spielen links -->   <div data-hm-adress="0001D3C99C6BCE"></div>
 <!-- Heizung KG Spielen rechts -->   <div data-hm-adress="0001D3C99CB1D5"></div>
-<!-- Licht Haus Aussen -->   <div data-hm-adress="00085A49901C69"></div>
 <!-- Licht Hausnr -->   <div data-hm-adress="00089A4996736F"></div>
 
 <!-- Rauch Garten -->   <div data-hm-adress="000A5A49A5A4F1"></div>
@@ -107,7 +115,6 @@
 <!-- Rauch KG Technik -->   <div data-hm-adress="000A58A9AC4DBA"></div>
 
 <!-- Messgerät do not switch! -->   <div data-hm-adress="0001D3C99C7401" data-hm-readonly></div>
-<!-- Markise -->   <div data-hm-adress="00115A499F41AF"></div>
 
 <!-- Router Spitzboden -->   <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
 
