@@ -190,7 +190,6 @@ function renderGui() {
         datapointType = 'LEVEL';
         let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
         if (homematicDiv.dataset.hmReadonly === undefined) {
-          homematicDiv.appendChild(document.createElement('div'));
           homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstStateOrLevel.iseId));
           homematicDiv.appendChild(createButton('Halb', '0.5', deviceInfo.firstStateOrLevel.iseId));
           homematicDiv.appendChild(createButton('80%', '0.2', deviceInfo.firstStateOrLevel.iseId));
