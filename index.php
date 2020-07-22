@@ -41,20 +41,24 @@
             font-size: xx-small;
             align-self: flex-end;
         }
+
+        [data-hm-adress].colspan2 {
+            grid-column-end: span 2;
+            display: grid;
+            grid-template-columns: repeat(2, auto);
+            grid-gap:0.2em;
+        }
+        [data-hm-adress].colspan2 > *:first-child {
+            grid-column-end: span 2;
+        }
     </style>
 </head>
 
 <body>
     <div class="actors">
 <!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
-<!-- Markise -->   <div data-hm-adress="00115A499F41AF" 
-style="
-grid-column-end: span 2;
-display: grid;
-grid-template-columns: repeat(2, auto);
-grid-gap:0.2em;
-    "></div>
 <!-- Licht Haus Aussen -->   <div data-hm-adress="00085A49901C69"></div>
+<!-- Markise -->   <div data-hm-adress="00115A499F41AF" class="colspan2"></div>
 
 <!-- Rolladen DG Laura -->   <div data-hm-adress="00111A498BF963"></div>
 <!-- Rolladen DG Vera -->   <div data-hm-adress="00111A498BF94A"></div>
