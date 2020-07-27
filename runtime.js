@@ -10,7 +10,7 @@ const statechangeUrl = host + baseXMLAPIpath + 'statechange.cgi';
 const stateUrl = host + baseXMLAPIpath + 'state.cgi';
 
 const hmIpBslColorMap = [
-  'BLACK',
+  'gray',
   'BLUE',
   'GREEN',
   'TURQUOISE',
@@ -142,7 +142,7 @@ const devicelistPromise =
         // skip
       }
       return str;
-     })
+    })
     .then(str => stringToDocument(str, 'devicelist'))
     .catch(ex => {
       console.error(ex);
@@ -196,30 +196,30 @@ function renderGui() {
     homematicDiv.title = deviceInfo.device.type;
     /** @type string|undefined */
     switch (deviceInfo.device.type) {
-      case 'HmIP-FROLL': // AP Rolladen
-      {
-        datapointType = 'LEVEL';
-        let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
-        if (homematicDiv.dataset.hmReadonly === undefined) {
-          homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstActorChannel.iseId));
-          homematicDiv.appendChild(createButton('Halb', '0.5', deviceInfo.firstActorChannel.iseId));
-          homematicDiv.appendChild(createButton('80%', '0.2', deviceInfo.firstActorChannel.iseId));
-          homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstActorChannel.iseId));
-        }
-        addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
+      case 'HmIP-FROLL': // Shutter actuator - flush mount
+        {
+          datapointType = 'LEVEL';
+          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
+          if (homematicDiv.dataset.hmReadonly === undefined) {
+            homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstActorChannel.iseId));
+            homematicDiv.appendChild(createButton('Halb', '0.5', deviceInfo.firstActorChannel.iseId));
+            homematicDiv.appendChild(createButton('80%', '0.2', deviceInfo.firstActorChannel.iseId));
+            homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstActorChannel.iseId));
+          }
+          addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
               homematicDiv.style.background = 'red';
             } else if (value == 0) {
               homematicDiv.style.background = 'gray';
             } else {
-              homematicDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value ) * (100 / 100)) * 100 + '%, gray 0)'
+              homematicDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value) * (100 / 100)) * 100 + '%, gray 0)'
             }
           });
 
-        break;
-      }
-    case 'HmIP-BROLL': // UP Rolladen
+          break;
+        }
+      case 'HmIP-BROLL': // Shutter actuator for Brand Switch Systems
         {
           datapointType = 'LEVEL';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
@@ -230,70 +230,70 @@ function renderGui() {
             homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstActorChannel.iseId));
           }
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-              let value = parseFloat(valueStr);
-              if (isNaN(value)) {
-                homematicDiv.style.background = 'red';
-              } else if (value == 0) {
-                homematicDiv.style.background = 'gray';
-              } else if (value <= 0.2) {
-                homematicDiv.style.background = 'repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)';
-              } else {
-                homematicDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value - 0.2) * (100 / 80)) * 100 + '%, gray 0)'
-              }
-            });
+            let value = parseFloat(valueStr);
+            if (isNaN(value)) {
+              homematicDiv.style.background = 'repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px)';
+            } else if (value == 0) {
+              homematicDiv.style.background = 'gray';
+            } else if (value <= 0.2) {
+              homematicDiv.style.background = 'repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)';
+            } else {
+              homematicDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value - 0.2) * (100 / 80)) * 100 + '%, gray 0)'
+            }
+          });
 
           break;
         }
-      case 'HMIP-PS': // Power Switch
-      case 'HMIP-PSM': // Power Switch Measurement
-      case 'HmIP-FSM': // flush-mounted Switch Measurement
-      case 'HmIP-BSM': // UP Switch Measurement
+      case 'HMIP-PS': // Pluggable Switch
+      case 'HMIP-PSM': // Pluggable Switch with Measuring
+      case 'HmIP-FSM': // Full flush switch actuator with Measuring
+      case 'HmIP-BSM': // Switch actuator with Measuring for Brand Switch Systems
         {
           datapointType = 'STATE';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-          if (homematicDiv.dataset.hmReadonly === undefined){
+          if (homematicDiv.dataset.hmReadonly === undefined) {
             homematicDiv.appendChild(createButton('An', 'true', deviceInfo.selectedDatapoints[1].iseId));
             homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.selectedDatapoints[1].iseId));
           }
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-              if (valueStr === 'true') {
-                homematicDiv.style.backgroundColor = 'yellow';
-              } else if (valueStr === 'false') {
-                homematicDiv.style.backgroundColor = 'gray';
-              }
-            });
+            if (valueStr === 'true') {
+              homematicDiv.style.backgroundColor = 'yellow';
+            } else if (valueStr === 'false') {
+              homematicDiv.style.backgroundColor = 'gray';
+            }
+          });
           break;
         }
       case 'HmIP-SRH':  // Window Handle Sensor
-      {
-        datapointType = 'STATE';
-        let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-        addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-          if (valueStr === '0') {
-            homematicDiv.style.backgroundColor = 'green';
-          } else if (valueStr === '1') {
-            homematicDiv.style.backgroundColor = 'orange';
-          } else if (valueStr === '2') {
-            homematicDiv.style.backgroundColor = 'red';
-          }
-        });
-        break;
-      }
-      case 'HMIP-SWDO': // Window sensor
-      case 'HmIP-SWDO-I': // integrated
-      {
-        datapointType = 'STATE';
-        let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-        addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-          if (valueStr === '0') {
-            homematicDiv.style.backgroundColor = 'green';
-          } else if (valueStr === '1') {
-            homematicDiv.style.backgroundColor = 'red';
-          }
-        });
-        break;
-      }
-      case 'HmIP-SWD': // Water sensor
+        {
+          datapointType = 'STATE';
+          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
+            if (valueStr === '0') {
+              homematicDiv.style.backgroundColor = 'green';
+            } else if (valueStr === '1') {
+              homematicDiv.style.backgroundColor = 'orange';
+            } else if (valueStr === '2') {
+              homematicDiv.style.backgroundColor = 'red';
+            }
+          });
+          break;
+        }
+      case 'HMIP-SWDO': // Wireless Window/Door Sensor (optic)
+      case 'HmIP-SWDO-I': // Wireless Window/Door Sensor integrated
+        {
+          datapointType = 'STATE';
+          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
+            if (valueStr === '0') {
+              homematicDiv.style.backgroundColor = 'green';
+            } else if (valueStr === '1') {
+              homematicDiv.style.backgroundColor = 'red';
+            }
+          });
+          break;
+        }
+      case 'HmIP-SWD': // Watersensor
         {
           datapointType = 'WATERLEVEL_DETECTED';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
@@ -306,28 +306,28 @@ function renderGui() {
           });
           break;
         }
-        case 'HmIP-SWSD': // Smoke Alarm
-          {
-            datapointType = 'SMOKE_DETECTOR_ALARM_STATUS';
-            let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-            addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-              if (valueStr === '0') {
-                // Idle Off
-                homematicDiv.style.backgroundColor = 'green';
-              } else if (valueStr === '1') {
-                // Primary (own) Alarm
-                homematicDiv.style.backgroundColor = 'red';
-              } else if (valueStr === '2') {
-                // Intrusion Detection
-                homematicDiv.style.backgroundColor = 'yellow';
-              } else if (valueStr === '3') {
-                // Secondary (remote) Alarm
-                homematicDiv.style.backgroundColor = 'indianred';
-              }
-            });
-            break;
-          }
-      case 'HmIP-KRC4': // FB 4
+      case 'HmIP-SWSD': // Smoke Detektor
+        {
+          datapointType = 'SMOKE_DETECTOR_ALARM_STATUS';
+          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
+            if (valueStr === '0') {
+              // Idle Off
+              homematicDiv.style.backgroundColor = 'green';
+            } else if (valueStr === '1') {
+              // Primary (own) Alarm
+              homematicDiv.style.backgroundColor = 'red';
+            } else if (valueStr === '2') {
+              // Intrusion Detection
+              homematicDiv.style.backgroundColor = 'yellow';
+            } else if (valueStr === '3') {
+              // Secondary (remote) Alarm
+              homematicDiv.style.backgroundColor = 'indianred';
+            }
+          });
+          break;
+        }
+      case 'HmIP-KRC4': // Keyring Remote Control - 4 Buttons
         {
           let oldLowBatStr;
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress);
@@ -344,15 +344,22 @@ function renderGui() {
           });
           break;
         }
-      case 'HmIP-BSL':
+      case 'HmIP-BSL': // Switch actuator for brand switches – with Signal Lamp
         {
           datapointType = 'COLOR';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+
+          let bslTop = document.createElement('div');
+          bslTop.style.cssText = 'height: 1em;border: 1px solid black;padding: 0px;margin: 0;';
+          homematicDiv.appendChild(bslTop);
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            homematicDiv.style.backgroundColor = hmIpBslColorMap[valueStr];
+            bslTop.style.backgroundColor = hmIpBslColorMap[valueStr];
           });
+          let bslBottom = document.createElement('div');
+          bslBottom.style.cssText = 'height: 1em;border: 1px solid black;padding: 0px;margin: 0;';
+          homematicDiv.appendChild(bslBottom);
           addHmMonitoring(deviceInfo.selectedDatapoints[4].iseId, (valueStr) => {
-            homematicDiv.style.borderColor = hmIpBslColorMap[valueStr];
+            bslBottom.style.backgroundColor = hmIpBslColorMap[valueStr];
           });
           break;
         }
@@ -380,7 +387,7 @@ function renderGui() {
           break;
         }
     }
-  if (deviceInfo.batteryDatapoint.lowBatIseId) {
+    if (deviceInfo.batteryDatapoint.lowBatIseId) {
       let oldLowBatStr, oldOpVoltStr;
       let opVoltDiv = document.createElement('div');
       opVoltDiv.classList.add('opVolt');
@@ -466,9 +473,9 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
     //     stateList_firstActorChannelNode?.querySelector('datapoint[type="' + datapointType + '"]');
     // } else {
     //   // No Actor. Find first datapointType
-      selectedDatapointNodes =
-        stateList_deviceNode.querySelectorAll('datapoint[type="' + datapointType + '"]');
-//    }
+    selectedDatapointNodes =
+      stateList_deviceNode.querySelectorAll('datapoint[type="' + datapointType + '"]');
+    //    }
     selectedDatapointNodes.forEach(data => {
       selectedDatapointNodeArray.push({
         iseId: data?.getAttribute('ise_id'),
@@ -504,7 +511,7 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
       name: lowBatDatapointNode?.getAttribute('name'),
       opVoltIseId: opVoltDatapointNode?.getAttribute('ise_id'),
     },
-    power:{
+    power: {
       iseId: powerDatapointNode?.getAttribute('ise_id'),
       name: powerDatapointNode?.getAttribute('name'),
       valueunit: powerDatapointNode?.getAttribute('valueunit')
@@ -615,8 +622,8 @@ function getMultipleHomematicValue(iseIds) {
  * @param {string} ise_id
  */
 function getHomematicValue(ise_id) {
-  if(!ise_id){
-    return new Promise(data => {});
+  if (!ise_id) {
+    return new Promise(data => { });
   }
   return fetch(
     stateUrl
