@@ -1,6 +1,6 @@
 /// @ts-check
 
-const host = '//192.168.0.46';
+const host = '//' + document.body.dataset.hmXmlapiHost;
 const baseXMLAPIpath = '/addons/xmlapi/';
 
 const devicelistUrl = host + baseXMLAPIpath + 'devicelist.cgi';
@@ -209,7 +209,7 @@ function renderGui() {
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
-              homematicDiv.style.background = 'red';
+              homematicDiv.style.background = 'repeating-linear-gradient(-55deg,#a0a0a0,#a0a0a0 10px,white 10px,white 20px)';
             } else if (value == 0) {
               homematicDiv.style.background = 'gray';
             } else {
@@ -311,8 +311,10 @@ function renderGui() {
           datapointType = 'SMOKE_DETECTOR_ALARM_STATUS';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
+            alarmOffBtn.style.display='';
             if (valueStr === '0') {
               // Idle Off
+              alarmOffBtn.style.display='none';
               homematicDiv.style.backgroundColor = 'green';
             } else if (valueStr === '1') {
               // Primary (own) Alarm
@@ -325,6 +327,9 @@ function renderGui() {
               homematicDiv.style.backgroundColor = 'indianred';
             }
           });
+          let detectorCommand = getDeviceInfo(homematicDiv.dataset.hmAdress, 'SMOKE_DETECTOR_COMMAND');
+          let alarmOffBtn = homematicDiv.appendChild(createButton('Alarm aus', '0', detectorCommand.selectedDatapoints[0].iseId));
+          // let testBtn = homematicDiv.appendChild(createButton('Test', '3', detectorCommand.selectedDatapoints[0].iseId));
           break;
         }
       case 'HmIP-KRC4': // Keyring Remote Control - 4 Buttons
@@ -546,7 +551,7 @@ function clickHandler(evt) {
     target.dataset.hmActorValue
   )
     .then(doc => {
-      outputFnc('Success in writing value: ' + target.dataset.hmActorValue + ', to ise id: ' + target.dataset.hmActorDatapointId, 'color: green;');
+      outputFnc('Success in writing value: ' + (doc? doc.firstElementChild?.firstElementChild?.getAttribute('new_value'):'') + ', to ise id: ' + (doc? doc.firstElementChild?.firstElementChild?.getAttribute('id'):''), 'color: green;');
     })
 }
 

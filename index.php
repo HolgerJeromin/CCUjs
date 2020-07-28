@@ -55,7 +55,7 @@
     </style>
 </head>
 
-<body>
+<body data-hm-xmlapi-host="192.168.0.46">
     <div class="actors">
 <!-- LED Flur --> <div data-hm-adress="001A5A49985A3E" style="grid-column: 1 / -1;margin:0;"></div>
 
