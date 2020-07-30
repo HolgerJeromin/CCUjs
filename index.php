@@ -78,10 +78,10 @@
 <!-- Verschluss DG AZ -->   <div data-hm-adress="00109A498FC33A"></div>
 <!-- Verschluss DG SZ -->   <div data-hm-adress="0007DA49992F5E"></div>
 
-<!-- Verschluss EG Küche Tür -->   <div data-hm-adress="00109A49A27CFF"></div>
-<!-- Verschluss EG WZ Tür rechts -->   <div data-hm-adress="0007DA4999323A"></div>
-<!-- Verschluss EG Bad -->   <div data-hm-adress="0007DA49903277"></div>
 <!-- Verschluss DG Bad -->   <div data-hm-adress="0000DA498D222E"></div>
+<!-- Verschluss EG WZ Tür rechts -->   <div data-hm-adress="0007DA4999323A"></div>
+<!-- Verschluss EG Küche Tür -->   <div data-hm-adress="00109A49A27CFF"></div>
+<!-- Verschluss EG Bad -->   <div data-hm-adress="0007DA49903277"></div>
 
 <!-- Wasser KG Sauna -->   <div data-hm-adress="001898A99F5399"></div>
 <!-- Wasser KG Technik -->   <div data-hm-adress="001898A99F536C"></div>
@@ -101,9 +101,10 @@
 <!-- Heizung KG Spielen links -->   <div data-hm-adress="0001D3C99C6BCE"></div>
 <!-- Heizung KG Spielen rechts -->   <div data-hm-adress="0001D3C99CB1D5"></div>
 <!-- Licht Hausnr -->   <div data-hm-adress="00089A4996736F"></div>
+<!-- Messgerät do not switch! -->   <div data-hm-adress="0001D3C99C7401" data-hm-readonly></div>
 
-<!-- Rauch Garten -->   <div data-hm-adress="000A5A49A5A4F1"></div>
 <!-- Rauch EG WZ -->   <div data-hm-adress="000A58A9AC4DCA"></div>
+<!-- Rauch Garten -->   <div data-hm-adress="000A5A49A5A4F1"></div>
 <!-- Rauch EG Gast -->   <div data-hm-adress="000A58A9AC4DC8"></div>
 <!-- Rauch EG Flur -->   <div data-hm-adress="000A58A9AC4CB5"></div>
 
@@ -112,17 +113,14 @@
 <!-- Rauch DG AZ -->   <div data-hm-adress="000A58A9AC4CCD"></div>
 <!-- Rauch DG SZ -->   <div data-hm-adress="000A58A9AC4DC6"></div>
 
-<!-- Rauch DG Flur -->   <div data-hm-adress="000A58A9AC4DB3"></div>
-<!-- Rauch Spitzboden -->   <div data-hm-adress="000A58A9AC4CD2"></div>
-
-<!-- Rauch KG Flur -->   <div data-hm-adress="000A58A9AC4DB9"></div>
 <!-- Rauch KG Spielen -->   <div data-hm-adress="000A58A9AC4DBD"></div>
 <!-- Rauch KG Vorrat -->   <div data-hm-adress="000A58A9AC4C9F"></div>
 <!-- Rauch KG Sauna -->   <div data-hm-adress="000A58A9AC4CD0"></div>
 <!-- Rauch KG Technik -->   <div data-hm-adress="000A58A9AC4DBA"></div>
 
-<!-- Messgerät do not switch! -->   <div data-hm-adress="0001D3C99C7401" data-hm-readonly></div>
-
+<!-- Rauch DG Flur -->   <div data-hm-adress="000A58A9AC4DB3"></div>
+<!-- Rauch KG Flur -->   <div data-hm-adress="000A58A9AC4DB9"></div>
+<!-- Rauch Spitzboden -->   <div data-hm-adress="000A58A9AC4CD2"></div>
 <!-- Router Spitzboden -->   <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
 
     </div>
