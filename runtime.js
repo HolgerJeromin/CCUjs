@@ -392,6 +392,9 @@ function renderGui() {
           break;
         }
     }
+    if (deviceInfo.device.unreachable) {
+      homematicDiv.style.opacity = '0.55';
+    }
     if (deviceInfo.batteryDatapoint.lowBatIseId) {
       let oldLowBatStr, oldOpVoltStr;
       let opVoltDiv = document.createElement('div');
@@ -500,7 +503,8 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
   return {
     device: {
       type: deviceList_deviceNode.getAttribute('device_type'),
-      deviceName: deviceList_deviceNode?.getAttribute('name')
+      deviceName: deviceList_deviceNode?.getAttribute('name'),
+      unreachable: stateList_deviceNode.getAttribute('unreach') === 'true' ? true : false
     },
     firstActorChannel: {
       iseId: firstActorChannelNode?.getAttribute('ise_id'),
