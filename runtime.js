@@ -1,5 +1,3 @@
-/// @ts-check
-
 const host = '//' + document.body.dataset.hmXmlapiHost;
 const baseXMLAPIpath = '/addons/xmlapi/';
 
@@ -8,17 +6,6 @@ const statelistUrl = host + baseXMLAPIpath + 'statelist.cgi';
 const valuechangeUrl = host + baseXMLAPIpath + 'mastervaluechange.cgi';
 const statechangeUrl = host + baseXMLAPIpath + 'statechange.cgi';
 const stateUrl = host + baseXMLAPIpath + 'state.cgi';
-
-const hmIpBslColorMap = [
-  'gray',
-  'BLUE',
-  'GREEN',
-  'TURQUOISE',
-  'RED',
-  'PURPLE',
-  'YELLOW',
-  'WHITE'
-]
 
 /** @type document */
 let devicelistDocument;
@@ -173,6 +160,7 @@ if (parseSuccess) {
 function ansiToNativeString(string) {
   return string
     .replace(/K�che/g, 'Küche')
+    .replace(/Schl�ssel/g, 'Schlüssel')
     .replace(/T�r/g, 'Tür')
     .replace(/ger�t/g, 'gerät')
 }
@@ -194,6 +182,7 @@ function renderGui() {
     homematicDiv.appendChild(labelDiv);
     //homematicDiv.appendChild(document.createTextNode(ansiToNativeString(deviceInfo.deviceName)));
     homematicDiv.title = deviceInfo.device.type;
+    homematicDiv.classList.add(deviceInfo.device.type);
     /** @type string|undefined */
     switch (deviceInfo.device.type) {
       case 'HmIP-FROLL': // Shutter actuator - flush mount
@@ -256,11 +245,8 @@ function renderGui() {
             homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.selectedDatapoints[1].iseId));
           }
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            if (valueStr === 'true') {
-              homematicDiv.style.backgroundColor = 'yellow';
-            } else if (valueStr === 'false') {
-              homematicDiv.style.backgroundColor = 'gray';
-            }
+            homematicDiv.classList.toggle('hm-power-state-on', valueStr === 'true');
+            homematicDiv.classList.toggle('hm-power-state-off', valueStr === 'false');
           });
           break;
         }
@@ -269,13 +255,9 @@ function renderGui() {
           datapointType = 'STATE';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            if (valueStr === '0') {
-              homematicDiv.style.backgroundColor = 'green';
-            } else if (valueStr === '1') {
-              homematicDiv.style.backgroundColor = 'orange';
-            } else if (valueStr === '2') {
-              homematicDiv.style.backgroundColor = 'red';
-            }
+            homematicDiv.classList.toggle('hm-position-closed', valueStr === '0');
+            homematicDiv.classList.toggle('hm-position-tilted', valueStr === '1');
+            homematicDiv.classList.toggle('hm-position-open', valueStr === '2');
           });
           break;
         }
@@ -285,11 +267,8 @@ function renderGui() {
           datapointType = 'STATE';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            if (valueStr === '0') {
-              homematicDiv.style.backgroundColor = 'green';
-            } else if (valueStr === '1') {
-              homematicDiv.style.backgroundColor = 'red';
-            }
+            homematicDiv.classList.toggle('hm-position-closed', valueStr === '0');
+            homematicDiv.classList.toggle('hm-position-open', valueStr === '1');
           });
           break;
         }
@@ -298,11 +277,14 @@ function renderGui() {
           datapointType = 'WATERLEVEL_DETECTED';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            if (valueStr === 'true') {
-              homematicDiv.style.backgroundColor = 'red';
-            } else if (valueStr === 'false') {
-              homematicDiv.style.backgroundColor = 'green';
-            }
+            homematicDiv.classList.toggle('hm-water-idle', valueStr === 'false');
+            homematicDiv.classList.toggle('hm-water-detected', valueStr === 'true');
+          });
+          datapointType = 'MOISTURE_DETECTED';
+           deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
+            homematicDiv.classList.toggle('hm-moisture-idle', valueStr === 'false');
+            homematicDiv.classList.toggle('hm-moisture-detected', valueStr === 'true');
           });
           break;
         }
@@ -315,17 +297,11 @@ function renderGui() {
             if (valueStr === '0') {
               // Idle Off
               alarmOffBtn.style.display='none';
-              homematicDiv.style.backgroundColor = 'green';
-            } else if (valueStr === '1') {
-              // Primary (own) Alarm
-              homematicDiv.style.backgroundColor = 'red';
-            } else if (valueStr === '2') {
-              // Intrusion Detection
-              homematicDiv.style.backgroundColor = 'yellow';
-            } else if (valueStr === '3') {
-              // Secondary (remote) Alarm
-              homematicDiv.style.backgroundColor = 'indianred';
             }
+            homematicDiv.classList.toggle('hm-smoke-idle', valueStr === '0'); // Idle off
+            homematicDiv.classList.toggle('hm-smoke-primary', valueStr === '1'); // Primary (own) Alarm
+            homematicDiv.classList.toggle('hm-smoke-secondary', valueStr === '3'); // Secondary (remote) Alarm
+            homematicDiv.classList.toggle('hm-smoke-intrusion', valueStr === '2'); // Intrusion Detection
           });
           let detectorCommand = getDeviceInfo(homematicDiv.dataset.hmAdress, 'SMOKE_DETECTOR_COMMAND');
           let alarmOffBtn = homematicDiv.appendChild(createButton('Alarm aus', '0', detectorCommand.selectedDatapoints[0].iseId));
@@ -334,23 +310,22 @@ function renderGui() {
         }
       case 'HmIP-KRC4': // Keyring Remote Control - 4 Buttons
         {
-          let oldLowBatStr;
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress);
-          addHmMonitoring(deviceInfo.batteryDatapoint.lowBatIseId, (valueStr) => {
-            if (valueStr === oldLowBatStr) {
-              return;
-            }
-            oldLowBatStr = valueStr;
-            if (valueStr !== 'true') {
-              homematicDiv.style.backgroundColor = 'green';
-            } else {
-              homematicDiv.style.backgroundColor = 'red';
-            }
-          });
+          // Has magic in CSS
           break;
         }
       case 'HmIP-BSL': // Switch actuator for brand switches – with Signal Lamp
         {
+          const hmIpBslColorMap = [
+            'gray',
+            'BLUE',
+            'GREEN',
+            'TURQUOISE',
+            'RED',
+            'PURPLE',
+            'YELLOW',
+            'WHITE'
+          ];
+
           datapointType = 'COLOR';
           let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
 
@@ -393,7 +368,10 @@ function renderGui() {
         }
     }
     addHmMonitoring(deviceInfo.device.unreachableIseId, (valueStr) => {
-      homematicDiv.style.opacity = valueStr === 'true' ? '0.55' : '';
+      homematicDiv.classList.toggle('hm-unreachable', valueStr === 'true');
+    });
+    addHmMonitoring(deviceInfo.device.sabotageIseId, (valueStr) => {
+      homematicDiv.classList.toggle('hm-sabotage', valueStr === 'true');
     });
     if (deviceInfo.batteryDatapoint.lowBatIseId) {
       let oldLowBatStr, oldOpVoltStr;
@@ -405,11 +383,8 @@ function renderGui() {
           return;
         }
         oldLowBatStr = valueStr;
-        if (valueStr !== 'true') {
-          homematicDiv.style.borderColor = 'green';
-        } else {
-          homematicDiv.style.borderColor = 'red';
-        }
+        homematicDiv.classList.toggle('hm-low-bat', valueStr === 'true');
+        homematicDiv.classList.toggle('hm-full-bat', valueStr !== 'true');
       });
       addHmMonitoring(deviceInfo.batteryDatapoint.opVoltIseId, (valueStr) => {
         if (valueStr === oldOpVoltStr) {
@@ -474,16 +449,8 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
       }[]} */
   let selectedDatapointNodeArray = [];
   if (datapointType) {
-    // if (firstActorChannelIndex !== undefined) {
-    //   let stateList_firstActorChannelNode =
-    //     stateList_deviceNode.querySelector('channel[index="' + firstActorChannelIndex + '"][visible="true"]');
-    //   firstStateOrLevelDatapointNode =
-    //     stateList_firstActorChannelNode?.querySelector('datapoint[type="' + datapointType + '"]');
-    // } else {
-    //   // No Actor. Find first datapointType
     selectedDatapointNodes =
       stateList_deviceNode.querySelectorAll('datapoint[type="' + datapointType + '"]');
-    //    }
     selectedDatapointNodes.forEach(data => {
       selectedDatapointNodeArray.push({
         iseId: data?.getAttribute('ise_id'),
@@ -504,7 +471,8 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
     device: {
       type: deviceList_deviceNode.getAttribute('device_type'),
       deviceName: deviceList_deviceNode?.getAttribute('name'),
-      unreachableIseId: stateList_deviceNode.querySelector('datapoint[type="UNREACH"]')?.getAttribute('ise_id')
+      unreachableIseId: stateList_deviceNode.querySelector('datapoint[type="UNREACH"]')?.getAttribute('ise_id'),
+      sabotageIseId: stateList_deviceNode.querySelector('datapoint[type="SABOTAGE"]')?.getAttribute('ise_id'),
     },
     firstActorChannel: {
       iseId: firstActorChannelNode?.getAttribute('ise_id'),

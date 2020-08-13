@@ -1,15 +1,21 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="de">
 <head>
     <meta charset="utf8">
     <meta name="viewport" content="width=device-width">
     <title>Haussteuerung</title>
     <script src="runtime.js<?php if($_GET['force']) echo '?random='.rand(); ?>" async defer></script>
-    <link rel="icon" href="rm-favicon.ico" type="image/vnd.microsoft.icon">
+    <link rel="manifest" crossorigin="use-credentials" href="manifest.webmanifest">
+    <link rel="icon" href="manifest_logo_haus196x196.jpg">
+    <meta name="Description" content="Homematic IP Display and Manipulation">
     <style>
+        body{
+            max-width: 800px;
+        }
         .actors {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(70px, auto));
+            grid-template-columns: repeat(4, minmax(70px, auto));
         }
 
         [data-hm-adress] {
@@ -41,7 +47,7 @@
             font-size: xx-small;
             align-self: flex-end;
         }
-        @media (max-width: 360px) and (min-width: 160px)  {
+/*        @media (max-width: 360px) and (min-width: 160px)  { */
             [data-hm-adress].colspan2 {
                 grid-column-end: span 2;
                 display: grid;
@@ -51,11 +57,89 @@
             [data-hm-adress].colspan2 > *:first-child {
                 grid-column-end: span 2;
             }
+/*        }*/
+
+
+
+        .hm-power-state-on{
+           background-color :yellow;
+        }
+        .hm-power-state-off{
+           background-color :gray;
+        }
+
+
+        .hm-position-closed{
+           background-color :green;
+        }
+        .hm-position-tilted{
+           background-color :orange;
+        }
+        .hm-position-open{
+           background-color :red;
+        }
+
+        .hm-smoke-idle{
+           background-color :green;
+        }
+        .hm-smoke-primary{
+           background-color :red;
+        }
+        .hm-smoke-secondary{
+           background-color :indianred;
+        }
+        .hm-smoke-intrusion{
+            background-color :yellow;
+        }
+
+        .hm-moisture-idle{
+            background-color: green;
+        }
+        .hm-water-idle{
+            background-color: green;
+        }
+        .hm-moisture-detected{
+            background-color: orange;
+        }
+        .hm-water-detected{
+            background-color: red;
+        }
+
+
+        .hm-full-bat{
+            border-color :green;
+        }
+        .hm-low-bat{
+            border-color :red;
+        }
+        .HmIP-KRC4{
+            background-color :green;
+        }
+        .hm-low-bat.HmIP-KRC4{
+            background-color :red;
+        }
+        .hm-unreachable{
+            opacity: 0.55;
+        }
+        .hm-sabotage{
+            opacity: 0.55;
+        }
+        .hm-sabotage{
+            animation: blinkingDiv 1.2s infinite;
+        }
+
+        @keyframes blinkingDiv{
+            0%{     opacity: 1;    }
+            49%{    opacity: 1; }
+            60%{    opacity: 0; }
+            99%{    opacity: 0;  }
+            100%{   opacity: 1;    }
         }
     </style>
 </head>
 
 <body data-hm-xmlapi-host="192.168.0.46">
+    <noscript>This page uses client side scripting, so it needs JavaScript to be active.</noscript>
     <div class="actors">
 <!-- LED Flur --> <div data-hm-adress="001A5A49985A3E" style="grid-column: 1 / -1;margin:0;"></div>
 
@@ -63,24 +147,24 @@
 <!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
 <!-- Licht Haus Aussen -->   <div data-hm-adress="00085A49901C69"></div>
 
-<!-- Rolladen DG Laura -->   <div data-hm-adress="00111A498BF963"></div>
-<!-- Rolladen DG Vera -->   <div data-hm-adress="00111A498BF94A"></div>
-<!-- Rolladen DG AZ -->   <div data-hm-adress="00111A498BF95C"></div>
-<!-- Rolladen DG SZ -->   <div data-hm-adress="00111A498BF801"></div>
-
 <!-- Licht DG Laura -->   <div data-hm-adress="00085A49901A88"></div>
 <!-- Licht DG Vera -->   <div data-hm-adress="00085A49901C43"></div>
 <!-- Licht DG AZ -->   <div data-hm-adress="00085A49A3F81D"></div>
 <!-- Licht DG AZ Tisch -->   <div data-hm-adress="0001D3C99C916E"></div>
 
+<!-- Rolladen DG Laura -->   <div data-hm-adress="00111A498BF963"></div>
+<!-- Rolladen DG Vera -->   <div data-hm-adress="00111A498BF94A"></div>
+<!-- Rolladen DG AZ -->   <div data-hm-adress="00111A498BF95C"></div>
+<!-- Rolladen DG SZ -->   <div data-hm-adress="00111A498BF801"></div>
+
 <!-- Verschluss DG Laura -->   <div data-hm-adress="0007DA49992FF2"></div>
 <!-- Verschluss DG Vera -->   <div data-hm-adress="0007DA49992FE4"></div>
-<!-- Verschluss DG AZ -->   <div data-hm-adress="00109A498FC33A"></div>
+<!-- Verschluss DG AZ -->   <div data-hm-adress="0007DBE98D7382"></div>
 <!-- Verschluss DG SZ -->   <div data-hm-adress="0007DA49992F5E"></div>
 
 <!-- Verschluss DG Bad -->   <div data-hm-adress="0000DA498D222E"></div>
 <!-- Verschluss EG WZ Tür rechts -->   <div data-hm-adress="0007DA4999323A"></div>
-<!-- Verschluss EG Küche Tür -->   <div data-hm-adress="00109A49A27CFF"></div>
+<!-- Verschluss EG Küche Tür -->   <div data-hm-adress="0007DBE98D7378"></div>
 <!-- Verschluss EG Bad -->   <div data-hm-adress="0007DA49903277"></div>
 
 <!-- Wasser KG Sauna -->   <div data-hm-adress="001898A99F5399"></div>
@@ -104,9 +188,9 @@
 <!-- Messgerät do not switch! -->   <div data-hm-adress="0001D3C99C7401" data-hm-readonly></div>
 
 <!-- Rauch EG WZ -->   <div data-hm-adress="000A58A9AC4DCA"></div>
-<!-- Rauch Garten -->   <div data-hm-adress="000A5A49A5A4F1"></div>
+<!-- Rauch Garten -->   <div data-hm-adress="000A58A9AC4CB5"></div>
 <!-- Rauch EG Gast -->   <div data-hm-adress="000A58A9AC4DC8"></div>
-<!-- Rauch EG Flur -->   <div data-hm-adress="000A58A9AC4CB5"></div>
+<!-- Rauch EG Flur -->   <div data-hm-adress="000A5A49A5A4F1"></div>
 
 <!-- Rauch DG Laura -->   <div data-hm-adress="000A58A9AC4FA0"></div>
 <!-- Rauch DG Vera -->   <div data-hm-adress="000A58A9AC4DC5"></div>
@@ -122,6 +206,17 @@
 <!-- Rauch KG Flur -->   <div data-hm-adress="000A58A9AC4DB9"></div>
 <!-- Rauch Spitzboden -->   <div data-hm-adress="000A58A9AC4CD2"></div>
 <!-- Router Spitzboden -->   <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
+
+<!-- Verschluss EG Küche Schlüssel -->  <div data-hm-adress="00109A49A27CFF"></div>
+<!-- Verschluss EG Flur -->  <div data-hm-adress="00109A498FC33A"></div>
+
+<div data-hm-adress="0007DBE98D7471"></div>
+<div data-hm-adress="0007DBE98D7369"></div>
+<div data-hm-adress="0007DBE98D736E"></div>
+<div data-hm-adress="0007DBE98D7370"></div>
+
+<div data-hm-adress="0007DBE98D7397"></div>
+<div data-hm-adress="0007DBE98D738A"></div>
 
     </div>
     <div id="output">

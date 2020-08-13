@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json.schemastore.org/web-manifest",
+  "name": "Haussteuerung Haferkamp",
+  "short_name": "Haussteuerung",
+  "icons": [
+    {
+      "src": "manifest_logo_haus196x196.webp",
+      "sizes": "196x196",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "manifest_logo_haus196x196.jpg",
+      "sizes": "196x196",
+      "type": "image/jpg",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./?force=true",
+  "display": "minimal-ui",
+  "orientation": "portrait"
+}
