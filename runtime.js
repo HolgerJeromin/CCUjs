@@ -215,19 +215,23 @@ function renderGui() {
           if (homematicDiv.dataset.hmReadonly === undefined) {
             homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstActorChannel.iseId));
             homematicDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstActorChannel.iseId));
-            homematicDiv.appendChild(createButton('Streifen', '0.2', deviceInfo.firstActorChannel.iseId));
+            homematicDiv.appendChild(createButton('Streifen', '0.22', deviceInfo.firstActorChannel.iseId));
             homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstActorChannel.iseId));
           }
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
-              homematicDiv.style.background = 'repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px)';
+              homematicDiv.style.backgroundImage = 'repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px)';
+              homematicDiv.style.backgroundColor = '';
             } else if (value == 0) {
-              homematicDiv.style.background = 'gray';
-            } else if (value <= 0.2) {
-              homematicDiv.style.background = 'repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)';
+              homematicDiv.style.backgroundImage = '';
+              homematicDiv.style.backgroundColor = 'gray';
+            } else if (value <= 0.22) {
+              homematicDiv.style.backgroundImage = 'repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)';
+              homematicDiv.style.backgroundColor = '';
             } else {
-              homematicDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value - 0.2) * (100 / 80)) * 100 + '%, gray 0)'
+              homematicDiv.style.backgroundImage = 'linear-gradient(0deg, #A3FF00 ' + ((value - 0.22) * (100 / 78)) * 100 + '%, gray 0)'
+              homematicDiv.style.backgroundColor = '';
             }
           });
 
