@@ -11,6 +11,12 @@
     <style>
         body{
             max-width: 800px;
+            background-color: white;
+        }
+        @media (prefers-color-scheme: dark) {
+            body{
+    	    	background-color: lightgray;
+        	}
         }
         .actors {
             display: grid;
@@ -138,6 +144,22 @@
             animation: blinkingDiv 1.2s infinite;
         }
 
+        .hm-week-program-icon{
+            font-size:x-small;
+        }
+        .hm-week-program-icon[hm-week-program-lock]{
+            /** week programs */
+            opacity: 0.5;
+        }
+        .hm-week-program-icon[hm-week-program-lock="0"]{
+            /** all week programs */
+           opacity: 1;
+        }
+        .hm-week-program-icon[hm-week-program-lock="7"]{
+            /** no week programs */
+           display: none;
+        }
+
         @keyframes blinkingDiv{
             0%{     opacity: 1;    }
             49%{    opacity: 1; }
@@ -148,7 +170,10 @@
     </style>
 </head>
 
-<body data-hm-xmlapi-host="192.168.0.46">
+<body
+data-hm-xmlapi-hostX="192.168.0.46"
+data-hm-xmlapi-host="ccu3-wz"
+>
     <noscript>This page uses client side scripting, so it needs JavaScript to be active.</noscript>
     <div class="actors">
 <!-- LED Flur --> <div data-hm-adress="001A5A49985A3E" style="grid-column: 1 / -1;margin:0;"></div>
@@ -187,7 +212,7 @@
 
 <!-- Wasser KG Sauna -->   <div data-hm-adress="001898A99F5399"></div>
 <!-- Wasser KG Technik -->   <div data-hm-adress="001898A99F536C"></div>
-<!-- FB Laura -->   <div data-hm-adress="0002DA499DDD0B"></div>
+<!-- FB Vera -->   <div data-hm-adress="0002DA499DDA49"></div>
 <!-- FB Laura -->   <div data-hm-adress="0002DA499DDD0B"></div>
 
 <!-- Rolladen EG WZ Tür links -->   <div data-hm-adress="00111A498BF95D"></div>
