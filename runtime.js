@@ -167,6 +167,9 @@ if (parseSuccess) {
  * @param {string} string
  */
 function ansiToNativeString(string) {
+  if(!string ||!string.replace){
+    return string;
+  }
   return string
     .replace(/K�che/g, 'Küche')
     .replace(/Schl�ssel/g, 'Schlüssel')
@@ -520,7 +523,7 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
     stateList_deviceNode?.querySelector('datapoint[type="' + 'WEEK_PROGRAM_CHANNEL_LOCKS' + '"]');
   return {
     device: {
-      type: deviceList_deviceNode.getAttribute('device_type'),
+      type: deviceList_deviceNode?.getAttribute('device_type'),
       deviceName: deviceList_deviceNode?.getAttribute('name'),
       unreachableIseId: stateList_deviceNode?.querySelector('datapoint[type="UNREACH"]')?.getAttribute('ise_id'),
       sabotageIseId: stateList_deviceNode?.querySelector('datapoint[type="SABOTAGE"]')?.getAttribute('ise_id'),
@@ -718,7 +721,7 @@ if ('wakeLock' in navigator) {
   wakeLockCheckbox.type = 'checkbox';
 
   let labelelem = document.createElement('label');
-  labelelem.append(wakeLockCheckbox, 'Wake lock');
+  labelelem.append(wakeLockCheckbox, 'Bildschirm aktiv halten');
   document.body.appendChild(labelelem);
 
   wakeLockCheckbox.addEventListener('change', evt => {
