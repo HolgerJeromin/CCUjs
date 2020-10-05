@@ -183,7 +183,7 @@ data-hm-xmlapi-host="ccu3-wz"
 <!-- Licht DG Vera -->   <div data-hm-adress="00085A49901C43"></div>
 <!-- Licht DG Laura -->   <div data-hm-adress="00085A49901A88"></div>
 <!-- Licht DG AZ -->   <div data-hm-adress="00085A49A3F81D"></div>
-<!-- CCU3 -->           <div data-hm-adress="001F98A9AABDDD" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
+<!-- CCU3 -->           <div data-hm-adress="HmIP-RCV-1" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
 
 <!-- Rolladen DG Vera -->   <div data-hm-adress="00111A498BF94A"></div>
 <!-- Rolladen DG Laura -->   <div data-hm-adress="00111A498BF963"></div>
