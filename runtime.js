@@ -3,20 +3,17 @@ const baseXMLAPIpath = '/addons/xmlapi/';
 
 const devicelistUrl = host + baseXMLAPIpath + 'devicelist.cgi';
 const statelistUrl = host + baseXMLAPIpath + 'statelist.cgi';
+const sysvarlistUrl = host + baseXMLAPIpath + 'sysvarlist.cgi';
 const valuechangeUrl = host + baseXMLAPIpath + 'mastervaluechange.cgi';
 const statechangeUrl = host + baseXMLAPIpath + 'statechange.cgi';
 const stateUrl = host + baseXMLAPIpath + 'state.cgi';
 
-/** @type document */
-let devicelistDocument;
+/** @typedef  {  'devicelist'|'statelist'|'sysvarlist'} XMLFileList */
 
-/** @type document */
-let stateListDocument;
+/** @type {Map<XMLFileList,document>} */
+let cachedDocuments = new Map();
 
 let DomParser = new window.DOMParser();
-// const xhr = new XMLHttpRequest();
-// xhr.open('GET', statelistUrl,false);
-// xhr.send();
 const outputElem = document.getElementById('output');
 
 /** key is the iseId
@@ -39,60 +36,16 @@ outputFnc('loading...');
 /**
  *
  * @param {string} xmlString
- * @param {'devicelist'|'statelist'|string} type
+ * @param {XMLFileList} type
  */
 const stringToDocument = (xmlString, type) => {
   if (!xmlString) {
     return false;
   }
   let doc = (DomParser).parseFromString(xmlString, "text/xml");
-  switch (type) {
-    case 'devicelist':
-      devicelistDocument = doc;
-      break;
-    case 'statelist':
-      stateListDocument = doc;
-      break;
-  }
-  // if (typeof db !== 'undefined') {
-  //   db.transaction("xmlApiCache").objectStore(type).add(doc).onsuccess = function (event) {
-  //     console.log('saved document', type);
-  //   };
-  // }
+  cachedDocuments.set(type, doc);
   return true;
 }
-
-// const openDBrequest = window.indexedDB.open("xmlApiCache", 1);
-// /** @type {IDBDatabase} */
-// let db;
-// openDBrequest.onerror = function (event) {
-//   console.error(event);
-// };
-// openDBrequest.onupgradeneeded = function () {
-//   db = openDBrequest.result;
-//   db.createObjectStore('devicelist');
-//   db.createObjectStore('statelist');
-// }
-// openDBrequest.onsuccess = (event) => {
-//   db = event.target.result;
-
-//   // db.transaction("xmlApiCache").objectStore("devicelist").add("devicelist").onsuccess = function (event) {
-//   //   console.log("Name for SSN 444-44-4444 is " + event.target.result);
-//   // };
-//   let requestDeviceList = db.transaction("xmlApiCache").objectStore("devicelist").get("devicelist");
-//   requestDeviceList.onsuccess = function (event) {
-//     debugger;
-//     if (event.target.result) {
-//       console.log('Found a devicelist', event.target.result);
-//     } else {
-//       console.log('Found no devicelist');
-//     }
-//   };
-//   requestDeviceList.onerror = function (event) {
-//     debugger;
-//     console.log(event.target.result);
-//   };
-// }
 
 const statelistPromise =
   fetch(statelistUrl)
@@ -152,7 +105,8 @@ const devicelistPromise =
   ;
 
 let parseSuccess = true;
-const list = ['devicelist', 'statelist'];
+/** @type XMLFileList[] */
+const list = ['devicelist', 'statelist', 'sysvarlist'];
 for (let listId = 0; listId < list.length && parseSuccess; listId++) {
   parseSuccess = stringToDocument(window.localStorage.getItem(list[listId]), list[listId])
 }
@@ -484,14 +438,14 @@ function renderGui() {
  * @param {string|undefined} overrideIndex
  */
 function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = undefined) {
-  let deviceList_deviceNode = devicelistDocument.querySelector(
+  let deviceList_deviceNode = cachedDocuments.get('devicelist')?.querySelector(
     'device[address="' + hmAdress + '"]'
   );
   let deviceIse = deviceList_deviceNode?.getAttribute('ise_id');
   let firstActorChannelNode = deviceList_deviceNode?.querySelector('channel[direction="RECEIVER"][visible="true"]');
   let firstActorChannelIndex = firstActorChannelNode?.getAttribute('index') ?? overrideIndex;
 
-  let stateList_deviceNode = stateListDocument.querySelector(
+  let stateList_deviceNode = cachedDocuments.get('statelist')?.querySelector(
     'device[ise_id="' + deviceIse + '"]'
   );
 
