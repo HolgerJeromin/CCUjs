@@ -1,19 +1,24 @@
 const host = '//' + document.body.dataset.hmXmlapiHost;
 const baseXMLAPIpath = '/addons/xmlapi/';
 
-const devicelistUrl = host + baseXMLAPIpath + 'devicelist.cgi';
-const statelistUrl = host + baseXMLAPIpath + 'statelist.cgi';
-const sysvarlistUrl = host + baseXMLAPIpath + 'sysvarlist.cgi';
 const valuechangeUrl = host + baseXMLAPIpath + 'mastervaluechange.cgi';
 const statechangeUrl = host + baseXMLAPIpath + 'statechange.cgi';
 const stateUrl = host + baseXMLAPIpath + 'state.cgi';
 
-/** @typedef  {  'devicelist'|'statelist'|'sysvarlist'} XMLFileList */
+/** @typedef  {  'devicelist'|'statelist'|'sysvarlist'} configFilenameList */
+/** @type configFilenameList[] */
+const configFilenameList = ['devicelist', 'statelist', 'sysvarlist'];
+/** Mapping from list name to url
+ *  @type Map<configFilenameList, string> */
+const configUrlMap = new Map();
+configFilenameList.forEach(name => {
+  configUrlMap.set(name, host + baseXMLAPIpath + name + '.cgi')
+})
 
-/** @type {Map<XMLFileList,document>} */
-let cachedDocuments = new Map();
+/** @type {Map<configFilenameList,document>} */
+const cachedDocuments = new Map();
 
-let DomParser = new window.DOMParser();
+const DomParser = new window.DOMParser();
 const outputElem = document.getElementById('output');
 
 /** key is the iseId
@@ -36,7 +41,7 @@ outputFnc('loading...');
 /**
  *
  * @param {string} xmlString
- * @param {XMLFileList} type
+ * @param {configFilenameList} type
  */
 const stringToDocument = (xmlString, type) => {
   if (!xmlString) {
@@ -47,36 +52,8 @@ const stringToDocument = (xmlString, type) => {
   return true;
 }
 
-const statelistPromise =
-  fetch(statelistUrl)
-    .then((response) => {
-      if (response && response.ok) {
-        return response.text();
-      } else {
-        throw new Error('Something went wrong in the statelist request');
-      }
-    })
-    .then(str => {
-      try {
-        window.localStorage.setItem('statelist', str);
-      } catch (error) {
-        // skip
-      }
-      return str;
-    })
-    .then(str => stringToDocument(str, 'statelist'))
-    .catch(ex => {
-      //console.error(ex);
-      if (ex instanceof TypeError) {
-        outputFnc('Error in request(parsing): ' + ex +
-          '<br>You could try to open the <a target="_blank" href="' + statelistUrl + '">url</a> manually.', 'color: red;');
-      } else {
-        outputFnc('Error in request(parsing): ' + ex, 'color: red;');
-      }
-    })
-  ;
-const devicelistPromise =
-  fetch(devicelistUrl)
+const createFetchPromise = (/** @type configFilenameList */ filename) => {
+  return fetch(configUrlMap.get(filename))
     .then((response) => {
       if (response && response.ok) {
         return response.text();
@@ -86,34 +63,36 @@ const devicelistPromise =
     })
     .then(str => {
       try {
-        window.localStorage.setItem('devicelist', str);
+        window.localStorage.setItem(filename, str);
       } catch (error) {
         // skip
       }
       return str;
     })
-    .then(str => stringToDocument(str, 'devicelist'))
+    .then(str => stringToDocument(str, filename))
     .catch(ex => {
       // console.error(ex);
       if (ex instanceof TypeError) {
         outputFnc('Error in request(parsing): ' + ex +
-          '<br>You could try to open the <a target="_blank" href="' + devicelistUrl + '">url</a> manually.', 'color: red;');
+          '<br>You could try to open the <a target="_blank" href="' + configUrlMap.get(filename) + '">url</a> manually.', 'color: red;');
       } else {
         outputFnc('Error in request(parsing): ' + ex, 'color: red;');
       }
     })
-  ;
-
+    ;
+}
+const fetchPromiseList = [];
 let parseSuccess = true;
-/** @type XMLFileList[] */
-const list = ['devicelist', 'statelist', 'sysvarlist'];
-for (let listId = 0; listId < list.length && parseSuccess; listId++) {
-  parseSuccess = stringToDocument(window.localStorage.getItem(list[listId]), list[listId])
+for (let filename of configFilenameList) {
+  parseSuccess = parseSuccess && stringToDocument(window.localStorage.getItem(filename), filename);
+  if (!parseSuccess) {
+    fetchPromiseList.push(createFetchPromise(filename));
+  }
 }
 if (parseSuccess) {
   renderGui();
 } else {
-  Promise.all([devicelistPromise, statelistPromise])
+  Promise.all(fetchPromiseList)
     .then(renderGui);
 }
 
@@ -133,43 +112,45 @@ function ansiToNativeString(string) {
 
 function renderGui() {
   /** @type NodeListOf<HTMLElement> */
-  let allHomematicDivs = document.querySelectorAll('[data-hm-adress]');
+  let allHomematicDeviceDivs = document.querySelectorAll('[data-hm-adress]');
+  /** @type NodeListOf<HTMLElement> */
+  let allHomematicSysvarDivs = document.querySelectorAll('[data-hm-sysvar]');
 
-  for (const homematicDiv of allHomematicDivs) {
-    const deviceBaseadress = homematicDiv.dataset.hmAdress;
-    let overrideIndex = homematicDiv.dataset.hmOverrideIndex;
-    let overrideDatapointTypeArr = homematicDiv.dataset.hmDatapointType?.split('|');
-    let overrideDatapointTypeLabelArr = homematicDiv.dataset.hmDatapointTypeLabel?.split('|');
+  for (const homematicDeviceDiv of allHomematicDeviceDivs) {
+    const deviceBaseadress = homematicDeviceDiv.dataset.hmAdress;
+    let overrideIndex = homematicDeviceDiv.dataset.hmOverrideIndex;
+    let overrideDatapointTypeArr = homematicDeviceDiv.dataset.hmDatapointType?.split('|');
+    let overrideDatapointTypeLabelArr = homematicDeviceDiv.dataset.hmDatapointTypeLabel?.split('|');
     let datapointType;
-    let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
+    let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
     let labelDiv = document.createElement('div');
     labelDiv.classList.add('label');
     labelDiv.innerText = ansiToNativeString(deviceInfo.device.deviceName);
-    homematicDiv.appendChild(labelDiv);
+    homematicDeviceDiv.appendChild(labelDiv);
     //homematicDiv.appendChild(document.createTextNode(ansiToNativeString(deviceInfo.deviceName)));
-    homematicDiv.title = deviceInfo.device.type;
-    homematicDiv.classList.add(deviceInfo.device.type);
+    homematicDeviceDiv.title = deviceInfo.device.type;
+    homematicDeviceDiv.classList.add(deviceInfo.device.type);
     /** @type string|undefined */
     switch (deviceInfo.device.type) {
       case 'HmIP-FROLL': // Shutter actuator - flush mount
         {
           datapointType = 'LEVEL';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
-          if (homematicDiv.dataset.hmReadonly === undefined) {
-            homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstActorChannel.iseId));
-            homematicDiv.appendChild(createButton('Halb', '0.5', deviceInfo.firstActorChannel.iseId));
-            homematicDiv.appendChild(createButton('80%', '0.2', deviceInfo.firstActorChannel.iseId));
-            homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstActorChannel.iseId));
+          let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
+          if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
+            homematicDeviceDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstActorChannel.iseId));
+            homematicDeviceDiv.appendChild(createButton('Halb', '0.5', deviceInfo.firstActorChannel.iseId));
+            homematicDeviceDiv.appendChild(createButton('80%', '0.2', deviceInfo.firstActorChannel.iseId));
+            homematicDeviceDiv.appendChild(createButton('Runter', '0', deviceInfo.firstActorChannel.iseId));
           }
           // Actual level is in first level datapoint (SHUTTER_TRANSMITTER)
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
-              homematicDiv.style.background = 'repeating-linear-gradient(-55deg,#a0a0a0,#a0a0a0 10px,white 10px,white 20px)';
+              homematicDeviceDiv.style.background = 'repeating-linear-gradient(-55deg,#a0a0a0,#a0a0a0 10px,white 10px,white 20px)';
             } else if (value == 0) {
-              homematicDiv.style.background = 'gray';
+              homematicDeviceDiv.style.background = 'gray';
             } else {
-              homematicDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value) * (100 / 100)) * 100 + '%, gray 0)'
+              homematicDeviceDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value) * (100 / 100)) * 100 + '%, gray 0)'
             }
           });
 
@@ -178,28 +159,28 @@ function renderGui() {
       case 'HmIP-BROLL': // Shutter actuator for Brand Switch Systems
         {
           datapointType = 'LEVEL';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType, overrideIndex);
-          if (homematicDiv.dataset.hmReadonly === undefined) {
-            homematicDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstActorChannel.iseId));
-            homematicDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstActorChannel.iseId));
-            homematicDiv.appendChild(createButton('Streifen', '0.22', deviceInfo.firstActorChannel.iseId));
-            homematicDiv.appendChild(createButton('Runter', '0', deviceInfo.firstActorChannel.iseId));
+          let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
+          if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
+            homematicDeviceDiv.appendChild(createButton('Hoch', '1', deviceInfo.firstActorChannel.iseId));
+            homematicDeviceDiv.appendChild(createButton('Halb', '0.6', deviceInfo.firstActorChannel.iseId));
+            homematicDeviceDiv.appendChild(createButton('Streifen', '0.22', deviceInfo.firstActorChannel.iseId));
+            homematicDeviceDiv.appendChild(createButton('Runter', '0', deviceInfo.firstActorChannel.iseId));
           }
           // Actual level is in first level datapoint (SHUTTER_TRANSMITTER)
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
-              homematicDiv.style.backgroundImage = 'repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px)';
-              homematicDiv.style.backgroundColor = '';
+              homematicDeviceDiv.style.backgroundImage = 'repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px)';
+              homematicDeviceDiv.style.backgroundColor = '';
             } else if (value == 0) {
-              homematicDiv.style.backgroundImage = '';
-              homematicDiv.style.backgroundColor = 'gray';
+              homematicDeviceDiv.style.backgroundImage = '';
+              homematicDeviceDiv.style.backgroundColor = 'gray';
             } else if (value <= 0.22) {
-              homematicDiv.style.backgroundImage = 'repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)';
-              homematicDiv.style.backgroundColor = '';
+              homematicDeviceDiv.style.backgroundImage = 'repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)';
+              homematicDeviceDiv.style.backgroundColor = '';
             } else {
-              homematicDiv.style.backgroundImage = 'linear-gradient(0deg, #A3FF00 ' + ((value - 0.22) * (100 / 78)) * 100 + '%, gray 0)'
-              homematicDiv.style.backgroundColor = '';
+              homematicDeviceDiv.style.backgroundImage = 'linear-gradient(0deg, #A3FF00 ' + ((value - 0.22) * (100 / 78)) * 100 + '%, gray 0)'
+              homematicDeviceDiv.style.backgroundColor = '';
             }
           });
 
@@ -211,28 +192,28 @@ function renderGui() {
       case 'HmIP-BSM': // Switch actuator with Measuring for Brand Switch Systems
         {
           datapointType = 'STATE';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
-          if (homematicDiv.dataset.hmReadonly === undefined) {
+          let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
+          if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
             // Main actor state is in second state datapoint (SWITCH_VIRTUAL_RECEIVER)
-            homematicDiv.appendChild(createButton('An', 'true', deviceInfo.selectedDatapoints[1].iseId));
-            homematicDiv.appendChild(createButton('Aus', 'false', deviceInfo.selectedDatapoints[1].iseId));
+            homematicDeviceDiv.appendChild(createButton('An', 'true', deviceInfo.selectedDatapoints[1].iseId));
+            homematicDeviceDiv.appendChild(createButton('Aus', 'false', deviceInfo.selectedDatapoints[1].iseId));
           }
           // Actual state is in first state datapoint (SWITCH_TRANSMITTER)
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            homematicDiv.classList.toggle('hm-power-state-on', valueStr === 'true');
-            homematicDiv.classList.toggle('hm-power-state-off', valueStr === 'false');
+            homematicDeviceDiv.classList.toggle('hm-power-state-on', valueStr === 'true');
+            homematicDeviceDiv.classList.toggle('hm-power-state-off', valueStr === 'false');
           });
           break;
         }
       case 'HmIP-SRH':  // Window Handle Sensor
         {
           datapointType = 'STATE';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
           // Actual state is in first state datapoint (ROTARY_HANDLE_TRANSCEIVER)
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            homematicDiv.classList.toggle('hm-position-closed', valueStr === '0');
-            homematicDiv.classList.toggle('hm-position-tilted', valueStr === '1');
-            homematicDiv.classList.toggle('hm-position-open', valueStr === '2');
+            homematicDeviceDiv.classList.toggle('hm-position-closed', valueStr === '0');
+            homematicDeviceDiv.classList.toggle('hm-position-tilted', valueStr === '1');
+            homematicDeviceDiv.classList.toggle('hm-position-open', valueStr === '2');
           });
           break;
         }
@@ -240,36 +221,36 @@ function renderGui() {
       case 'HmIP-SWDO-I': // Wireless Window/Door Sensor integrated
         {
           datapointType = 'STATE';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
           // Actual state is in first state datapoint (SHUTTER_CONTACT_TRANSCEIVER)
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            homematicDiv.classList.toggle('hm-position-closed', valueStr === '0');
-            homematicDiv.classList.toggle('hm-position-open', valueStr === '1');
+            homematicDeviceDiv.classList.toggle('hm-position-closed', valueStr === '0');
+            homematicDeviceDiv.classList.toggle('hm-position-open', valueStr === '1');
           });
           break;
         }
       case 'HmIP-SWD': // Watersensor
         {
           datapointType = 'WATERLEVEL_DETECTED';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
           // Actual water is in first state datapoint (WATER_DETECTION_TRANSMITTER)
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            homematicDiv.classList.toggle('hm-water-idle', valueStr === 'false');
-            homematicDiv.classList.toggle('hm-water-detected', valueStr === 'true');
+            homematicDeviceDiv.classList.toggle('hm-water-idle', valueStr === 'false');
+            homematicDeviceDiv.classList.toggle('hm-water-detected', valueStr === 'true');
           });
           datapointType = 'MOISTURE_DETECTED';
-           deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+           deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
            // Actual moisture is in first state datapoint (WATER_DETECTION_TRANSMITTER)
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-            homematicDiv.classList.toggle('hm-moisture-idle', valueStr === 'false');
-            homematicDiv.classList.toggle('hm-moisture-detected', valueStr === 'true');
+            homematicDeviceDiv.classList.toggle('hm-moisture-idle', valueStr === 'false');
+            homematicDeviceDiv.classList.toggle('hm-moisture-detected', valueStr === 'true');
           });
           break;
         }
       case 'HmIP-SWSD': // Smoke Detektor
         {
           datapointType = 'SMOKE_DETECTOR_ALARM_STATUS';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
           // Actual smoke is in first state datapoint (SMOKE_DETECTOR)
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
             alarmOffBtn.style.display='';
@@ -277,13 +258,13 @@ function renderGui() {
               // Idle Off
               alarmOffBtn.style.display='none';
             }
-            homematicDiv.classList.toggle('hm-smoke-idle', valueStr === '0'); // Idle off
-            homematicDiv.classList.toggle('hm-smoke-primary', valueStr === '1'); // Primary (own) Alarm
-            homematicDiv.classList.toggle('hm-smoke-secondary', valueStr === '3'); // Secondary (remote) Alarm
-            homematicDiv.classList.toggle('hm-smoke-intrusion', valueStr === '2'); // Intrusion Detection
+            homematicDeviceDiv.classList.toggle('hm-smoke-idle', valueStr === '0'); // Idle off
+            homematicDeviceDiv.classList.toggle('hm-smoke-primary', valueStr === '1'); // Primary (own) Alarm
+            homematicDeviceDiv.classList.toggle('hm-smoke-secondary', valueStr === '3'); // Secondary (remote) Alarm
+            homematicDeviceDiv.classList.toggle('hm-smoke-intrusion', valueStr === '2'); // Intrusion Detection
           });
-          let detectorCommand = getDeviceInfo(homematicDiv.dataset.hmAdress, 'SMOKE_DETECTOR_COMMAND');
-          let alarmOffBtn = homematicDiv.appendChild(createButton('Alarm aus', '0', detectorCommand.selectedDatapoints[0].iseId));
+          let detectorCommand = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, 'SMOKE_DETECTOR_COMMAND');
+          let alarmOffBtn = homematicDeviceDiv.appendChild(createButton('Alarm aus', '0', detectorCommand.selectedDatapoints[0].iseId));
           // let testBtn = homematicDiv.appendChild(createButton('Test', '3', detectorCommand.selectedDatapoints[0].iseId));
           break;
         }
@@ -306,25 +287,25 @@ function renderGui() {
           ];
 
           datapointType = 'COLOR';
-          let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
 
           let bslTop = document.createElement('div');
           bslTop.style.cssText = 'height: 1em;border: 1px solid black;padding: 0px;margin: 0;';
-          homematicDiv.appendChild(bslTop);
+          homematicDeviceDiv.appendChild(bslTop);
           // top DIMMER_TRANSMITTER is first COLOR
           addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
             bslTop.style.backgroundColor = hmIpBslColorMap[valueStr];
           });
           let bslBottom = document.createElement('div');
           bslBottom.style.cssText = 'height: 1em;border: 1px solid black;padding: 0px;margin: 0;';
-          homematicDiv.appendChild(bslBottom);
+          homematicDeviceDiv.appendChild(bslBottom);
           // bottom DIMMER_TRANSMITTER is fifth COLOR
           addHmMonitoring(deviceInfo.selectedDatapoints[4].iseId, (valueStr) => {
             bslBottom.style.backgroundColor = hmIpBslColorMap[valueStr];
           });
 
           datapointType = 'LEVEL';
-          let deviceInfoLevel = getDeviceInfo(homematicDiv.dataset.hmAdress, datapointType);
+          let deviceInfoLevel = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
           // top DIMMER_TRANSMITTER is first LEVEL
           addHmMonitoring(deviceInfoLevel.selectedDatapoints[0].iseId, (valueStr) => {
             bslTop.style.opacity = valueStr;
@@ -340,15 +321,15 @@ function renderGui() {
         {
           // Special
           if (!overrideDatapointTypeArr) {
-            homematicDiv.firstChild.nodeValue = 'missing datapoint info';
+            homematicDeviceDiv.firstChild.nodeValue = 'missing datapoint info';
             break;
           }
           for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
-            let deviceInfo = getDeviceInfo(homematicDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
-            if (homematicDiv.dataset.hmReadonly === undefined) {
-              homematicDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.selectedDatapoints[0].iseId));
+            let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
+            if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
+              homematicDeviceDiv.appendChild(createButton(overrideDatapointTypeLabelArr[i], '1', deviceInfo.selectedDatapoints[0].iseId));
             }
-            homematicDiv.firstElementChild.firstChild.nodeValue = deviceInfo.selectedDatapoints[0].name;
+            homematicDeviceDiv.firstElementChild.firstChild.nodeValue = deviceInfo.selectedDatapoints[0].name;
           }
           break;
         }
@@ -356,28 +337,28 @@ function renderGui() {
         {
           const errorDiv = document.createElement('div');
           errorDiv.innerHTML = 'Aktor des Typs <span style="color:red;">' + deviceInfo.device.type + '</span> nicht bekannt.';
-          homematicDiv.appendChild(errorDiv);
+          homematicDeviceDiv.appendChild(errorDiv);
           break;
         }
     }
     addHmMonitoring(deviceInfo.device.unreachableIseId, (valueStr) => {
-      homematicDiv.classList.toggle('hm-unreachable', valueStr === 'true');
+      homematicDeviceDiv.classList.toggle('hm-unreachable', valueStr === 'true');
     });
     addHmMonitoring(deviceInfo.device.sabotageIseId, (valueStr) => {
-      homematicDiv.classList.toggle('hm-sabotage', valueStr === 'true');
+      homematicDeviceDiv.classList.toggle('hm-sabotage', valueStr === 'true');
     });
     if (deviceInfo.batteryDatapoint.lowBatIseId) {
       let oldLowBatStr, oldOpVoltStr;
       let opVoltDiv = document.createElement('div');
       opVoltDiv.classList.add('opVolt');
-      homematicDiv.appendChild(opVoltDiv);
+      homematicDeviceDiv.appendChild(opVoltDiv);
       addHmMonitoring(deviceInfo.batteryDatapoint.lowBatIseId, (valueStr) => {
         if (valueStr === oldLowBatStr) {
           return;
         }
         oldLowBatStr = valueStr;
-        homematicDiv.classList.toggle('hm-low-bat', valueStr === 'true');
-        homematicDiv.classList.toggle('hm-full-bat', valueStr !== 'true');
+        homematicDeviceDiv.classList.toggle('hm-low-bat', valueStr === 'true');
+        homematicDeviceDiv.classList.toggle('hm-full-bat', valueStr !== 'true');
       });
       addHmMonitoring(deviceInfo.batteryDatapoint.opVoltIseId, (valueStr) => {
         if (valueStr === oldOpVoltStr) {
@@ -397,7 +378,7 @@ function renderGui() {
       let oldPowerStr;
       let powerDiv = document.createElement('div');
       powerDiv.classList.add('power');
-      homematicDiv.appendChild(powerDiv);
+      homematicDeviceDiv.appendChild(powerDiv);
       addHmMonitoring(deviceInfo.power.iseId, (valueStr) => {
         if (valueStr === oldPowerStr) {
           return;
@@ -428,6 +409,66 @@ function renderGui() {
     }
   }
 
+  for (const homematicSysvarDiv of allHomematicSysvarDivs) {
+    const systemVariable = getDeviceSysinfo(homematicSysvarDiv.dataset.hmSysvar);
+    if (systemVariable) {
+      let labelDiv = document.createElement('div');
+      labelDiv.classList.add('label');
+      labelDiv.innerText = ansiToNativeString(systemVariable.getAttribute('name'));
+      homematicSysvarDiv.append(
+        labelDiv
+      );
+      switch (systemVariable.getAttribute('type')) {
+        case '2': /** boolean */
+          {
+            let sysvarButton = createButton('', '1', systemVariable.getAttribute('ise_id'));
+            sysvarButton.disabled = homematicSysvarDiv.dataset.hmReadonly !== undefined;
+            homematicSysvarDiv.append(sysvarButton);
+            let oldValue;
+            addHmMonitoring(systemVariable.getAttribute('ise_id'), (valueStr) => {
+              if (valueStr === oldValue) {
+                return;
+              }
+              oldValue = valueStr;
+              if (valueStr === 'true') {
+                sysvarButton.value = 'false';
+                sysvarButton.innerText = ansiToNativeString(systemVariable.getAttribute('value_name_1'));
+              } else if (valueStr === 'false') {
+                sysvarButton.value = 'true';
+                sysvarButton.innerText = ansiToNativeString(systemVariable.getAttribute('value_name_0'));
+              }
+            });
+          }
+          break;
+        case '4': /** number */
+          {
+            const sysvarMeter = document.createElement('meter');
+            sysvarMeter.setAttribute('min', systemVariable.getAttribute('min'));
+            sysvarMeter.setAttribute('max', systemVariable.getAttribute('max'));
+            let valueSpan = document.createElement('span');
+            homematicSysvarDiv.append(sysvarMeter, valueSpan);
+            let oldValue;
+            addHmMonitoring(systemVariable.getAttribute('ise_id'), (valueStr) => {
+              if (valueStr === oldValue) {
+                return;
+              }
+              oldValue = valueStr;
+              let value = parseFloat(valueStr);
+              if (isNaN(value)) {
+                sysvarMeter.value = 0;
+              } else {
+                sysvarMeter.value = value;
+                homematicSysvarDiv.title = value.toLocaleString(undefined, {
+                  //minimumFractionDigits: 1
+                }) + systemVariable.getAttribute('unit');
+                valueSpan.innerText = homematicSysvarDiv.title;
+              }
+            });
+          }
+          break;
+      }
+    }
+  }
   outputFnc('');
 }
 
@@ -510,10 +551,21 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
   };
 }
 
+function getDeviceSysinfo(/** @type string */ name) {
+  /** @type Element |undefined */
+  let result;
+  const systemVariables = cachedDocuments.get('sysvarlist')?.querySelectorAll('systemVariable');
+  systemVariables.forEach(elem => {
+    if (elem.getAttribute('name') === name) {
+      result = elem;
+    }
+  });
+  return result;
+}
 
 /**
  * @param {MouseEvent} evt
- * @this {HTMLElement}
+ * @this {HTMLButtonElement}
  */
 function clickHandler(evt) {
   const target = this;
@@ -534,7 +586,7 @@ function clickHandler(evt) {
   }
   setHomematicValue(
     target.dataset.hmActorDatapointId,
-    target.dataset.hmActorValue
+    target.value
   )
     .then(doc => {
       outputFnc('Success in writing value: ' + (doc? doc.firstElementChild?.firstElementChild?.getAttribute('new_value'):'') + ', to ise id: ' + (doc? doc.firstElementChild?.firstElementChild?.getAttribute('id'):''), 'color: green;');
@@ -551,7 +603,7 @@ function createButton(title, value, datapointId, classList = []) {
   const button = document.createElement('button');
   button.addEventListener('click', clickHandler);
   button.innerHTML = title;
-  button.dataset.hmActorValue = value;
+  button.value = value;
   button.dataset.hmActorDatapointId = datapointId;
   button.classList.add(...classList);
   return button;

@@ -24,7 +24,8 @@
             grid-template-columns: repeat(4, minmax(70px, auto));
         }
 
-        [data-hm-adress] {
+        [data-hm-adress],
+        [data-hm-sysvar] {
             font-size: 0.9rem;
             display: flex;
             flex-direction: column;
@@ -37,16 +38,28 @@
             border-color: transparent;
             background-origin: border-box;
         }
-        [data-hm-adress] > * {
+        [data-hm-adress] > .label,
+        [data-hm-sysvar] > .label{
+            word-wrap: break-word;
+            hyphens: auto;
+        }
+        [data-hm-adress] > *,
+        [data-hm-sysvar] > *{
             margin-top: 0.5em;
         }
-        [data-hm-adress] > *:first-child {
+        [data-hm-adress] > *:first-child,
+        [data-hm-sysvar] > *:first-child{
             margin-top: 0;
         }
-        [data-hm-adress] > button {
+        [data-hm-adress] > button,
+        [data-hm-sysvar] > button {
             padding-top: 1em;
             padding-bottom: 1em;
         }
+        [data-hm-sysvar] > meter {
+            margin-top: 0;
+        }
+
         [data-hm-adress] > .opVolt,
         [data-hm-adress] > .power,
         [data-hm-adress] > .temperature
@@ -253,6 +266,9 @@ data-hm-xmlapi-host="ccu3-wz"
 <!-- Router Spitzboden -->   <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
 <!-- Licht DG AZ Tisch -->   <div data-hm-adress="0001D3C99C916E"></div>
 
+        <div data-hm-sysvar="Anwesenheitssimulation"></div>
+        <div data-hm-sysvar="Beschattung"></div>
+        <div data-hm-sysvar="DutyCycle" data-hm-readonly></div>
 
     </div>
     <div id="output">
