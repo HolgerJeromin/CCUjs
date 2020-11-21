@@ -85,9 +85,8 @@ const fetchPromiseList = [];
 let parseSuccess = true;
 for (let filename of configFilenameList) {
   parseSuccess = parseSuccess && stringToDocument(window.localStorage.getItem(filename), filename);
-  if (!parseSuccess) {
-    fetchPromiseList.push(createFetchPromise(filename));
-  }
+  // fetch latest xml in any case
+  fetchPromiseList.push(createFetchPromise(filename));
 }
 if (parseSuccess) {
   renderGui();
