@@ -458,7 +458,7 @@ function renderGui() {
         }
       });
     }
-    if (deviceInfo.weekProgramm.iseId) {
+    if (false && deviceInfo.weekProgramm.iseId) {
       let oldWeekStr;
       let weekDiv = document.createElement('span');
       weekDiv.innerText = String.fromCharCode(0xD83D, 0xDCC5);
