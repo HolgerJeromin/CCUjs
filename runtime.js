@@ -307,11 +307,11 @@ function renderGui() {
           let deviceInfoLevel = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
           // top DIMMER_TRANSMITTER is first LEVEL
           addHmMonitoring(deviceInfoLevel.selectedDatapoints[0].iseId, (valueStr) => {
-            bslTop.style.opacity = valueStr;
+            // bslTop.style.opacity = valueStr;
           });
           // bottom DIMMER_TRANSMITTER is fifth LEVEL
           addHmMonitoring(deviceInfoLevel.selectedDatapoints[4].iseId, (valueStr) => {
-            bslBottom.style.opacity = valueStr;
+            // bslBottom.style.opacity = valueStr;
           });
 
           break;
@@ -703,7 +703,11 @@ function addHmMonitoring(iseId, callback) {
 }
 
 let hmMonitoring = function () {
-  if (monitorList.size) {
+  if (
+    monitorList.size &&
+    navigator.onLine &&
+    document.visibilityState === 'visible'
+  ) {
     getMultipleHomematicValue(Array.from(monitorList.keys()))
       .then(resultMap => {
         resultMap?.forEach((hmValue, iseId) => {
