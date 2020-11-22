@@ -19,6 +19,7 @@ configFilenameList.forEach(name => {
 const cachedDocuments = new Map();
 
 const DomParser = new window.DOMParser();
+const isoTextdecoder = new TextDecoder('iso-8859-15');
 const outputElem = document.getElementById('output');
 
 /** key is the iseId
@@ -47,7 +48,7 @@ const stringToDocument = (xmlString, type) => {
   if (!xmlString) {
     return false;
   }
-  let doc = (DomParser).parseFromString(xmlString, "text/xml");
+  let doc = DomParser.parseFromString(xmlString, "text/xml");
   cachedDocuments.set(type, doc);
   return true;
 }
@@ -56,10 +57,14 @@ const createFetchPromise = (/** @type configFilenameList */ filename) => {
   return fetch(configUrlMap.get(filename))
     .then((response) => {
       if (response && response.ok) {
-        return response.text();
+        return response.arrayBuffer();
       } else {
-        throw new Error('Something went wrong in the devicelist request');
+        throw new Error('Something went wrong in the ' + filename + ' request');
       }
+    })
+    .then(arrayBuffer => {
+      const decodedString = isoTextdecoder.decode(new DataView(arrayBuffer));
+      return decodedString;
     })
     .then(str => {
       try {
@@ -95,20 +100,6 @@ if (parseSuccess) {
     .then(renderGui);
 }
 
-/**
- * @param {string} string
- */
-function ansiToNativeString(string) {
-  if(!string ||!string.replace){
-    return string;
-  }
-  return string
-    .replace(/K�che/g, 'Küche')
-    .replace(/Schl�ssel/g, 'Schlüssel')
-    .replace(/T�r/g, 'Tür')
-    .replace(/ger�t/g, 'gerät')
-}
-
 function renderGui() {
   /** @type NodeListOf<HTMLElement> */
   let allHomematicDeviceDivs = document.querySelectorAll('[data-hm-adress]');
@@ -124,9 +115,9 @@ function renderGui() {
     let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
     let labelDiv = document.createElement('div');
     labelDiv.classList.add('label');
-    labelDiv.innerText = ansiToNativeString(deviceInfo.device.deviceName);
+    labelDiv.innerText = deviceInfo.device.deviceName;
     homematicDeviceDiv.appendChild(labelDiv);
-    //homematicDiv.appendChild(document.createTextNode(ansiToNativeString(deviceInfo.deviceName)));
+    //homematicDiv.appendChild(document.createTextNode(deviceInfo.deviceName));
     homematicDeviceDiv.title = deviceInfo.device.type;
     homematicDeviceDiv.classList.add(deviceInfo.device.type);
     /** @type string|undefined */
@@ -413,7 +404,7 @@ function renderGui() {
     if (systemVariable) {
       let labelDiv = document.createElement('div');
       labelDiv.classList.add('label');
-      labelDiv.innerText = ansiToNativeString(systemVariable.getAttribute('name'));
+      labelDiv.innerText = systemVariable.getAttribute('name');
       homematicSysvarDiv.append(
         labelDiv
       );
@@ -431,10 +422,10 @@ function renderGui() {
               oldValue = valueStr;
               if (valueStr === 'true') {
                 sysvarButton.value = 'false';
-                sysvarButton.innerText = ansiToNativeString(systemVariable.getAttribute('value_name_1'));
+                sysvarButton.innerText = systemVariable.getAttribute('value_name_1');
               } else if (valueStr === 'false') {
                 sysvarButton.value = 'true';
-                sysvarButton.innerText = ansiToNativeString(systemVariable.getAttribute('value_name_0'));
+                sysvarButton.innerText = systemVariable.getAttribute('value_name_0');
               }
             });
           }
@@ -625,7 +616,17 @@ function setHomematicValue(ise_id, value) {
     + '?' + 'ise_id=' + ise_id.join(',')
     + '&' + 'new_value=' + value.join(',')
   )
-    .then(response => response.text())
+    .then((response) => {
+      if (response && response.ok) {
+        return response.arrayBuffer();
+      } else {
+        throw new Error('Something went wrong in the setValue request');
+      }
+    })
+    .then(arrayBuffer => {
+      const decodedString = isoTextdecoder.decode(new DataView(arrayBuffer));
+      return decodedString;
+    })
     .then(str => (DomParser).parseFromString(str, "text/xml"))
     .catch(ex => {
       console.error(ex);
@@ -642,7 +643,17 @@ function getMultipleHomematicValue(iseIds) {
     stateUrl
     + '?' + 'datapoint_id=' + iseIds.join(',')
   )
-    .then(response => response.text())
+    .then((response) => {
+      if (response && response.ok) {
+        return response.arrayBuffer();
+      } else {
+        throw new Error('Something went wrong in the getValue request');
+      }
+    })
+    .then(arrayBuffer => {
+      const decodedString = isoTextdecoder.decode(new DataView(arrayBuffer));
+      return decodedString;
+    })
     .then(str => (DomParser).parseFromString(str, "text/xml"))
     .then(doc => {
       /**@type {Map<string, string>} */
@@ -673,7 +684,17 @@ function getHomematicValue(ise_id) {
     stateUrl
     + '?' + 'datapoint_id=' + ise_id
   )
-    .then(response => response.text())
+    .then((response) => {
+      if (response && response.ok) {
+        return response.arrayBuffer();
+      } else {
+        throw new Error('Something went wrong in the getValue request');
+      }
+    })
+    .then(arrayBuffer => {
+      const decodedString = isoTextdecoder.decode(new DataView(arrayBuffer));
+      return decodedString;
+    })
     .then(str => (DomParser).parseFromString(str, "text/xml"))
     .then(doc => {
       return doc.querySelector('datapoint[ise_id="' + ise_id + '"]')?.getAttribute('value');
