@@ -416,21 +416,36 @@ function renderGui() {
       switch (systemVariable.getAttribute('type')) {
         case '2': /** boolean */
           {
-            let sysvarButton = createButton('', '1', systemVariable.getAttribute('ise_id'));
-            sysvarButton.disabled = homematicSysvarDiv.dataset.hmReadonly !== undefined;
-            homematicSysvarDiv.append(sysvarButton);
             let oldValue;
+            let sysvarLabelTrue = document.createElement('label');
+            let sysvarInputTrue = document.createElement('input');
+            sysvarInputTrue.type = 'radio';
+            sysvarInputTrue.addEventListener('change', evt => {
+              setHomematicValue(systemVariable.getAttribute('ise_id'), 'true')
+            });
+            sysvarLabelTrue.append(sysvarInputTrue, systemVariable.getAttribute('value_name_1'));
+
+            let sysvarLabelFalse = document.createElement('label');
+            let sysvarInputFalse = document.createElement('input');
+            sysvarInputFalse.type = 'radio';
+            sysvarInputFalse.addEventListener('change', evt => {
+              setHomematicValue(systemVariable.getAttribute('ise_id'), 'false')
+            });
+            sysvarLabelFalse.append(sysvarInputFalse, systemVariable.getAttribute('value_name_0'));
+
+            homematicSysvarDiv.append(sysvarLabelTrue, sysvarLabelFalse)
+
             addHmMonitoring(systemVariable.getAttribute('ise_id'), (valueStr) => {
               if (valueStr === oldValue) {
                 return;
               }
               oldValue = valueStr;
               if (valueStr === 'true') {
-                sysvarButton.value = 'false';
-                sysvarButton.innerText = systemVariable.getAttribute('value_name_1');
+                sysvarInputTrue.checked = true;
+                sysvarInputFalse.checked = false;
               } else if (valueStr === 'false') {
-                sysvarButton.value = 'true';
-                sysvarButton.innerText = systemVariable.getAttribute('value_name_0');
+                sysvarInputTrue.checked = false;
+                sysvarInputFalse.checked = true;
               }
             });
           }
