@@ -88,7 +88,15 @@
             }
 /*        }*/
 
-
+        .hm-sysvar-boolean > input{
+                display: none;
+        }
+        .hm-sysvar-boolean > input ~ *{
+            border: rgba(0, 0,0, 0.2) 1px solid;
+        }
+        .hm-sysvar-boolean > input:checked ~ *{
+            border: green 1px solid;
+        }
 
         [data-hm-adress].hm-power-state-on{
            background-color :yellow;
