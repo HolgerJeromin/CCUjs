@@ -1,10 +1,6 @@
 const host = '//' + document.body.dataset.hmXmlapiHost;
 const baseXMLAPIpath = '/addons/xmlapi/';
 
-const valuechangeUrl = host + baseXMLAPIpath + 'mastervaluechange.cgi';
-const statechangeUrl = host + baseXMLAPIpath + 'statechange.cgi';
-const stateUrl = host + baseXMLAPIpath + 'state.cgi';
-
 /** @typedef  {  'devicelist'|'statelist'|'sysvarlist'} configFilenameList */
 /** @type configFilenameList[] */
 const configFilenameList = ['devicelist', 'statelist', 'sysvarlist'];
@@ -42,30 +38,31 @@ outputFnc('loading...');
 /**
  *
  * @param {string} xmlString
- * @param {configFilenameList} type
  */
-const stringToDocument = (xmlString, type) => {
-  if (!xmlString) {
-    return false;
-  }
-  let doc = DomParser.parseFromString(xmlString, "text/xml");
-  cachedDocuments.set(type, doc);
-  return true;
+const stringToDocument = (xmlString) => {
+  return DomParser.parseFromString(xmlString, "text/xml");
 }
 
-const createFetchPromise = (/** @type configFilenameList */ filename) => {
-  return fetch(configUrlMap.get(filename))
-    .then((response) => {
+function urlToString(url) {
+  return fetch(url)
+    .then(response => {
       if (response && response.ok) {
         return response.arrayBuffer();
       } else {
-        throw new Error('Something went wrong in the ' + filename + ' request');
+        throw new Error('Something went wrong in the request');
       }
     })
     .then(arrayBuffer => {
       const decodedString = isoTextdecoder.decode(new DataView(arrayBuffer));
       return decodedString;
     })
+}
+function urlToDoc(url) {
+  return urlToString(url)
+    .then(stringToDocument)
+}
+const createFetchPromise = (/** @type configFilenameList */ filename) => {
+  return urlToString(configUrlMap.get(filename))
     .then(str => {
       try {
         window.localStorage.setItem(filename, str);
@@ -74,7 +71,10 @@ const createFetchPromise = (/** @type configFilenameList */ filename) => {
       }
       return str;
     })
-    .then(str => stringToDocument(str, filename))
+    .then(stringToDocument)
+    .then(doc => {
+      return cachedDocuments.set(filename, doc);
+    })
     .catch(ex => {
       // console.error(ex);
       if (ex instanceof TypeError) {
@@ -89,7 +89,12 @@ const createFetchPromise = (/** @type configFilenameList */ filename) => {
 const fetchPromiseList = [];
 let parseSuccess = true;
 for (let filename of configFilenameList) {
-  parseSuccess = parseSuccess && stringToDocument(window.localStorage.getItem(filename), filename);
+  let cacheEntry = window.localStorage.getItem(filename);
+  if (cacheEntry) {
+    cachedDocuments.set(filename, stringToDocument(cacheEntry));
+  } else {
+    parseSuccess = false;
+  }
   // fetch latest xml in any case
   fetchPromiseList.push(createFetchPromise(filename));
 }
@@ -545,7 +550,7 @@ function getDeviceSysinfo(/** @type string */ name) {
   /** @type Element |undefined */
   let result;
   const systemVariables = cachedDocuments.get('sysvarlist')?.querySelectorAll('systemVariable');
-  systemVariables.forEach(elem => {
+  systemVariables?.forEach(elem => {
     if (elem.getAttribute('name') === name) {
       result = elem;
     }
@@ -611,27 +616,11 @@ function setHomematicValue(ise_id, value) {
   if (!Array.isArray(value)) {
     value = [value];
   }
-  return fetch(
-    statechangeUrl
+  return urlToDoc(
+    host + baseXMLAPIpath + 'statechange.cgi'
     + '?' + 'ise_id=' + ise_id.join(',')
     + '&' + 'new_value=' + value.join(',')
-  )
-    .then((response) => {
-      if (response && response.ok) {
-        return response.arrayBuffer();
-      } else {
-        throw new Error('Something went wrong in the setValue request');
-      }
-    })
-    .then(arrayBuffer => {
-      const decodedString = isoTextdecoder.decode(new DataView(arrayBuffer));
-      return decodedString;
-    })
-    .then(str => (DomParser).parseFromString(str, "text/xml"))
-    .catch(ex => {
-      console.error(ex);
-    })
-    ;
+  );
 }
 
 /**
@@ -639,22 +628,7 @@ function setHomematicValue(ise_id, value) {
  * @param {string[]} iseIds
  */
 function getMultipleHomematicValue(iseIds) {
-  return fetch(
-    stateUrl
-    + '?' + 'datapoint_id=' + iseIds.join(',')
-  )
-    .then((response) => {
-      if (response && response.ok) {
-        return response.arrayBuffer();
-      } else {
-        throw new Error('Something went wrong in the getValue request');
-      }
-    })
-    .then(arrayBuffer => {
-      const decodedString = isoTextdecoder.decode(new DataView(arrayBuffer));
-      return decodedString;
-    })
-    .then(str => (DomParser).parseFromString(str, "text/xml"))
+  return urlToDoc(host + baseXMLAPIpath + 'state.cgi' + '?' + 'datapoint_id=' + iseIds.join(','))
     .then(doc => {
       /**@type {Map<string, string>} */
       let valueMap = new Map();
@@ -680,22 +654,7 @@ function getHomematicValue(ise_id) {
   if (!ise_id) {
     return new Promise(data => { });
   }
-  return fetch(
-    stateUrl
-    + '?' + 'datapoint_id=' + ise_id
-  )
-    .then((response) => {
-      if (response && response.ok) {
-        return response.arrayBuffer();
-      } else {
-        throw new Error('Something went wrong in the getValue request');
-      }
-    })
-    .then(arrayBuffer => {
-      const decodedString = isoTextdecoder.decode(new DataView(arrayBuffer));
-      return decodedString;
-    })
-    .then(str => (DomParser).parseFromString(str, "text/xml"))
+  return urlToDoc(host + baseXMLAPIpath + 'state.cgi' + '?' + 'datapoint_id=' + ise_id)
     .then(doc => {
       return doc.querySelector('datapoint[ise_id="' + ise_id + '"]')?.getAttribute('value');
     })
@@ -742,6 +701,46 @@ let hmMonitoring = function () {
   setTimeout(hmMonitoring, 1000);
 };
 hmMonitoring();
+
+let notificationContainer = document.getElementsByClassName('notification')[0];
+let hmFetchNotification = function () {
+  urlToDoc(host + baseXMLAPIpath + 'systemNotification.cgi')
+    .then(doc => {
+      notificationContainer.textContent = '';
+      let systemNotifications = doc.querySelectorAll('systemNotification > notification');
+      systemNotifications.forEach(elem => {
+        let notificationDiv = document.createElement('div');
+        let iseId = elem.getAttribute('ise_id');
+        switch (elem.getAttribute('type')) {
+          case 'SABOTAGE':
+            let deviceName = cachedDocuments
+              .get('statelist')
+              ?.querySelector('[ise_id="' + iseId + '"]')
+              ?.closest('device')
+              ?.getAttribute('name') ?? 'Unbekanntes Gerät';
+            notificationDiv.append('Sabotage-Alarm für: ' + deviceName);
+            notificationDiv.classList.add('hm-sabotage');
+            break;
+          default:
+            notificationDiv.append('Unsupported system notification for type ' + elem.getAttribute('type'));
+        }
+        notificationContainer.appendChild(notificationDiv);
+      });
+      if (systemNotifications.length) {
+        let confirmButton = document.createElement('button');
+        confirmButton.innerHTML = 'Bestätigen';
+        confirmButton.addEventListener('click', evt => {
+          return urlToDoc(host + baseXMLAPIpath + 'systemNotificationClear.cgi')
+           ;
+        });
+        notificationContainer.append(confirmButton);
+      }
+    })
+    ;
+
+  setTimeout(hmFetchNotification, 3000);
+};
+hmFetchNotification();
 
 if ('wakeLock' in navigator) {
 /** @type {null | EventTarget & {release:()=>{}}} */

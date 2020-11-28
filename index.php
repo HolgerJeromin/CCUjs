@@ -90,85 +90,93 @@
 
 
 
-        .hm-power-state-on{
+        [data-hm-adress].hm-power-state-on{
            background-color :yellow;
         }
-        .hm-power-state-off{
+        [data-hm-adress].hm-power-state-off{
            background-color :gray;
         }
 
 
-        .hm-position-closed{
+        [data-hm-adress].hm-position-closed{
            background-color :green;
         }
-        .hm-position-tilted{
+        [data-hm-adress].hm-position-tilted{
            background-color :orange;
         }
-        .hm-position-open{
+        [data-hm-adress].hm-position-open{
            background-color :red;
         }
 
-        .hm-smoke-idle{
+        [data-hm-adress].hm-smoke-idle{
            background-color :green;
         }
-        .hm-smoke-primary{
+        [data-hm-adress].hm-smoke-primary{
            background-color :red;
         }
-        .hm-smoke-secondary{
+        [data-hm-adress].hm-smoke-secondary{
            background-color :indianred;
         }
-        .hm-smoke-intrusion{
+        [data-hm-adress].hm-smoke-intrusion{
             background-color :yellow;
         }
 
-        .hm-moisture-idle{
+        [data-hm-adress].hm-moisture-idle{
             background-color: green;
         }
-        .hm-water-idle{
+        [data-hm-adress].hm-water-idle{
             background-color: green;
         }
-        .hm-moisture-detected{
+        [data-hm-adress].hm-moisture-detected{
             background-color: orange;
         }
-        .hm-water-detected{
+        [data-hm-adress].hm-water-detected{
             background-color: red;
         }
 
 
-        .hm-full-bat{
+        [data-hm-adress].hm-full-bat{
             border-color :green;
         }
-        .hm-low-bat{
+        [data-hm-adress].hm-low-bat{
             border-color :red;
         }
-        .HmIP-KRC4{
+        [data-hm-adress].HmIP-KRC4{
             background-color :green;
         }
-        .hm-low-bat.HmIP-KRC4{
+        [data-hm-adress].hm-low-bat.HmIP-KRC4{
             background-color :red;
         }
-        .hm-unreachable{
+        [data-hm-adress].hm-unreachable{
             opacity: 0.55;
         }
-        .hm-sabotage{
+        [data-hm-adress].hm-sabotage{
             opacity: 0.55;
         }
         .hm-sabotage{
             animation: blinkingDiv 1.2s infinite;
         }
+        [data-hm-adress].hm-sabotage::after{
+            content: 'Sabotage';
+            background-color: red;
+            padding: 1px;
+        }
+        .notification > .hm-sabotage{
+            color: red;
+        }
 
-        .hm-week-program-icon{
+        [data-hm-adress].hm-week-program-icon{
             font-size:x-small;
         }
-        .hm-week-program-icon[hm-week-program-lock]{
+        [data-hm-adress].hm-week-program-icon[hm-week-program-lock]{
             /** week programs */
             opacity: 0.5;
         }
-        .hm-week-program-icon[hm-week-program-lock="0"]{
+        [data-hm-adress].hm-week-program-icon[hm-week-program-lock="0"]{
             /** all week programs */
            opacity: 1;
         }
-        .hm-week-program-icon[hm-week-program-lock="7"]{
+        [data-hm-adress].hm-week-program-icon[hm-week-program-lock="7"]{
             /** no week programs */
            display: none;
         }
@@ -184,10 +192,11 @@
 </head>
 
 <body
-data-hm-xmlapi-hostX="192.168.0.46"
-data-hm-xmlapi-host="ccu3-wz"
+data-hm-xmlapi-host="192.168.0.46"
+data-hm-xmlapi-hostX="ccu3-wz"
 >
     <noscript>This page uses client side scripting, so it needs JavaScript to be active.</noscript>
+    <div class="notification"></div>
     <div class="actors">
 <!-- LED Flur --> <div data-hm-adress="001A5A49985A3E" style="grid-column: 1 / -1;margin:0;"></div>
 
