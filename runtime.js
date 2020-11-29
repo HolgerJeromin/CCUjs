@@ -417,6 +417,28 @@ function renderGui() {
         case '2': /** boolean */
           {
             let oldValue;
+            let sysvarButtonFalse = createButton(systemVariable.getAttribute('value_name_0'), 'false', systemVariable.getAttribute('ise_id'));
+            sysvarButtonFalse.disabled = homematicSysvarDiv.dataset.hmReadonly !== undefined;
+            sysvarButtonFalse.classList.add('hm-sysvar-label', 'hm-sysvar-boolean')
+            let sysvarButtonTrue = createButton(systemVariable.getAttribute('value_name_1'), 'true', systemVariable.getAttribute('ise_id'));
+            sysvarButtonTrue.disabled = homematicSysvarDiv.dataset.hmReadonly !== undefined;
+            sysvarButtonTrue.classList.add('hm-sysvar-label', 'hm-sysvar-boolean')
+            homematicSysvarDiv.append(sysvarButtonFalse, sysvarButtonTrue);
+            addHmMonitoring(systemVariable.getAttribute('ise_id'), (valueStr) => {
+              if (valueStr === oldValue) {
+                return;
+              }
+              oldValue = valueStr;
+              if (valueStr === 'true') {
+                sysvarButtonTrue.classList.add('hm-selected');
+                sysvarButtonFalse.classList.remove('hm-selected');
+              } else if (valueStr === 'false') {
+                sysvarButtonTrue.classList.remove('hm-selected')
+                sysvarButtonFalse.classList.add('hm-selected')
+              }
+            });
+
+            break;
             let sysvarLabelTrue = document.createElement('label');
             sysvarLabelTrue.classList.add('hm-sysvar-label', 'hm-sysvar-boolean')
             let sysvarInputTrue = document.createElement('input');

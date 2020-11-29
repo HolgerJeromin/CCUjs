@@ -55,6 +55,8 @@
         [data-hm-sysvar] > button {
             padding-top: 1em;
             padding-bottom: 1em;
+            padding-left: 1px;
+            padding-right: 1px;
         }
         [data-hm-sysvar] > meter {
             margin-top: 0;
@@ -88,16 +90,12 @@
             }
 /*        }*/
 
-        .hm-sysvar-boolean > input{
-                display: none;
+        .hm-sysvar-boolean{
+            outline: rgba(0, 0, 0, 0.2) 1px solid;
         }
-        .hm-sysvar-boolean > input ~ *{
-            border: rgba(0, 0,0, 0.2) 1px solid;
+        .hm-sysvar-boolean.hm-selected{
+            outline: green 2px solid;
         }
-        .hm-sysvar-boolean > input:checked ~ *{
-            border: green 1px solid;
-        }
-
         [data-hm-adress].hm-power-state-on{
            background-color :yellow;
         }
