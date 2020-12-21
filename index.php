@@ -10,6 +10,7 @@
     <meta name="Description" content="Homematic IP Display and Manipulation">
     <style>
         body{
+            font-family: sans-serif;
             max-width: 800px;
             background-color: white;
         }
@@ -103,6 +104,9 @@
            background-color :gray;
         }
 
+        [data-hm-adress].HmIP-BROLL{
+            /* background-image: linear-gradient(0deg, #A3FF00 calc(((--shutter-level - 0.22) * (100 / 78)) * 100) %, gray 0); */
+        }
 
         [data-hm-adress].hm-position-closed{
            background-color :green;
@@ -202,7 +206,7 @@ data-hm-xmlapi-host="192.168.0.46"
 data-hm-xmlapi-hostX="ccu3-wz"
 >
     <noscript>This page uses client side scripting, so it needs JavaScript to be active.</noscript>
-    <div class="notification"></div>
+    <div class="notifications"></div>
     <div class="actors">
 <!-- LED Flur --> <div data-hm-adress="001A5A49985A3E" style="grid-column: 1 / -1;margin:0;"></div>
 

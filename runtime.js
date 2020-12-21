@@ -142,10 +142,13 @@ function renderGui() {
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
               homematicDeviceDiv.style.background = 'repeating-linear-gradient(-55deg,#a0a0a0,#a0a0a0 10px,white 10px,white 20px)';
+              homematicDeviceDiv.style.setProperty('--shutter-level', '');
             } else if (value == 0) {
               homematicDeviceDiv.style.background = 'gray';
+              homematicDeviceDiv.style.setProperty('--shutter-level', '');
             } else {
-              homematicDeviceDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value) * (100 / 100)) * 100 + '%, gray 0)'
+              homematicDeviceDiv.style.background = 'linear-gradient(0deg, #A3FF00 ' + ((value) * (100 / 100)) * 100 + '%, gray 0)';
+              homematicDeviceDiv.style.setProperty('--shutter-level', valueStr);
             }
           });
 
@@ -167,15 +170,19 @@ function renderGui() {
             if (isNaN(value)) {
               homematicDeviceDiv.style.backgroundImage = 'repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px)';
               homematicDeviceDiv.style.backgroundColor = '';
+              homematicDeviceDiv.style.setProperty('--shutter-level', '');
             } else if (value == 0) {
               homematicDeviceDiv.style.backgroundImage = '';
               homematicDeviceDiv.style.backgroundColor = 'gray';
+              homematicDeviceDiv.style.setProperty('--shutter-level', '');
             } else if (value <= 0.22) {
               homematicDeviceDiv.style.backgroundImage = 'repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)';
               homematicDeviceDiv.style.backgroundColor = '';
+              homematicDeviceDiv.style.setProperty('--shutter-level', valueStr);
             } else {
               homematicDeviceDiv.style.backgroundImage = 'linear-gradient(0deg, #A3FF00 ' + ((value - 0.22) * (100 / 78)) * 100 + '%, gray 0)'
               homematicDeviceDiv.style.backgroundColor = '';
+              homematicDeviceDiv.style.setProperty('--shutter-level', valueStr);
             }
           });
 
@@ -437,51 +444,6 @@ function renderGui() {
                 sysvarButtonFalse.classList.add('hm-selected')
               }
             });
-
-            break;
-            let sysvarLabelTrue = document.createElement('label');
-            sysvarLabelTrue.classList.add('hm-sysvar-label', 'hm-sysvar-boolean')
-            let sysvarInputTrue = document.createElement('input');
-            sysvarInputTrue.type = 'radio';
-            sysvarInputTrue.addEventListener('change', evt => {
-              setHomematicValue(systemVariable.getAttribute('ise_id'), 'true');
-              sysvarInputTrue.disabled = true;
-              sysvarInputFalse.disabled = true;
-            });
-            let textTrue = document.createElement('div');
-            textTrue.textContent = systemVariable.getAttribute('value_name_1');
-            sysvarLabelTrue.append(sysvarInputTrue, textTrue);
-
-            let sysvarLabelFalse = document.createElement('label');
-            sysvarLabelFalse.classList.add('hm-sysvar-label', 'hm-sysvar-boolean')
-            let sysvarInputFalse = document.createElement('input');
-            sysvarInputFalse.type = 'radio';
-            sysvarInputFalse.addEventListener('change', evt => {
-              setHomematicValue(systemVariable.getAttribute('ise_id'), 'false');
-              sysvarInputTrue.disabled = true;
-              sysvarInputFalse.disabled = true;
-            });
-            let textFalse = document.createElement('div');
-            textFalse.textContent = systemVariable.getAttribute('value_name_0');
-            sysvarLabelFalse.append(sysvarInputFalse, textFalse);
-
-            homematicSysvarDiv.append(sysvarLabelTrue, sysvarLabelFalse)
-
-            addHmMonitoring(systemVariable.getAttribute('ise_id'), (valueStr) => {
-              if (valueStr === oldValue) {
-                return;
-              }
-              oldValue = valueStr;
-              if (valueStr === 'true') {
-                sysvarInputTrue.checked = true;
-                sysvarInputFalse.checked = false;
-              } else if (valueStr === 'false') {
-                sysvarInputTrue.checked = false;
-                sysvarInputFalse.checked = true;
-              }
-              sysvarInputTrue.disabled = false;
-              sysvarInputFalse.disabled = false;
-            });
           }
           break;
         case '4': /** number */
@@ -633,7 +595,12 @@ function clickHandler(evt) {
     target.value
   )
     .then(doc => {
-      outputFnc('Success in writing value: ' + (doc? doc.firstElementChild?.firstElementChild?.getAttribute('new_value'):'') + ', to ise id: ' + (doc? doc.firstElementChild?.firstElementChild?.getAttribute('id'):''), 'color: green;');
+      outputFnc(
+        'Success in writing value: ' 
+        + (doc ? doc.firstElementChild?.firstElementChild?.getAttribute('new_value'):'') 
+        + ', to ise id: ' 
+        + (doc? doc.firstElementChild?.firstElementChild?.getAttribute('id') : ''),
+        'color: green;');
     })
 }
 
@@ -751,7 +718,7 @@ let hmMonitoring = function () {
 };
 hmMonitoring();
 
-let notificationContainer = document.getElementsByClassName('notification')[0];
+let notificationContainer = document.getElementsByClassName('notifications')[0];
 let hmFetchNotification = function () {
   urlToDoc(host + baseXMLAPIpath + 'systemNotification.cgi')
     .then(doc => {
@@ -760,18 +727,51 @@ let hmFetchNotification = function () {
       systemNotifications.forEach(elem => {
         let notificationDiv = document.createElement('div');
         let iseId = elem.getAttribute('ise_id');
+        let deviceName = cachedDocuments
+          .get('statelist')
+          ?.querySelector('[ise_id="' + iseId + '"]')
+          ?.closest('device')
+          ?.getAttribute('name') ?? 'Unbekanntes Gerät';
+        let localTimestampStr = (new Date(parseInt(elem.getAttribute('timestamp'), 10) * 1000)).toLocaleString('de');
         switch (elem.getAttribute('type')) {
           case 'SABOTAGE':
-            let deviceName = cachedDocuments
-              .get('statelist')
-              ?.querySelector('[ise_id="' + iseId + '"]')
-              ?.closest('device')
-              ?.getAttribute('name') ?? 'Unbekanntes Gerät';
-            notificationDiv.append('Sabotage-Alarm für: ' + deviceName);
-            notificationDiv.classList.add('hm-sabotage');
+            {
+              notificationDiv.append('Sabotage-Alarm für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-sabotage');
+            }
+            break;
+          case 'CONFIG_PENDING':
+            {
+              notificationDiv.append('Configuration wartet für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-config-pending');
+            }
+            break;
+          case 'LOWBAT':
+            {
+              notificationDiv.append('Niedriger Batteriestand für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-low-bat');
+            }
+            break;
+          case 'STICKY_UNREACH':
+            {
+              notificationDiv.append('Dauerhafte Kommunikationsstörung für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-low-bat');
+            }
+            break;
+          case 'UNREACH':
+            {
+              notificationDiv.append('Kommunikationsstörung für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-low-bat');
+            }
+            break;
+          case 'UPDATE_PENDING':
+            {
+              notificationDiv.append('Neue Firmware verfügbar für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-low-bat');
+            }
             break;
           default:
-            notificationDiv.append('Unsupported system notification for type ' + elem.getAttribute('type'));
+            notificationDiv.append('Unsupported system notification for type ' + elem.getAttribute('type') + ' device: ' + deviceName + ' (seit ' + localTimestampStr + ')');
         }
         notificationContainer.appendChild(notificationDiv);
       });
