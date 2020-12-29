@@ -389,8 +389,8 @@ function renderGui() {
         let power = parseFloat(valueStr);
         if (!Number.isNaN(power)) {
           powerDiv.innerText = power.toLocaleString(undefined, {
-            maximumFractionDigits: 1,
-            minimumFractionDigits: 1
+            maximumFractionDigits: 2,
+            minimumFractionDigits: 2
           }) + ' ' + deviceInfo.power.valueunit;
         }
       });
@@ -596,9 +596,9 @@ function clickHandler(evt) {
   )
     .then(doc => {
       outputFnc(
-        'Success in writing value: ' 
-        + (doc ? doc.firstElementChild?.firstElementChild?.getAttribute('new_value'):'') 
-        + ', to ise id: ' 
+        'Success in writing value: '
+        + (doc ? doc.firstElementChild?.firstElementChild?.getAttribute('new_value'):'')
+        + ', to ise id: '
         + (doc? doc.firstElementChild?.firstElementChild?.getAttribute('id') : ''),
         'color: green;');
     })
@@ -736,37 +736,38 @@ let hmFetchNotification = function () {
         switch (elem.getAttribute('type')) {
           case 'SABOTAGE':
             {
-              notificationDiv.append('Sabotage-Alarm für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.append('Sabotage-Alarm für ' + deviceName + ' (seit ' + localTimestampStr + ')');
               notificationDiv.classList.add('hm-sabotage');
             }
             break;
           case 'CONFIG_PENDING':
             {
-              notificationDiv.append('Configuration wartet für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.append('Configuration wartet für ' + deviceName + ' (seit ' + localTimestampStr + ')');
               notificationDiv.classList.add('hm-config-pending');
             }
             break;
+          case 'LOW_BAT':
           case 'LOWBAT':
             {
-              notificationDiv.append('Niedriger Batteriestand für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.append('Niedriger Batteriestand für ' + deviceName + ' (seit ' + localTimestampStr + ')');
               notificationDiv.classList.add('hm-low-bat');
             }
             break;
           case 'STICKY_UNREACH':
             {
-              notificationDiv.append('Dauerhafte Kommunikationsstörung für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.append('Dauerhafte Kommunikationsstörung für ' + deviceName + ' (seit ' + localTimestampStr + ')');
               notificationDiv.classList.add('hm-low-bat');
             }
             break;
           case 'UNREACH':
             {
-              notificationDiv.append('Kommunikationsstörung für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.append('Kommunikationsstörung für ' + deviceName + ' (seit ' + localTimestampStr + ')');
               notificationDiv.classList.add('hm-low-bat');
             }
             break;
           case 'UPDATE_PENDING':
             {
-              notificationDiv.append('Neue Firmware verfügbar für: ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.append('Neue Firmware verfügbar für ' + deviceName + ' (seit ' + localTimestampStr + ')');
               notificationDiv.classList.add('hm-low-bat');
             }
             break;
