@@ -197,7 +197,9 @@ function renderGui() {
           let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
           if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
             // Main actor state is in second state datapoint (SWITCH_VIRTUAL_RECEIVER)
-            homematicDeviceDiv.appendChild(createButton('An', 'true', deviceInfo.selectedDatapoints[1].iseId));
+            if (homematicDeviceDiv.dataset.hmOffOnly === undefined) {
+              homematicDeviceDiv.appendChild(createButton('An', 'true', deviceInfo.selectedDatapoints[1].iseId));
+            }
             homematicDeviceDiv.appendChild(createButton('Aus', 'false', deviceInfo.selectedDatapoints[1].iseId));
           }
           // Actual state is in first state datapoint (SWITCH_TRANSMITTER)
@@ -720,6 +722,11 @@ hmMonitoring();
 
 let notificationContainer = document.getElementsByClassName('notifications')[0];
 let hmFetchNotification = function () {
+  if (
+    notificationContainer &&
+    navigator.onLine &&
+    document.visibilityState === 'visible'
+  ) {
   urlToDoc(host + baseXMLAPIpath + 'systemNotification.cgi')
     .then(doc => {
       notificationContainer.textContent = '';
@@ -787,7 +794,7 @@ let hmFetchNotification = function () {
       }
     })
     ;
-
+  }
   setTimeout(hmFetchNotification, 3000);
 };
 hmFetchNotification();
