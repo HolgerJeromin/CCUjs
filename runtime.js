@@ -56,6 +56,15 @@ function urlToString(url) {
       const decodedString = isoTextdecoder.decode(new DataView(arrayBuffer));
       return decodedString;
     })
+    .catch(ex => {
+      console.error(ex);
+      if (ex instanceof TypeError) {
+        outputFnc('Error in request(parsing): ' + ex +
+          '<br>You could try to open the <a target="_blank" href="' + url + '">url</a> manually.', 'color: red;');
+      } else {
+        outputFnc('Error in request(parsing): ' + ex, 'color: red;');
+      }
+    })
 }
 function urlToDoc(url) {
   return urlToString(url)
@@ -64,6 +73,9 @@ function urlToDoc(url) {
 const createFetchPromise = (/** @type configFilenameList */ filename) => {
   return urlToString(configUrlMap.get(filename))
     .then(str => {
+      if(!str) {
+        throw new Error('Got no url data for '+ filename);
+      }
       try {
         window.localStorage.setItem(filename, str);
       } catch (error) {
@@ -76,13 +88,7 @@ const createFetchPromise = (/** @type configFilenameList */ filename) => {
       return cachedDocuments.set(filename, doc);
     })
     .catch(ex => {
-      // console.error(ex);
-      if (ex instanceof TypeError) {
-        outputFnc('Error in request(parsing): ' + ex +
-          '<br>You could try to open the <a target="_blank" href="' + configUrlMap.get(filename) + '">url</a> manually.', 'color: red;');
-      } else {
         outputFnc('Error in request(parsing): ' + ex, 'color: red;');
-      }
     })
     ;
 }
@@ -742,14 +748,21 @@ let hmFetchNotification = function () {
         let localTimestampStr = (new Date(parseInt(elem.getAttribute('timestamp'), 10) * 1000)).toLocaleString('de');
         switch (elem.getAttribute('type')) {
           case 'SABOTAGE':
+          case 'ERROR_SABOTAGE':
             {
               notificationDiv.append('Sabotage-Alarm für ' + deviceName + ' (seit ' + localTimestampStr + ')');
               notificationDiv.classList.add('hm-sabotage');
             }
             break;
+          case 'STICKY_SABOTAGE':
+            {
+              notificationDiv.append('Hatte Sabotage-Alarm für ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-sticky-sabotage');
+            }
+            break;
           case 'CONFIG_PENDING':
             {
-              notificationDiv.append('Configuration wartet für ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.append('Konfigurationsdaten stehen zur Übertragung an für ' + deviceName + ' (seit ' + localTimestampStr + ')');
               notificationDiv.classList.add('hm-config-pending');
             }
             break;
@@ -760,22 +773,52 @@ let hmFetchNotification = function () {
               notificationDiv.classList.add('hm-low-bat');
             }
             break;
+          case 'U_SOURCE_FAIL':
+            {
+              notificationDiv.append('Netzteil ausgefallen für ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-source-fail');
+            }
+            break;
+          case 'USBH_POWERFAIL':
+            {
+              notificationDiv.append('USB-Host deaktiviert für ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-usbhost-powerfail');
+            }
+            break;
           case 'STICKY_UNREACH':
             {
               notificationDiv.append('Dauerhafte Kommunikationsstörung für ' + deviceName + ' (seit ' + localTimestampStr + ')');
-              notificationDiv.classList.add('hm-low-bat');
+              notificationDiv.classList.add('hm-sticky-unreach');
             }
             break;
           case 'UNREACH':
             {
               notificationDiv.append('Kommunikationsstörung für ' + deviceName + ' (seit ' + localTimestampStr + ')');
-              notificationDiv.classList.add('hm-low-bat');
+              notificationDiv.classList.add('hm-unreach');
             }
             break;
+          case 'ERROR_NON_FLAT_POSITIONING':
+              {
+              notificationDiv.append('Fehler Lageerkennung für ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-non-flat-positioning');
+              }
+              break;
           case 'UPDATE_PENDING':
             {
               notificationDiv.append('Neue Firmware verfügbar für ' + deviceName + ' (seit ' + localTimestampStr + ')');
-              notificationDiv.classList.add('hm-low-bat');
+              notificationDiv.classList.add('hm-update-pending');
+            }
+            break;
+          case 'DEVICE_IN_BOOTLOADER':
+            {
+              notificationDiv.append('Device startet neu für ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-device-in-bootloader');
+            }
+            break;
+          case 'ERROR_REDUCED':
+            {
+              notificationDiv.append('Temperatur kritisch (Lastabsenkung) für ' + deviceName + ' (seit ' + localTimestampStr + ')');
+              notificationDiv.classList.add('hm-error-reduced');
             }
             break;
           default:

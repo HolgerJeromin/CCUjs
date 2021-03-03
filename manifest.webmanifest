@@ -2,6 +2,7 @@
   "$schema": "http://json.schemastore.org/web-manifest",
   "name": "Haussteuerung Haferkamp",
   "short_name": "Haussteuerung",
+  "description": "Einfache Homematic IP Haussteuerung",
   "icons": [
     {
       "src": "manifest_logo_haus196x196.webp",
@@ -16,7 +17,7 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": "./?force=true",
+  "start_url": "./",
   "display": "minimal-ui",
   "orientation": "portrait"
 }

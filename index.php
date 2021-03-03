@@ -244,8 +244,8 @@ data-hm-xmlapi-hostX="ccu3-wz"
 
 <!-- Wasser KG Sauna -->   <div data-hm-adress="001898A99F5399"></div>
 <!-- Wasser KG Technik -->   <div data-hm-adress="001898A99F536C"></div>
-<!-- FB Vera -->   <div data-hm-adress="0002DA499DDA49"></div>
-<!-- FB Laura -->   <div data-hm-adress="0002DA499DDD0B"></div>
+<!-- Wasser Küche -->   <div data-hm-adress="00189BE99769DF"></div>
+<!-- Rauch KG Technik -->   <div data-hm-adress="000A58A9AC4DBA"></div>
 
 <!-- Rolladen EG WZ Tür links -->   <div data-hm-adress="00111A498BF95D"></div>
 <!-- Rolladen EG WZ Tür rechts -->   <div data-hm-adress="00111A498BF92D"></div>
@@ -257,37 +257,39 @@ data-hm-xmlapi-hostX="ccu3-wz"
 <!-- Rolladen EG Flur -->   <div data-hm-adress="00111A498BF945"></div>
 <!-- Rolladen EG WZ Fenster -->   <div data-hm-adress="00111A498BF941"></div>
 
-<!-- Heizung KG Spielen links -->   <div data-hm-adress="0001D3C99C6BCE"></div>
-<!-- Heizung KG Spielen rechts -->   <div data-hm-adress="0001D3C99CB1D5"></div>
-<!-- Licht Hausnr -->   <div data-hm-adress="00089A4996736F"></div>
-<!-- Licht Haus Aussen -->   <div data-hm-adress="00085A49901C69"></div>
-
-<!-- Rauch EG WZ -->   <div data-hm-adress="000A58A9AC4DCA"></div>
-<!-- Rauch Garten -->   <div data-hm-adress="000A58A9AC4CB5"></div>
-<!-- Rauch EG Gast -->   <div data-hm-adress="000A58A9AC4DC8"></div>
-<!-- Rauch EG Flur -->   <div data-hm-adress="000A5A49A5A4F1"></div>
+<!-- Heizung KG Spielen links -->   <div data-hm-adress="0001D3C99C6BCE" data-hm-off-only></div>
+<!-- Heizung KG Spielen rechts -->   <div data-hm-adress="0001D3C99CB1D5" data-hm-off-only></div>
+<!-- Waschmaschine -->   <div data-hm-adress="0001D3C99C916E" data-hm-readonly></div>
+<!-- Trockner -->   <div data-hm-adress="0001D3C99C7401" data-hm-readonly></div>
 
 <!-- Rauch DG Laura -->   <div data-hm-adress="000A58A9AC4FA0"></div>
 <!-- Rauch DG Vera -->   <div data-hm-adress="000A58A9AC4DC5"></div>
 <!-- Rauch DG AZ -->   <div data-hm-adress="000A58A9AC4CCD"></div>
 <!-- Rauch DG SZ -->   <div data-hm-adress="000A58A9AC4DC6"></div>
 
+<!-- Rauch EG WZ -->   <div data-hm-adress="000A58A9AC4DCA"></div>
+<!-- Rauch Garten -->   <div data-hm-adress="000A58A9AC4CB5"></div>
+<!-- Rauch EG Flur -->   <div data-hm-adress="000A5A49A5A4F1"></div>
+<!-- Rauch EG Gast -->   <div data-hm-adress="000A58A9AC4DC8"></div>
+
 <!-- Rauch KG Spielen -->   <div data-hm-adress="000A58A9AC4DBD"></div>
 <!-- Rauch KG Vorrat -->   <div data-hm-adress="000A58A9AC4C9F"></div>
 <!-- Rauch KG Sauna -->   <div data-hm-adress="000A58A9AC4CD0"></div>
-<!-- Rauch KG Technik -->   <div data-hm-adress="000A58A9AC4DBA"></div>
+<!-- Rauch KG Flur -->   <div data-hm-adress="000A58A9AC4DB9"></div>
 
 <!-- Rauch DG Flur -->   <div data-hm-adress="000A58A9AC4DB3"></div>
-<!-- Rauch KG Flur -->   <div data-hm-adress="000A58A9AC4DB9"></div>
 <!-- Rauch Spitzboden -->   <div data-hm-adress="000A58A9AC4CD2"></div>
-<!-- Messgerät -->   <div data-hm-adress="0001D3C99C7401" data-hm-readonly></div>
+<!-- FB Vera -->   <div data-hm-adress="0002DA499DDA49"></div>
+<!-- FB Laura -->   <div data-hm-adress="0002DA499DDD0B"></div>
 
-<!-- Router Spitzboden -->   <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
-<!-- Licht DG AZ Tisch -->   <div data-hm-adress="0001D3C99C916E"></div>
+<!-- Licht Hausnr -->   <div data-hm-adress="00089A4996736F"></div>
+<!-- Licht Haus Aussen -->   <div data-hm-adress="00085A49901C69"></div>
 
         <div data-hm-sysvar="Anwesenheitssimulation"></div>
         <div data-hm-sysvar="Beschattung"></div>
+
         <div data-hm-sysvar="DutyCycle" data-hm-readonly></div>
+<!-- Router Spitzboden -->   <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
 
     </div>
     <div id="output">
