@@ -94,7 +94,8 @@
         .hm-sysvar-boolean{
             outline: rgba(0, 0, 0, 0.2) 1px solid;
         }
-        .hm-sysvar-boolean.hm-selected{
+        .hm-sysvar-boolean.hm-selected,
+        .hm-sysvar-value-list.hm-selected{
             outline: green 2px solid;
         }
         [data-hm-adress].hm-power-state-on{
@@ -215,7 +216,7 @@ data-hm-xmlapi-hostX="ccu3-wz"
 <!-- Licht DG Vera -->   <div data-hm-adress="00085A49901C43"></div>
 <!-- Licht DG Laura -->   <div data-hm-adress="00085A49901A88"></div>
 <!-- Licht DG AZ -->   <div data-hm-adress="00085A49A3F81D"></div>
-<!-- CCU3 -->           <div data-hm-adress="HmIP-RCV-1" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
+<!-- Licht DG SZ -->   <div data-hm-adress="00085BE9A005A9"></div>
 
 <!-- Rolladen DG Vera -->   <div data-hm-adress="00111A498BF94A"></div>
 <!-- Rolladen DG Laura -->   <div data-hm-adress="00111A498BF963"></div>
@@ -235,7 +236,7 @@ data-hm-xmlapi-hostX="ccu3-wz"
 <!-- Verschluss EG WZ Fenster --> <div data-hm-adress="0007DBE98D736E"></div>
 <!-- Verschluss EG Küche Fenster --> <div data-hm-adress="0007DBE98D7370"></div>
 <!-- Verschluss EG Küche Tür -->   <div data-hm-adress="0007DBE98D7378"></div>
-<!-- Verschluss EG Küche Schlüssel -->  <div data-hm-adress="00109A49A27CFF"></div>
+<!-- Router Spitzboden --> <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
 
 <!-- Verschluss EG Bad -->   <div data-hm-adress="0007DA49903277"></div>
 <!-- Verschluss EG Gast --> <div data-hm-adress="0007DBE98D7369"></div>
@@ -287,9 +288,13 @@ data-hm-xmlapi-hostX="ccu3-wz"
 
         <div data-hm-sysvar="Anwesenheitssimulation"></div>
         <div data-hm-sysvar="Beschattung"></div>
+        <div data-hm-sysvar="SZ Rollladen nachts runter"></div>
 
         <div data-hm-sysvar="DutyCycle" data-hm-readonly></div>
-<!-- Router Spitzboden -->   <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
+<!-- Verschluss EG Küche Schlüssel --> <div data-hm-adress="00109A49A27CFF"></div>
+
+<!-- CCU3 -->           <div data-hm-adress="HmIP-RCV-1" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
+
 
     </div>
     <div id="output">
