@@ -12,11 +12,11 @@
         body{
             font-family: sans-serif;
             max-width: 800px;
-            background-color: white;
+            background: white;
         }
         @media (prefers-color-scheme: dark) {
             body{
-    	    	background-color: lightgray;
+    	    	background: lightgray;
         	}
         }
         .actors {
@@ -51,6 +51,7 @@
         [data-hm-adress] > *:first-child,
         [data-hm-sysvar] > *:first-child{
             margin-top: 0;
+            flex: 1 0;
         }
         [data-hm-adress] > button,
         [data-hm-sysvar] > button {
@@ -61,6 +62,8 @@
         }
         [data-hm-sysvar] > meter {
             margin-top: 0;
+            width: 100%;
+            height: 2em;
         }
 
         [data-hm-adress] > .opVolt,
@@ -98,51 +101,64 @@
         .hm-sysvar-value-list.hm-selected{
             outline: green 2px solid;
         }
+        [data-hm-adress] {
+            background: repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px);
+        }
         [data-hm-adress].hm-power-state-on{
-           background-color :yellow;
+           background:yellow;
+        }
+        [data-hm-adress].hm-power-state-on > button[value="true"] {
+            display: none;
         }
         [data-hm-adress].hm-power-state-off{
-           background-color :gray;
+           background:gray;
+        }
+        [data-hm-adress].hm-power-state-off > button[value="false"] {
+            display: none;
+        }
+
+        [data-hm-adress][data-hm-hide-actor-state]{
+            background: unset;
         }
 
         [data-hm-adress].HmIP-BROLL{
-            /* background-image: linear-gradient(0deg, #A3FF00 calc(((--shutter-level - 0.22) * (100 / 78)) * 100) %, gray 0); */
+            /* background: linear-gradient(0deg, #A3FF00 calc(((--shutter-level - 0.22) * (100 / 78)) * 100) %, gray 0); */
         }
 
         [data-hm-adress].hm-position-closed{
-           background-color :green;
+           background :green;
         }
         [data-hm-adress].hm-position-tilted{
-           background-color :orange;
+           background :orange;
         }
         [data-hm-adress].hm-position-open{
-           background-color :red;
+           background :red;
         }
 
         [data-hm-adress].hm-smoke-idle{
-           background-color :green;
+           background :green;
         }
         [data-hm-adress].hm-smoke-primary{
-           background-color :red;
+           background :red;
         }
         [data-hm-adress].hm-smoke-secondary{
-           background-color :indianred;
+           background :indianred;
         }
         [data-hm-adress].hm-smoke-intrusion{
-            background-color :yellow;
+            background :yellow;
         }
 
         [data-hm-adress].hm-moisture-idle{
-            background-color: green;
+            background: green;
         }
         [data-hm-adress].hm-water-idle{
-            background-color: green;
+            background: green;
         }
         [data-hm-adress].hm-moisture-detected{
-            background-color: orange;
+            background: orange;
         }
         [data-hm-adress].hm-water-detected{
-            background-color: red;
+            background: red;
         }
 
 
@@ -153,10 +169,10 @@
             border-color :red;
         }
         [data-hm-adress].HmIP-KRC4{
-            background-color :green;
+            background :green;
         }
         [data-hm-adress].hm-low-bat.HmIP-KRC4{
-            background-color :red;
+            background :red;
         }
         [data-hm-adress].hm-unreachable{
             opacity: 0.55;
@@ -169,7 +185,7 @@
         }
         [data-hm-adress].hm-sabotage::after{
             content: 'Sabotage';
-            background-color: red;
+            background: red;
             padding: 1px;
         }
         .notification > .hm-sabotage{
@@ -209,7 +225,7 @@ data-hm-xmlapi-hostX="ccu3-wz"
     <noscript>This page uses client side scripting, so it needs JavaScript to be active.</noscript>
     <div class="notifications"></div>
     <div class="actors">
-<!-- LED Flur --> <div data-hm-adress="001A5A49985A3E" style="grid-column: 1 / -1;margin:0;"></div>
+<!-- LED Flur --> <div data-hm-adress="001A5A49985A3E" style="grid-column: 1 / -1;margin:0;" data-hm-hide-actor-state data-hm-readonly></div>
 
 <!-- Markise -->   <div data-hm-adress="00115A499F41AF" class="colspan4"></div>
 
@@ -228,40 +244,42 @@ data-hm-xmlapi-hostX="ccu3-wz"
 <!-- Verschluss DG AZ -->   <div data-hm-adress="0007DBE98D7382"></div>
 <!-- Verschluss DG SZ -->   <div data-hm-adress="0007DA49992F5E"></div>
 
-<!-- Verschluss EG WZ LL --> <div data-hm-adress="0007DBE98D7397"></div>
 <!-- Verschluss EG WZ LR --> <div data-hm-adress="0007DBE98D7471"></div>
-<!-- Verschluss EG WZ RL --> <div data-hm-adress="0007DBE98D738A"></div>
 <!-- Verschluss EG WZ RR -->   <div data-hm-adress="0007DA4999323A"></div>
-
-<!-- Verschluss EG WZ Fenster --> <div data-hm-adress="0007DBE98D736E"></div>
 <!-- Verschluss EG Küche Fenster --> <div data-hm-adress="0007DBE98D7370"></div>
-<!-- Verschluss EG Küche Tür -->   <div data-hm-adress="0007DBE98D7378"></div>
-<!-- Router Spitzboden --> <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
-
-<!-- Verschluss EG Bad -->   <div data-hm-adress="0007DA49903277"></div>
-<!-- Verschluss EG Gast --> <div data-hm-adress="0007DBE98D7369"></div>
-<!-- Verschluss EG Flur -->  <div data-hm-adress="00109A498FC33A"></div>
-<!-- Verschluss DG Bad -->   <div data-hm-adress="0000DA498D222E"></div>
-
-<!-- Wasser KG Sauna -->   <div data-hm-adress="001898A99F5399"></div>
-<!-- Wasser KG Technik -->   <div data-hm-adress="001898A99F536C"></div>
-<!-- Wasser Küche -->   <div data-hm-adress="00189BE99769DF"></div>
-<!-- Rauch KG Technik -->   <div data-hm-adress="000A58A9AC4DBA"></div>
+<!-- Verschluss EG Küche Türgriff -->   <div data-hm-adress="0007DBE98D7378"></div>
 
 <!-- Rolladen EG WZ Tür links -->   <div data-hm-adress="00111A498BF95D"></div>
 <!-- Rolladen EG WZ Tür rechts -->   <div data-hm-adress="00111A498BF92D"></div>
 <!-- Rolladen EG Küche Fenster -->   <div data-hm-adress="00111A498BF962"></div>
-<!-- Rolladen EG Küche Tür -->   <div data-hm-adress="00111A498BF927"></div>
+<!-- Rolladen EG Küche Tür -->   <div data-hm-adress="00111A498BF927" data-hm-potentially-unsafe-state-confirm></div>
+
+<!-- Verschluss EG WZ LL --> <div data-hm-adress="0007DBE98D7397"></div>
+<!-- Verschluss EG WZ RL --> <div data-hm-adress="0007DBE98D738A"></div>
+<!-- Verschluss DG Bad -->   <div data-hm-adress="0000DA498D222E"></div>
+<!-- Verschluss EG Küche Tür --> <div data-hm-adress="00109A49A27CFF"></div>
+
+<!-- Wasser KG Sauna -->   <div data-hm-adress="001898A99F5399"></div>
+<!-- Wasser KG Technik -->   <div data-hm-adress="001898A99F536C"></div>
+<!-- Waschmaschine -->   <div data-hm-adress="0001D3C99C916E" data-hm-readonly></div>
+<!-- Trockner -->   <div data-hm-adress="0001D3C99C7401" data-hm-readonly></div>
+
 
 <!-- Rolladen EG Bad -->   <div data-hm-adress="00111A498BF96B"></div>
 <!-- Rolladen EG Gast -->   <div data-hm-adress="00111A498BF929"></div>
 <!-- Rolladen EG Flur -->   <div data-hm-adress="00111A498BF945"></div>
 <!-- Rolladen EG WZ Fenster -->   <div data-hm-adress="00111A498BF941"></div>
 
-<!-- Heizung KG Spielen links -->   <div data-hm-adress="0001D3C99C6BCE" data-hm-off-only></div>
-<!-- Heizung KG Spielen rechts -->   <div data-hm-adress="0001D3C99CB1D5" data-hm-off-only></div>
-<!-- Waschmaschine -->   <div data-hm-adress="0001D3C99C916E" data-hm-readonly></div>
-<!-- Trockner -->   <div data-hm-adress="0001D3C99C7401" data-hm-readonly></div>
+<!-- Verschluss EG Bad -->   <div data-hm-adress="0007DA49903277"></div>
+<!-- Verschluss EG Gast --> <div data-hm-adress="0007DBE98D7369"></div>
+<!-- Verschluss EG Flur -->  <div data-hm-adress="00109A498FC33A"></div>
+<!-- Verschluss EG WZ Fenster --> <div data-hm-adress="0007DBE98D736E"></div>
+
+
+<!-- Heizung KG Spielen links -->   <div data-hm-adress="0001D3C99C6BCE" data-hm-safe-state-only></div>
+<!-- Heizung KG Spielen rechts -->   <div data-hm-adress="0001D3C99CB1D5" data-hm-safe-state-only></div>
+<!-- Router Spitzboden --> <div data-hm-adress="00021A4994A8FD" data-hm-readonly></div>
+<!-- Rauch KG Technik -->   <div data-hm-adress="000A58A9AC4DBA"></div>
 
 <!-- Rauch DG Laura -->   <div data-hm-adress="000A58A9AC4FA0"></div>
 <!-- Rauch DG Vera -->   <div data-hm-adress="000A58A9AC4DC5"></div>
@@ -283,16 +301,16 @@ data-hm-xmlapi-hostX="ccu3-wz"
 <!-- FB Vera -->   <div data-hm-adress="0002DA499DDA49"></div>
 <!-- FB Laura -->   <div data-hm-adress="0002DA499DDD0B"></div>
 
+
+<!-- Wasser Küche -->   <div data-hm-adress="00189BE99769DF"></div>
+
 <!-- Licht Hausnr -->   <div data-hm-adress="00089A4996736F"></div>
 <!-- Licht Haus Aussen -->   <div data-hm-adress="00085A49901C69"></div>
+<div data-hm-sysvar="DutyCycle" data-hm-readonly></div>
 
+        <div data-hm-sysvar="SZ Rollladen nachts runter"></div>
         <div data-hm-sysvar="Anwesenheitssimulation"></div>
         <div data-hm-sysvar="Beschattung"></div>
-        <div data-hm-sysvar="SZ Rollladen nachts runter"></div>
-
-        <div data-hm-sysvar="DutyCycle" data-hm-readonly></div>
-<!-- Verschluss EG Küche Schlüssel --> <div data-hm-adress="00109A49A27CFF"></div>
-
 <!-- CCU3 -->           <div data-hm-adress="HmIP-RCV-1" data-hm-override-index="1" data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG" data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"></div>
 
 
