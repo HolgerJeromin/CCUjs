@@ -169,11 +169,11 @@ function renderGui() {
         {
         datapointType = 'LEVEL';
         let levelDeviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
+        // Since DRDI3 consists of 3 subdevices - we use sub-device offset to find out which subdevices to use
+        // valid subdevice values are 0, 1, 2. Those are mapped to datapoints 1, 5, and 9, corresponding to channels :5, :9, :13
+        // Note: findActorChanel heuristic does not work for this device
         let actuatorChannelDatapointIndex = subdevice*4+1;
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
-          // Since DRDI3 consists of 3 devices - we use sub-device offset to find out which subdevices to use
-          // valid values are 0, 1, 2 those are mapped to datapoints 0, 4, and 8, corresponding to channels :5, :9, :13
-          // findActorChanel heuristic does not work for this device
           homematicDeviceDiv.appendChild(createButton('100%', '1', levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId));
           homematicDeviceDiv.appendChild(createButton('60%', '0.6', levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId));
           homematicDeviceDiv.appendChild(createButton('30%', '0.3', levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId));
