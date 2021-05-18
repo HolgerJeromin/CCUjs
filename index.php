@@ -4,9 +4,9 @@
     <meta charset="utf8">
     <meta name="viewport" content="width=device-width">
     <title>Haussteuerung</title>
-    <script src="runtime.js<?php if($_GET['force']) echo '?random='.rand(); ?>" async defer></script>
-    <link rel="manifest" crossorigin="use-credentials" href="manifest.webmanifest">
-    <link rel="icon" href="manifest_logo_haus196x196.jpg">
+    <script src="runtime.js" async defer></script>
+    <link rel="manifest" crossorigin="use-credentials" href="manifest/manifest.webmanifest">
+    <link rel="icon" href="manifest/manifest_logo_haus196x196.jpg">
     <meta name="Description" content="Homematic IP Display and Manipulation">
     <style>
         body{
@@ -218,9 +218,11 @@
     </style>
 </head>
 
+<!-- 
+    @param data-hm-xmlapi-host IP or hostname (needs to be accessible from the runtime browser)
+-->
 <body
-data-hm-xmlapi-host="192.168.0.46"
-data-hm-xmlapi-hostX="ccu3-wz"
+    data-hm-xmlapi-host="192.168.0.46"
 >
     <noscript>This page uses client side scripting, so it needs JavaScript to be active.</noscript>
     <div class="notifications"></div>
