@@ -120,6 +120,7 @@ function renderGui() {
   for (const homematicDeviceDiv of allHomematicDeviceDivs) {
     const deviceBaseadress = homematicDeviceDiv.dataset.hmAdress;
     let overrideIndex = homematicDeviceDiv.dataset.hmOverrideIndex;
+    let subdevice = parseInt(homematicDeviceDiv.dataset.hmSubdevice) || 0;
     let overrideDatapointTypeArr = homematicDeviceDiv.dataset.hmDatapointType?.split('|');
     let overrideDatapointTypeLabelArr = homematicDeviceDiv.dataset.hmDatapointTypeLabel?.split('|');
     let datapointType;
@@ -164,6 +165,39 @@ function renderGui() {
 
           break;
         }
+      case 'HmIP-DRDI3':
+        {
+        datapointType = 'LEVEL';
+        let levelDeviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
+        let actuatorChannelDatapointIndex = subdevice*4+1;
+        if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
+          // Since DRDI3 consists of 3 devices - we use sub-device offset to find out which subdevices to use
+          // valid values are 0, 1, 2 those are mapped to datapoints 0, 4, and 8, corresponding to channels :5, :9, :13
+          // findActorChanel heuristic does not work for this device
+          homematicDeviceDiv.appendChild(createButton('100%', '1', levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId));
+          homematicDeviceDiv.appendChild(createButton('60%', '0.6', levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId));
+          homematicDeviceDiv.appendChild(createButton('30%', '0.3', levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId));
+          homematicDeviceDiv.appendChild(createButton('0%', '0', levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId));
+          // Override device name with actuator channel name
+          labelDiv.innerText = levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].name;
+        }
+        let valueDiv = document.createElement('div');
+        valueDiv.classList.add('power');
+        homematicDeviceDiv.appendChild(valueDiv);
+        addHmMonitoring(levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId, (valueStr) => {
+          let value = parseFloat(valueStr);
+          valueDiv.innerText = value;
+          if (isNaN(value) || value==0) {
+            homematicDeviceDiv.classList.toggle('hm-power-state-on', false);
+            homematicDeviceDiv.classList.toggle('hm-power-state-off', true);
+          } else {
+            homematicDeviceDiv.classList.toggle('hm-power-state-on', true);
+            homematicDeviceDiv.classList.toggle('hm-power-state-off', false);
+          }
+        });
+
+        break;
+       }       
       case 'HmIP-BROLL': // Shutter actuator for Brand Switch Systems
         {
           datapointType = 'LEVEL';
