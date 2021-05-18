@@ -339,6 +339,7 @@ function renderGui() {
             homematicDeviceDiv.firstChild.nodeValue = 'missing datapoint info';
             break;
           }
+          homematicDeviceDiv.style.background = 'unset';
           for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
             let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, overrideDatapointTypeArr[i], overrideIndex);
             if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
