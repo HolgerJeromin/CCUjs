@@ -172,7 +172,7 @@ function renderGui() {
         // Since DRDI3 consists of 3 subdevices - we use sub-device offset to find out which subdevices to use
         // valid subdevice values are 0, 1, 2. Those are mapped to datapoints 1, 5, and 9, corresponding to channels :5, :9, :13
         // Note: findActorChanel heuristic does not work for this device
-        let actuatorChannelDatapointIndex = subdevice*4+1;
+        let actuatorChannelDatapointIndex = subdevice * 4 + 1;
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
           homematicDeviceDiv.appendChild(createButton('100%', '1', levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId));
           homematicDeviceDiv.appendChild(createButton('60%', '0.6', levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId));
@@ -186,13 +186,14 @@ function renderGui() {
         homematicDeviceDiv.appendChild(valueDiv);
         addHmMonitoring(levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId, (valueStr) => {
           let value = parseFloat(valueStr);
-          valueDiv.innerText = value;
-          if (isNaN(value) || value==0) {
+          if (isNaN(value) || value == 0) {
             homematicDeviceDiv.classList.toggle('hm-power-state-on', false);
             homematicDeviceDiv.classList.toggle('hm-power-state-off', true);
+            valueDiv.innerText = '0';
           } else {
             homematicDeviceDiv.classList.toggle('hm-power-state-on', true);
             homematicDeviceDiv.classList.toggle('hm-power-state-off', false);
+            valueDiv.innerText = value.toString();
           }
         });
 
