@@ -182,7 +182,7 @@ function renderGui() {
           labelDiv.innerText = levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].name;
         }
         let valueDiv = document.createElement('div');
-        valueDiv.classList.add('power');
+        valueDiv.classList.add('currentValue');
         homematicDeviceDiv.appendChild(valueDiv);
         addHmMonitoring(levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex].iseId, (valueStr) => {
           let value = parseFloat(valueStr);
