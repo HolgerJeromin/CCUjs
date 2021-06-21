@@ -143,8 +143,8 @@ function renderGui() {
             homematicDeviceDiv.appendChild(createButton('Hoch', '1', levelDeviceInfo.firstActorChannel.iseId));
             if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
               homematicDeviceDiv.appendChild(createButton('Halb', '0.5', levelDeviceInfo.firstActorChannel.iseId));
-              homematicDeviceDiv.appendChild(createButton('Stop', '1', stopDeviceInfo.selectedDatapoints[0].iseId));
-              homematicDeviceDiv.appendChild(createButton('Runter', '0', levelDeviceInfo.firstActorChannel.iseId));
+              homematicDeviceDiv.appendChild(createButton('Stop', '1', stopDeviceInfo.selectedDatapoints[0].iseId, ['hm-safe']));
+              homematicDeviceDiv.appendChild(createButton('Runter', '0', levelDeviceInfo.firstActorChannel.iseId, ['hm-unsafe']));
             }
           }
           // Actual level is in first level datapoint (SHUTTER_TRANSMITTER)
@@ -207,7 +207,7 @@ function renderGui() {
             let stopDeviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, 'STOP', overrideIndex);
             homematicDeviceDiv.appendChild(createButton('Hoch', '1', levelDeviceInfo.firstActorChannel.iseId));
             if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
-              homematicDeviceDiv.appendChild(createButton('Stop', '1', stopDeviceInfo.selectedDatapoints[0].iseId));
+              homematicDeviceDiv.appendChild(createButton('Stop', '1', stopDeviceInfo.selectedDatapoints[0].iseId, ['hm-safe']));
               homematicDeviceDiv.appendChild(createButton('Streifen', '0.22', levelDeviceInfo.firstActorChannel.iseId, ['hm-unsafe']));
               homematicDeviceDiv.appendChild(createButton('Runter', '0', levelDeviceInfo.firstActorChannel.iseId, ['hm-unsafe']));
             }
@@ -660,7 +660,9 @@ function clickHandler(evt) {
   let message;
   /** @type {HTMLElement} */
   let labelDiv = target.parentElement.querySelector('.label');
-  if (
+  if(target.classList.contains('hm-safe')){
+    // Skip confirmation
+  }else if (
     labelDiv.firstChild.nodeValue.includes('Vera')
     || labelDiv.firstChild.nodeValue.includes('Laura')
   ) {
