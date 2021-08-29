@@ -199,6 +199,55 @@ function renderGui() {
 
         break;
        }       
+      case 'HmIP-eTRV-C-2': //Radiator Thermostat Compact
+      {
+        {
+          datapointType = 'SET_POINT_TEMPERATURE';     
+          let levelDeviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
+          var setpointDiv = document.createElement('div');
+          setpointDiv.classList.add('currentValue');
+          homematicDeviceDiv.appendChild(setpointDiv);
+          addHmMonitoring(levelDeviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
+            let value = parseFloat(valueStr);
+            if (isNaN(value) || value == 0) {
+              setpointDiv.innerText = 'Sollwert: 0 °C';
+            } else {
+              setpointDiv.innerText = 'Sollwert: ' + value.toString() + ' °C';;
+            }
+          });
+        }
+        {
+          datapointType = 'LEVEL';
+          let levelDeviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
+          let valueDiv = document.createElement('div');
+          valueDiv.classList.add('currentValue');
+          homematicDeviceDiv.appendChild(valueDiv);
+          console.log(levelDeviceInfo);
+          addHmMonitoring(levelDeviceInfo.tempDatapoint.iseId, (valueStr) => {
+            let value = parseFloat(valueStr);
+            if (isNaN(value) || value == 0) {
+              valueDiv.innerText = 'Messwert: 0 °C';
+            } else {
+              valueDiv.innerText = 'Messwert: ' + value.toString() + ' °C';
+            }
+          });
+          var actorDiv = document.createElement('div');
+          actorDiv.classList.add('currentValue');
+          homematicDeviceDiv.appendChild(actorDiv);
+          addHmMonitoring(levelDeviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
+            let value = parseFloat(valueStr);
+            if (isNaN(value) || value == 0) {
+              actorDiv.innerText = 'Ventilstellung: 0 %';
+            } else {
+              homematicDeviceDiv.style.background = 'rgba(255, 255, 0, ' + (value+0.1).toString() + ')';
+              actorDiv.innerText = 'Ventilstellung: ' + (value*100).toString() + '%';
+            }
+            homematicDeviceDiv.classList.toggle('hm-power-state-off', value === 0);
+            homematicDeviceDiv.classList.toggle('hm-power-state-on', value != 0);
+          });
+        }
+        break;
+      }
       case 'HmIP-BROLL': // Shutter actuator for Brand Switch Systems
         {
           datapointType = 'LEVEL';
