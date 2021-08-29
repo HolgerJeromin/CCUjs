@@ -7,9 +7,9 @@ const configFilenameList = ['devicelist', 'statelist', 'sysvarlist'];
 /** Mapping from list name to url
  *  @type Map<configFilenameList, string> */
 const configUrlMap = new Map();
-configFilenameList.forEach(name => {
+for (const name of configFilenameList) {
   configUrlMap.set(name, host + baseXMLAPIpath + name + '.cgi')
-})
+}
 
 /** @type {Map<configFilenameList,document>} */
 const cachedDocuments = new Map();
@@ -49,7 +49,7 @@ function urlToString(url) {
       if (response && response.ok) {
         return response.arrayBuffer();
       } else {
-        throw new Error('Something went wrong in the request');
+        return Promise.reject(new Error('Something went wrong in the request'));
       }
     })
     .then(arrayBuffer => {
@@ -74,7 +74,7 @@ const createFetchPromise = (/** @type configFilenameList */ filename) => {
   return urlToString(configUrlMap.get(filename))
     .then(str => {
       if(!str) {
-        throw new Error('Got no url data for '+ filename);
+        return Promise.reject(new Error('Got no url data for ' + filename));
       }
       try {
         window.localStorage.setItem(filename, str);
@@ -198,11 +198,11 @@ function renderGui() {
         });
 
         break;
-       }       
+       }
       case 'HmIP-eTRV-C-2': //Radiator Thermostat Compact
       {
         {
-          datapointType = 'SET_POINT_TEMPERATURE';     
+          datapointType = 'SET_POINT_TEMPERATURE';
           let levelDeviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
           var setpointDiv = document.createElement('div');
           setpointDiv.classList.add('currentValue');
@@ -336,7 +336,7 @@ function renderGui() {
           let stateDeviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType);
           if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
             // Main actor state is in second state datapoint (SWITCH_VIRTUAL_RECEIVER)
-            if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {              
+            if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
               homematicDeviceDiv.appendChild(createButton('An', 'true', stateDeviceInfo.selectedDatapoints[1].iseId, ['hm-unsafe']));
             }
             homematicDeviceDiv.appendChild(createButton('Aus', 'false', stateDeviceInfo.selectedDatapoints[1].iseId));
@@ -796,7 +796,7 @@ function getMultipleHomematicValue(iseIds) {
     .catch(ex => {
       // ignore errors
       // console.error(ex);
-      return new Map();
+      return /** @type {Map<string, string>} */ (new Map());
       //throw ex; //new Error('Unexpected error');
     })
     ;
@@ -816,7 +816,7 @@ function getHomematicValue(ise_id) {
     })
     .catch(ex => {
       console.error(ex);
-      throw new Error('Unexpected error');
+      return Promise.reject(new Error('Unexpected error'));
     })
     ;
 }
@@ -847,7 +847,7 @@ let hmMonitoring = function () {
     getMultipleHomematicValue(Array.from(monitorList.keys()))
       .then(resultMap => {
         resultMap?.forEach((hmValue, iseId) => {
-          let cbList = monitorList.get(iseId);
+          const cbList = monitorList.get(iseId);
           cbList.forEach(cb => {
             cb(hmValue);
           })
