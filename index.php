@@ -14,7 +14,7 @@
     </style>
 </head>
 
-<!-- 
+<!--
     @param data-hm-xmlapi-host IP or hostname (needs to be accessible from the runtime browser)
 -->
 <body
@@ -42,8 +42,8 @@
 <!-- Verschluss DG AZ -->   <div data-hm-adress="0007DBE98D7382"></div>
 <!-- Verschluss DG SZ -->   <div data-hm-adress="0007DA49992F5E"></div>
 
-<!-- Verschluss EG WZ LR --> <div data-hm-adress="0007DBE98D7471"></div>
-<!-- Verschluss EG WZ RR -->   <div data-hm-adress="0007DA4999323A"></div>
+<!-- Verschluss EG WZ LL --> <div data-hm-adress="0007DBE98D7397"></div>
+<!-- Verschluss EG WZ RL --> <div data-hm-adress="0007DBE98D738A"></div>
 <!-- Verschluss EG Küche Fenster --> <div data-hm-adress="0007DBE98D7370"></div>
 <!-- Verschluss EG Küche Türgriff -->   <div data-hm-adress="0007DBE98D7378"></div>
 
@@ -52,8 +52,8 @@
 <!-- Rolladen EG Küche Fenster -->   <div data-hm-adress="00111A498BF962"></div>
 <!-- Rolladen EG Küche Tür -->   <div data-hm-adress="00111A498BF927" data-hm-potentially-unsafe-state-confirm></div>
 
-<!-- Verschluss EG WZ LL --> <div data-hm-adress="0007DBE98D7397"></div>
-<!-- Verschluss EG WZ RL --> <div data-hm-adress="0007DBE98D738A"></div>
+<!-- Verschluss EG WZ LR --> <div data-hm-adress="0007DBE98D7471"></div>
+<!-- Verschluss EG WZ RR -->   <div data-hm-adress="0007DA4999323A"></div>
 <!-- Verschluss DG Bad -->   <div data-hm-adress="0000DA498D222E"></div>
 <!-- Verschluss EG Küche Tür --> <div data-hm-adress="00109A49A27CFF"></div>
 
