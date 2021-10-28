@@ -17,7 +17,7 @@
       "purpose": "any maskable"
     }
   ],
-  "start_url": "./",
+  "start_url": "../",
   "display": "minimal-ui",
   "orientation": "portrait"
 }
