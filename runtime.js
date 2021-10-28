@@ -1,6 +1,4 @@
-const host = document.body.dataset.hmXmlapiHost ? 
-'//' + document.body.dataset.hmXmlapiHost :
-location.protocol.concat("//").concat(window.location.host);
+const host = '//' + (document.body.dataset.hmXmlapiHost ?? window.location.host);
 const baseXMLAPIpath = '/addons/xmlapi/';
 
 /** @typedef  {  'devicelist'|'statelist'|'sysvarlist'} configFilenameList */
