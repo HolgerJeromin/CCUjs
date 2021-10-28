@@ -689,15 +689,13 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
 }
 
 function getDeviceSysinfo(/** @type string */ name) {
-  /** @type Element |undefined */
-  let result;
   const systemVariables = cachedDocuments.get('sysvarlist')?.querySelectorAll('systemVariable');
-  systemVariables?.forEach(elem => {
+  for(const elem of systemVariables) {
     if (elem.getAttribute('name') === name) {
-      result = elem;
+      return elem;
     }
-  });
-  return result;
+  }
+  return undefined;
 }
 
 /**
