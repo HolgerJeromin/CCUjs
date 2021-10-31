@@ -64,7 +64,9 @@ function urlToString(url) {
           let anchorElem = document.createElement('a');
           anchorElem.href=url;
           anchorElem.target = 'xmlapiCheck';
+          document.body?.append(anchorElem);
           anchorElem.click();
+          anchorElem.remove();
           newWindowOpened=true;
         }
         outputFnc('Error in request(parsing): ' + ex +
@@ -135,8 +137,13 @@ function renderGui() {
     let deviceInfo = getDeviceInfo(homematicDeviceDiv.dataset.hmAdress, datapointType, overrideIndex);
     let labelDiv = document.createElement('div');
     labelDiv.classList.add('label');
-    labelDiv.innerText = deviceInfo.device.deviceName;
     homematicDeviceDiv.appendChild(labelDiv);
+    if (!cachedDocuments.size){
+      labelDiv.innerText = 'Keine Geräte-Daten bekannt';
+      continue;
+    }else{
+      labelDiv.innerText = deviceInfo.device.deviceName;
+    }
     //homematicDiv.appendChild(document.createTextNode(deviceInfo.deviceName));
     homematicDeviceDiv.title = deviceInfo.device.type;
     homematicDeviceDiv.classList.add(deviceInfo.device.type);
