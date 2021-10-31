@@ -42,7 +42,7 @@ outputFnc('loading...');
 const stringToDocument = (xmlString) => {
   return DomParser.parseFromString(xmlString, "text/xml");
 }
-
+let newWindowOpened = false;
 function urlToString(url) {
   return fetch(url)
     .then(response => {
@@ -59,6 +59,14 @@ function urlToString(url) {
     .catch(ex => {
       console.error(ex);
       if (ex instanceof TypeError) {
+        if (!newWindowOpened){
+          alert('Erlaube Zugriff in dem folgendem Aufruf und geh dann zurück zu dieser App.');
+          let anchorElem = document.createElement('a');
+          anchorElem.href=url;
+          anchorElem.target = 'xmlapiCheck';
+          anchorElem.click();
+          newWindowOpened=true;
+        }
         outputFnc('Error in request(parsing): ' + ex +
           '<br>You could try to open the <a target="_blank" href="' + url + '">url</a> manually.', 'color: red;');
       } else {
@@ -690,7 +698,7 @@ function getDeviceInfo(hmAdress, datapointType = undefined, overrideIndex = unde
 
 function getDeviceSysinfo(/** @type string */ name) {
   const systemVariables = cachedDocuments.get('sysvarlist')?.querySelectorAll('systemVariable');
-  for(const elem of systemVariables) {
+  for(const elem of systemVariables ?? []) {
     if (elem.getAttribute('name') === name) {
       return elem;
     }
