@@ -59,7 +59,14 @@ function urlToString(url) {
     .catch(ex => {
       console.error(ex);
       if (ex instanceof TypeError) {
-        if (!newWindowOpened){
+        let isConfigUrl = false;
+        for(const configUrl of configUrlMap.values()){
+          if(configUrl === url) {
+            isConfigUrl = true;
+            break;
+          }
+        }
+        if (!newWindowOpened && isConfigUrl){
           alert('Erlaube Zugriff in dem folgendem Aufruf und geh dann zurück zu dieser App.');
           let anchorElem = document.createElement('a');
           anchorElem.href=url;
