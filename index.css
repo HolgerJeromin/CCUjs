@@ -52,6 +52,7 @@ body{
     padding-bottom: 1em;
     padding-left: 1px;
     padding-right: 1px;
+    user-select: none;
 }
 [data-hm-sysvar] > meter {
     margin-top: 0;
