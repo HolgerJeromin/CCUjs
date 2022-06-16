@@ -141,7 +141,7 @@ if (parseSuccess) {
 
 function renderGui() {
 	/** @type NodeListOf<HTMLElement> */
-	let allHomematicDeviceDivs = document.querySelectorAll('[data-hm-adress]');
+	let allHomematicDeviceDivs = document.querySelectorAll('[data-hm-address]');
 	/** @type NodeListOf<HTMLElement> */
 	let allHomematicSysvarDivs = document.querySelectorAll('[data-hm-sysvar]');
 

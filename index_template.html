@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Haussteuerung</title>
+    <meta name="Description" content="Homematic IP Display and Manipulation" />
+
+    <!-- adjust path? -->
+    <script src="runtime.js" async defer></script>
+    <link href="index.css" rel="stylesheet" />
+    <link
+      href="manifest/manifest.webmanifest"
+      rel="manifest"
+      crossorigin="use-credentials"
+    />
+    <link href="manifest/manifest_logo_haus196x196.jpg" rel="icon" />
+
+    <style>
+      /* Put own styles here */
+    </style>
+  </head>
+
+  <!--
+    @param data-hm-xmlapi-host IP or hostname (needs to be accessible from the runtime browser) Remove that if this page is hosted on the CCU itself
+-->
+  <body data-hm-xmlapi-host="192.168.0.46">
+    <noscript
+      >This page uses client side scripting, so it needs JavaScript to be
+      active.</noscript
+    >
+    <div class="notifications"></div>
+    <div class="actors">
+      <!-- normal control -->
+      <div data-hm-address="0001D3C99C916E"></div>
+
+      <!-- button control spans 4 columns -->
+      <div data-hm-address="00115A499F41AF" class="colspan4"></div>
+
+      <!-- wide control. From grid start line to grid end line. -->
+      <div
+        data-hm-address="001A5A49985A3E"
+        style="grid-column: 1 / -1; margin: 0"
+      ></div>
+
+      <!-- needs confirmation -->
+      <div
+        data-hm-address="00111A498BF927"
+        data-hm-potentially-unsafe-state-confirm
+      ></div>
+
+      <!-- disable buttons -->
+      <div data-hm-address="0001D3C99C916E" data-hm-readonly></div>
+
+      <!-- disable activate button -->
+      <div data-hm-address="0001D3C99C6BCE" data-hm-safe-state-only></div>
+
+      <!-- hide actor state -->
+      <div data-hm-address="0001D3C99C916E" data-hm-hide-actor-state></div>
+
+      <!-- use the exact name of the sysvar -->
+      <div data-hm-sysvar="Anwesenheitssimulation"></div>
+      <div data-hm-sysvar="DutyCycle" data-hm-readonly></div>
+
+      <!-- activate virtual button of CCU -->
+      <div
+        data-hm-address="HmIP-RCV-1"
+        data-hm-override-index="1"
+        data-hm-datapoint-type="PRESS_SHORT|PRESS_LONG"
+        data-hm-datapoint-type-label="2&nbsp;Min|10&nbsp;Min"
+      ></div>
+    </div>
+    <!-- will be used for debug and error output -->
+    <div id="output"></div>
+  </body>
+</html>
