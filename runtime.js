@@ -146,7 +146,7 @@ function renderGui() {
 	let allHomematicSysvarDivs = document.querySelectorAll('[data-hm-sysvar]');
 
 	for (const homematicDeviceDiv of allHomematicDeviceDivs) {
-		const deviceBaseadress = homematicDeviceDiv.dataset.hmAdress;
+		const deviceBaseadress = homematicDeviceDiv.dataset.hmAddress;
 		let overrideIndex = homematicDeviceDiv.dataset.hmOverrideIndex;
 		let subdevice = parseInt(homematicDeviceDiv.dataset.hmSubdevice) || 0;
 		let overrideDatapointTypeArr =
@@ -155,7 +155,7 @@ function renderGui() {
 			homematicDeviceDiv.dataset.hmDatapointTypeLabel?.split('|');
 		let datapointType;
 		let deviceInfo = getDeviceInfo(
-			homematicDeviceDiv.dataset.hmAdress,
+			homematicDeviceDiv.dataset.hmAddress,
 			datapointType,
 			overrideIndex
 		);
@@ -176,13 +176,13 @@ function renderGui() {
 			case 'HmIP-FROLL': { // Shutter actuator - flush mount
 				datapointType = 'LEVEL';
 				let levelDeviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType,
 					overrideIndex
 				);
 				if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
 					let stopDeviceInfo = getDeviceInfo(
-						homematicDeviceDiv.dataset.hmAdress,
+						homematicDeviceDiv.dataset.hmAddress,
 						'STOP',
 						overrideIndex
 					);
@@ -258,7 +258,7 @@ function renderGui() {
 			case 'HmIP-DRDI3': {
 				datapointType = 'LEVEL';
 				let levelDeviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType,
 					overrideIndex
 				);
@@ -348,7 +348,7 @@ function renderGui() {
 				{
 					datapointType = 'SET_POINT_TEMPERATURE';
 					let levelDeviceInfo = getDeviceInfo(
-						homematicDeviceDiv.dataset.hmAdress,
+						homematicDeviceDiv.dataset.hmAddress,
 						datapointType,
 						overrideIndex
 					);
@@ -371,7 +371,7 @@ function renderGui() {
 				{
 					datapointType = 'LEVEL';
 					let levelDeviceInfo = getDeviceInfo(
-						homematicDeviceDiv.dataset.hmAdress,
+						homematicDeviceDiv.dataset.hmAddress,
 						datapointType,
 						overrideIndex
 					);
@@ -426,13 +426,13 @@ function renderGui() {
 			case 'HmIP-BROLL': { // Shutter actuator for Brand Switch Systems
 				datapointType = 'LEVEL';
 				let levelDeviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType,
 					overrideIndex
 				);
 				if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
 					let stopDeviceInfo = getDeviceInfo(
-						homematicDeviceDiv.dataset.hmAdress,
+						homematicDeviceDiv.dataset.hmAddress,
 						'STOP',
 						overrideIndex
 					);
@@ -526,7 +526,7 @@ function renderGui() {
 
 				datapointType = 'COLOR';
 				let deviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType
 				);
 
@@ -555,7 +555,7 @@ function renderGui() {
 
 				datapointType = 'LEVEL';
 				let deviceInfoLevel = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType
 				);
 				// top DIMMER_TRANSMITTER is first LEVEL
@@ -583,7 +583,7 @@ function renderGui() {
 			case 'HmIP-USBSM': {
 				datapointType = 'STATE';
 				let stateDeviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType
 				);
 				if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
@@ -627,7 +627,7 @@ function renderGui() {
 			case 'HmIP-SRH': { // Window Handle Sensor
 				datapointType = 'STATE';
 				let stateDeviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType
 				);
 				// Actual state is in first state datapoint (ROTARY_HANDLE_TRANSCEIVER)
@@ -654,7 +654,7 @@ function renderGui() {
 			case 'HmIP-SWDO-I': { // Wireless Window/Door Sensor integrated
 				datapointType = 'STATE';
 				let stateDeviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType
 				);
 				// Actual state is in first state datapoint (SHUTTER_CONTACT_TRANSCEIVER)
@@ -676,7 +676,7 @@ function renderGui() {
 			case 'HmIP-SWD': { // Watersensor
 				datapointType = 'WATERLEVEL_DETECTED';
 				let detectionDeviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType
 				);
 				// Actual water is in first state datapoint (WATER_DETECTION_TRANSMITTER)
@@ -695,7 +695,7 @@ function renderGui() {
 				);
 				datapointType = 'MOISTURE_DETECTED';
 				detectionDeviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType
 				);
 				// Actual moisture is in first state datapoint (WATER_DETECTION_TRANSMITTER)
@@ -717,7 +717,7 @@ function renderGui() {
 			case 'HmIP-SWSD': { // Smoke Detector
 				datapointType = 'SMOKE_DETECTOR_ALARM_STATUS';
 				let alarmDeviceInfo = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					datapointType
 				);
 				// Actual smoke is in first state datapoint (SMOKE_DETECTOR)
@@ -748,7 +748,7 @@ function renderGui() {
 					}
 				);
 				let detectorCommand = getDeviceInfo(
-					homematicDeviceDiv.dataset.hmAdress,
+					homematicDeviceDiv.dataset.hmAddress,
 					'SMOKE_DETECTOR_COMMAND'
 				);
 				let alarmOffBtn = homematicDeviceDiv.appendChild(
@@ -775,7 +775,7 @@ function renderGui() {
 				homematicDeviceDiv.style.background = 'unset';
 				for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
 					let deviceInfo = getDeviceInfo(
-						homematicDeviceDiv.dataset.hmAdress,
+						homematicDeviceDiv.dataset.hmAddress,
 						overrideDatapointTypeArr[i],
 						overrideIndex
 					);
@@ -1064,18 +1064,18 @@ function renderGui() {
 
 /**
  *
- * @param {string} hmAdress
+ * @param {string} hmAddress
  * @param {string} datapointType Find a specific datapoint of this device
  * @param {string|undefined} overrideIndex
  */
 function getDeviceInfo(
-	hmAdress,
+	hmAddress,
 	datapointType = undefined,
 	overrideIndex = undefined
 ) {
 	let deviceList_deviceNode = cachedDocuments
 		.get('devicelist')
-		?.querySelector('device[address="' + hmAdress + '"]');
+		?.querySelector('device[address="' + hmAddress + '"]');
 	let deviceIse = deviceList_deviceNode?.getAttribute('ise_id');
 	let firstActorChannelNode = deviceList_deviceNode?.querySelector(
 		'channel[direction="RECEIVER"][visible="true"]'
