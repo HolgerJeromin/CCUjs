@@ -520,13 +520,15 @@ function renderGui() {
           datapointType
         );
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
-          // Main actor state is in second state datapoint (SWITCH_VIRTUAL_RECEIVER)
+          // Main actor state is in first state datapoint which has readwriteevent (SWITCH_VIRTUAL_RECEIVER)
           if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
             homematicDeviceDiv.appendChild(
               createButton(
                 "An",
                 "true",
-                stateDeviceInfo.selectedDatapoints[1].iseId,
+                stateDeviceInfo.selectedDatapoints.find(
+                  (data) => data.operations === "7"
+                ).iseId,
                 ["hm-unsafe"]
               )
             );
@@ -535,13 +537,66 @@ function renderGui() {
             createButton(
               "Aus",
               "false",
-              stateDeviceInfo.selectedDatapoints[1].iseId
+              stateDeviceInfo.selectedDatapoints.find(
+                (data) => data.operations === "7"
+              ).iseId
             )
           );
         }
-        // Actual state is in first state datapoint (SWITCH_TRANSMITTER)
+        // Actual state is in first state datapoint which has readevent (SWITCH_TRANSMITTER)
         addHmMonitoring(
-          stateDeviceInfo.selectedDatapoints[0].iseId,
+          stateDeviceInfo.selectedDatapoints.find(
+            (data) => data.operations === "5"
+          ).iseId,
+          (valueStr) => {
+            homematicDeviceDiv.classList.toggle(
+              "hm-power-state-on",
+              valueStr === "true"
+            );
+            homematicDeviceDiv.classList.toggle(
+              "hm-power-state-off",
+              valueStr === "false"
+            );
+          }
+        );
+        break;
+      }
+      case "HmIP-DRSI1": {
+        // Switch actuator for DIN rail mount - 1 channel
+        datapointType = "STATE";
+        let stateDeviceInfo = getDeviceInfo(
+          homematicDeviceDiv.dataset.hmAddress,
+          datapointType
+        );
+        if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
+          // Main actor state is in first state datapoint which has readwriteevent (SWITCH_VIRTUAL_RECEIVER)
+          if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
+            homematicDeviceDiv.appendChild(
+              createButton(
+                "An",
+                "true",
+                stateDeviceInfo.selectedDatapoints.find(
+                  (data) => data.operations === "7"
+                ).iseId,
+                ["hm-unsafe"]
+              )
+            );
+          }
+          homematicDeviceDiv.appendChild(
+            createButton(
+              "Aus",
+              "false",
+              stateDeviceInfo.selectedDatapoints.find(
+                (data) => data.operations === "7"
+              ).iseId
+            )
+          );
+        }
+        // Actual state is in second state datapoint which has readevent (SWITCH_TRANSMITTER)
+        addHmMonitoring(
+          stateDeviceInfo.selectedDatapoints.filter(
+            (data) => data.operations === "5"
+          )[1].iseId,
           (valueStr) => {
             homematicDeviceDiv.classList.toggle(
               "hm-power-state-on",
@@ -971,8 +1026,11 @@ function getDeviceInfo(
   let firstActorChannelNode = deviceList_deviceNode?.querySelector(
     'channel[direction="RECEIVER"][visible="true"]'
   );
-  let firstActorChannelIndex =
-    firstActorChannelNode?.getAttribute("index") ?? overrideIndex;
+  let allActorChannelNode = deviceList_deviceNode?.querySelectorAll(
+    'channel[direction="RECEIVER"][visible="true"]'
+  );
+  //  let firstActorChannelIndex =
+  //    firstActorChannelNode?.getAttribute("index") ?? overrideIndex;
 
   let stateList_deviceNode = cachedDocuments
     .get("statelist")
@@ -982,18 +1040,20 @@ function getDeviceInfo(
   /**@type{{
         iseId: string;
         name: string;
+        operations: string;
       }[]} */
   let selectedDatapointNodeArray = [];
   if (datapointType) {
     selectedDatapointNodes = stateList_deviceNode?.querySelectorAll(
       'datapoint[type="' + datapointType + '"]'
     );
-    selectedDatapointNodes.forEach((data) => {
+    for (const node of selectedDatapointNodes) {
       selectedDatapointNodeArray.push({
-        iseId: data?.getAttribute("ise_id"),
-        name: data?.parentElement?.getAttribute("name"),
+        iseId: node?.getAttribute("ise_id"),
+        name: node?.parentElement?.getAttribute("name"),
+        operations: node?.getAttribute("operations"),
       });
-    });
+    }
   }
   let powerDatapointNode = stateList_deviceNode?.querySelector(
     'datapoint[type="' + "POWER" + '"]'
