@@ -5,6 +5,6 @@
         "target": "esnext"
     },
     "include": [
-        "runtime.js"
+        "CCU.js"
     ]
 }
