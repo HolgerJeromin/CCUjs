@@ -774,12 +774,12 @@ function renderGui() {
               createButton(
                 overrideDatapointTypeLabelArr[i],
                 "1",
-                deviceInfo.selectedDatapoints[0].iseId
+                deviceInfo.selectedDatapoints[overrideIndex].iseId
               )
             );
           }
           homematicDeviceDiv.firstElementChild.firstChild.nodeValue =
-            deviceInfo.selectedDatapoints[0].name;
+            deviceInfo.selectedDatapoints[overrideIndex].name;
         }
         break;
       }
