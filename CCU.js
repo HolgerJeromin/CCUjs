@@ -1214,24 +1214,19 @@ function setHomematicValue(ise_id, value) {
  */
 function getMultipleHomematicValue(iseIds) {
   return urlToDoc(
-    host +
-      baseXMLAPIpath +
-      "state.cgi" +
-      "?" +
-      "datapoint_id=" +
-      iseIds.join(",")
+    host + baseXMLAPIpath + "state.cgi?datapoint_id=" + iseIds.join(",")
   )
     .then((doc) => {
       /**@type {Map<string, string>} */
       let valueMap = new Map();
-      iseIds.forEach((id) => {
+      for (const id of iseIds) {
         valueMap.set(
           id,
           doc
             .querySelector('datapoint[ise_id="' + id + '"]')
             ?.getAttribute("value")
         );
-      });
+      }
       return valueMap;
     })
     .catch((ex) => {
@@ -1289,12 +1284,12 @@ let hmMonitoring = function () {
   ) {
     getMultipleHomematicValue(Array.from(monitorList.keys())).then(
       (resultMap) => {
-        resultMap?.forEach((hmValue, iseId) => {
+        for (const [iseId, hmValue] of resultMap) {
           const cbList = monitorList.get(iseId);
-          cbList.forEach((cb) => {
+          for (const cb of cbList) {
             cb(hmValue);
-          });
-        });
+          }
+        }
       }
     );
   }
@@ -1314,7 +1309,7 @@ let hmFetchNotification = function () {
       let systemNotifications = doc.querySelectorAll(
         "systemNotification > notification"
       );
-      systemNotifications.forEach((elem) => {
+      for (const elem of systemNotifications) {
         let notificationDiv = document.createElement("div");
         let iseId = elem.getAttribute("ise_id");
         let deviceName =
@@ -1497,7 +1492,7 @@ let hmFetchNotification = function () {
             );
         }
         notificationContainer.appendChild(notificationDiv);
-      });
+      }
       if (systemNotifications.length) {
         let confirmButton = document.createElement("button");
         confirmButton.innerHTML = "Bestätigen";
