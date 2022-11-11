@@ -1219,12 +1219,10 @@ function getMultipleHomematicValue(iseIds) {
     .then((doc) => {
       /**@type {Map<string, string>} */
       let valueMap = new Map();
-      for (const id of iseIds) {
+      for (const datapoint of doc.querySelectorAll("datapoint[ise_id]")) {
         valueMap.set(
-          id,
-          doc
-            .querySelector('datapoint[ise_id="' + id + '"]')
-            ?.getAttribute("value")
+          datapoint.getAttribute("ise_id"),
+          datapoint.getAttribute("value")
         );
       }
       return valueMap;
