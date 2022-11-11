@@ -512,6 +512,7 @@ function renderGui() {
       case "HMIP-PS": // Pluggable Switch
       case "HMIP-PS-2": // Pluggable Switch
       case "HMIP-PSM": // Pluggable Switch with Measuring
+      case "HmIP-PSM-2": // Pluggable Switch with Measuring
       case "HmIP-FSM": // Full flush switch actuator with Measuring
       case "HmIP-BSM": // Switch actuator with Measuring for Brand Switch Systems
       case "HmIP-USBSM": {
