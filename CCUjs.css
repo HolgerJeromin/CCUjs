@@ -1,210 +1,224 @@
-body{
-    font-family: sans-serif;
-    max-width: 800px;
-    background: white;
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  background: white;
 }
 :root {
-    /** Having dark buttons and white is very ugly so disable right now */
-    color-scheme: light;
+  /** Having dark buttons and white is very ugly so disable right now */
+  color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
-    body{
-        background: lightgray;
-    }
+  body {
+    background: lightgray;
+  }
 }
 .actors {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(70px, auto));
-    grid-template-columns: repeat(4, minmax(70px, auto));
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, auto));
+  grid-template-columns: repeat(4, minmax(70px, auto));
 }
 
 [data-hm-address],
 [data-hm-sysvar] {
-    font-size: 0.9rem;
-    display: flex;
-    flex-direction: column;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
 
-    /*  display: grid;*/
-    margin: 0.2em;
-    /* padding: 0.5em; */
-    border-width: 0.3em;
-    border-style: solid;
-    border-color: transparent;
-    background-origin: border-box;
+  /*  display: grid;*/
+  margin: 0.2em;
+  /* padding: 0.5em; */
+  border-width: 0.3em;
+  border-style: solid;
+  border-color: transparent;
+  background-origin: border-box;
 }
 [data-hm-address] > .label,
-[data-hm-sysvar] > .label{
-    word-wrap: break-word;
-    hyphens: auto;
+[data-hm-sysvar] > .label {
+  word-wrap: break-word;
+  hyphens: auto;
 }
 [data-hm-address] > *,
-[data-hm-sysvar] > *{
-    margin-top: 0.5em;
+[data-hm-sysvar] > * {
+  margin-top: 0.5em;
 }
 [data-hm-address] > *:first-child,
-[data-hm-sysvar] > *:first-child{
-    margin-top: 0;
-    flex: 1 0;
+[data-hm-sysvar] > *:first-child {
+  margin-top: 0;
+  flex: 1 0;
 }
 [data-hm-address] > button,
 [data-hm-sysvar] > button {
-    padding-top: 1em;
-    padding-bottom: 1em;
-    padding-left: 1px;
-    padding-right: 1px;
-    user-select: none;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  padding-left: 1px;
+  padding-right: 1px;
+  user-select: none;
 }
 [data-hm-sysvar] > meter {
-    margin-top: 0;
-    width: 100%;
-    height: 2em;
+  margin-top: 0;
+  width: 100%;
+  height: 2em;
 }
 
 [data-hm-address] > .currentValue,
 [data-hm-address] > .opVolt,
 [data-hm-address] > .power,
-[data-hm-address] > .temperature
-{
-    font-size: xx-small;
-    align-self: flex-end;
+[data-hm-address] > .temperature {
+  font-size: xx-small;
+  align-self: flex-end;
 }
 [data-hm-address].colspan2 {
-    grid-column-end: span 2;
-    display: grid;
-    grid-template-columns: repeat(2, auto);
-    grid-gap:0.2em;
+  grid-column-end: span 2;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  grid-gap: 0.2em;
 }
 [data-hm-address].colspan2 > *:first-child {
-    grid-column-end: span 2;
+  grid-column-end: span 2;
 }
 [data-hm-address].colspan4 {
-    grid-column-end: span 4;
-    display: grid;
-    grid-template-columns: repeat(4, auto);
-    grid-gap:0.2em;
+  grid-column-end: span 4;
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  grid-gap: 0.2em;
 }
 [data-hm-address].colspan4 > *:first-child {
-    grid-column-end: span 4;
+  grid-column-end: span 4;
 }
 
-.hm-sysvar-boolean{
-    outline: rgba(0, 0, 0, 0.2) 1px solid;
+.hm-sysvar-boolean {
+  outline: rgba(0, 0, 0, 0.2) 1px solid;
 }
 .hm-sysvar-boolean.hm-selected,
-.hm-sysvar-value-list.hm-selected{
-    outline: green 2px solid;
+.hm-sysvar-value-list.hm-selected {
+  outline: green 2px solid;
 }
 [data-hm-address] {
-    background: repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px);
+  background: repeating-linear-gradient(
+    -55deg,
+    #f5c7c7,
+    #f5c7c7 10px,
+    white 10px,
+    white 20px
+  );
 }
-[data-hm-address].hm-power-state-on{
-   background:yellow;
+[data-hm-address].hm-power-state-on {
+  background: yellow;
 }
 [data-hm-address].hm-power-state-on > button[value="true"] {
-    display: none;
+  display: none;
 }
-[data-hm-address].hm-power-state-off{
-   background:gray;
+[data-hm-address].hm-power-state-off {
+  background: gray;
 }
 [data-hm-address].hm-power-state-off > button[value="false"] {
-    display: none;
+  display: none;
 }
 
-[data-hm-address][data-hm-hide-actor-state]{
-    background: unset;
+[data-hm-address][data-hm-hide-actor-state] {
+  background: unset;
 }
 
-[data-hm-address].HmIP-BROLL{
-    /* background: linear-gradient(0deg, #A3FF00 calc(((--shutter-level - 0.22) * (100 / 78)) * 100) %, gray 0); */
+[data-hm-address].HmIP-BROLL {
+  /* background: linear-gradient(0deg, #A3FF00 calc(((--shutter-level - 0.22) * (100 / 78)) * 100) %, gray 0); */
 }
 
-[data-hm-address].hm-position-closed{
-   background :green;
+[data-hm-address].hm-position-closed {
+  background: green;
 }
-[data-hm-address].hm-position-tilted{
-   background :orange;
+[data-hm-address].hm-position-tilted {
+  background: orange;
 }
-[data-hm-address].hm-position-open{
-   background :red;
-}
-
-[data-hm-address].hm-smoke-idle{
-   background :green;
-}
-[data-hm-address].hm-smoke-primary{
-   background :red;
-}
-[data-hm-address].hm-smoke-secondary{
-   background :indianred;
-}
-[data-hm-address].hm-smoke-intrusion{
-    background :yellow;
+[data-hm-address].hm-position-open {
+  background: red;
 }
 
-[data-hm-address].hm-moisture-idle{
-    background: green;
+[data-hm-address].hm-smoke-idle {
+  background: green;
 }
-[data-hm-address].hm-water-idle{
-    background: green;
+[data-hm-address].hm-smoke-primary {
+  background: red;
 }
-[data-hm-address].hm-moisture-detected{
-    background: orange;
+[data-hm-address].hm-smoke-secondary {
+  background: indianred;
 }
-[data-hm-address].hm-water-detected{
-    background: red;
-}
-
-
-[data-hm-address].hm-full-bat{
-    border-color :green;
-}
-[data-hm-address].hm-low-bat{
-    border-color :red;
-}
-[data-hm-address].HmIP-KRC4{
-    background :green;
-}
-[data-hm-address].hm-low-bat.HmIP-KRC4{
-    background :red;
-}
-[data-hm-address].hm-unreachable{
-    opacity: 0.55;
-}
-[data-hm-address].hm-sabotage{
-    opacity: 0.55;
-}
-.hm-sabotage{
-    animation: blinkingDiv 1.2s infinite;
-}
-[data-hm-address].hm-sabotage::after{
-    content: 'Sabotage';
-    background: red;
-    padding: 1px;
-}
-.notification > .hm-sabotage{
-    color: red;
+[data-hm-address].hm-smoke-intrusion {
+  background: yellow;
 }
 
-[data-hm-address].hm-week-program-icon{
-    font-size:x-small;
+[data-hm-address].hm-moisture-idle {
+  background: green;
 }
-[data-hm-address].hm-week-program-icon[hm-week-program-lock]{
-    /** week programs */
-    opacity: 0.5;
+[data-hm-address].hm-water-idle {
+  background: green;
 }
-[data-hm-address].hm-week-program-icon[hm-week-program-lock="0"]{
-    /** all week programs */
-   opacity: 1;
+[data-hm-address].hm-moisture-detected {
+  background: orange;
 }
-[data-hm-address].hm-week-program-icon[hm-week-program-lock="7"]{
-    /** no week programs */
-   display: none;
+[data-hm-address].hm-water-detected {
+  background: red;
 }
 
-@keyframes blinkingDiv{
-    0%{     opacity: 1;    }
-    49%{    opacity: 1; }
-    60%{    opacity: 0; }
-    99%{    opacity: 0;  }
-    100%{   opacity: 1;    }
+[data-hm-address].hm-full-bat {
+  border-color: green;
+}
+[data-hm-address].hm-low-bat {
+  border-color: red;
+}
+[data-hm-address].HmIP-KRC4 {
+  background: green;
+}
+[data-hm-address].hm-low-bat.HmIP-KRC4 {
+  background: red;
+}
+[data-hm-address].hm-unreachable {
+  opacity: 0.55;
+}
+[data-hm-address].hm-sabotage {
+  opacity: 0.55;
+}
+.hm-sabotage {
+  animation: blinkingDiv 1.2s infinite;
+}
+[data-hm-address].hm-sabotage::after {
+  content: "Sabotage";
+  background: red;
+  padding: 1px;
+}
+.notification > .hm-sabotage {
+  color: red;
+}
+
+[data-hm-address].hm-week-program-icon {
+  font-size: x-small;
+}
+[data-hm-address].hm-week-program-icon[hm-week-program-lock] {
+  /** week programs */
+  opacity: 0.5;
+}
+[data-hm-address].hm-week-program-icon[hm-week-program-lock="0"] {
+  /** all week programs */
+  opacity: 1;
+}
+[data-hm-address].hm-week-program-icon[hm-week-program-lock="7"] {
+  /** no week programs */
+  display: none;
+}
+
+@keyframes blinkingDiv {
+  0% {
+    opacity: 1;
+  }
+  49% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0;
+  }
+  99% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
