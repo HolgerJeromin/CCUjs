@@ -102,17 +102,23 @@ body {
     white 20px
   );
 }
-[data-hm-address].hm-power-state-on {
+[data-hm-address].hm-channel-state-on {
   background: yellow;
 }
-[data-hm-address].hm-power-state-on > button[value="true"] {
+[data-hm-address].hm-channel-state-on > button[value="true"] {
   display: none;
 }
-[data-hm-address].hm-power-state-off {
+[data-hm-address].hm-channel-state-off {
   background: gray;
 }
-[data-hm-address].hm-power-state-off > button[value="false"] {
+[data-hm-address].hm-channel-state-off > button[value="false"] {
   display: none;
+}
+[data-hm-address].hm-power-state-on > .label {
+  background: yellow;
+}
+[data-hm-address].hm-power-state-off > .label {
+  background: gray;
 }
 
 [data-hm-address][data-hm-hide-actor-state] {

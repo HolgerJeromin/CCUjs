@@ -288,18 +288,22 @@ function renderGui() {
         let valueDiv = document.createElement("div");
         valueDiv.classList.add("currentValue");
         homematicDeviceDiv.appendChild(valueDiv);
+        // Todo adjust channel wise mapping
         addHmMonitoring(
           levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex]
             .iseId,
           (valueStr) => {
             let value = parseFloat(valueStr);
             if (isNaN(value) || value == 0) {
-              homematicDeviceDiv.classList.toggle("hm-power-state-on", false);
-              homematicDeviceDiv.classList.toggle("hm-power-state-off", true);
+              homematicDeviceDiv.classList.toggle("hm-channel-state-on", false);
+              homematicDeviceDiv.classList.toggle("hm-channel-state-off", true);
               valueDiv.innerText = "0";
             } else {
-              homematicDeviceDiv.classList.toggle("hm-power-state-on", true);
-              homematicDeviceDiv.classList.toggle("hm-power-state-off", false);
+              homematicDeviceDiv.classList.toggle("hm-channel-state-on", true);
+              homematicDeviceDiv.classList.toggle(
+                "hm-channel-state-off",
+                false
+              );
               valueDiv.innerText = value.toString();
             }
           }
@@ -353,6 +357,7 @@ function renderGui() {
           var actorDiv = document.createElement("div");
           actorDiv.classList.add("currentValue");
           homematicDeviceDiv.appendChild(actorDiv);
+          // Todo adjust channel wise mapping
           addHmMonitoring(
             levelDeviceInfo.selectedDatapoints[0].iseId,
             (valueStr) => {
@@ -366,11 +371,11 @@ function renderGui() {
                   "Ventilstellung: " + (value * 100).toString() + "%";
               }
               homematicDeviceDiv.classList.toggle(
-                "hm-power-state-off",
+                "hm-channel-state-off",
                 value === 0
               );
               homematicDeviceDiv.classList.toggle(
-                "hm-power-state-on",
+                "hm-channel-state-on",
                 value != 0
               );
             }
@@ -521,35 +526,50 @@ function renderGui() {
           homematicDeviceDiv.dataset.hmAddress,
           datapointType
         );
+        const channelStateDatapointId = stateDeviceInfo.receiver
+          .find((channel) => {
+            // Find STATE channel
+            return channel.type === "26";
+          })
+          ?.datapoints.find(
+            // Find first STATE readwrite datapoint
+            (datapoint) =>
+              datapoint.type === "STATE" && datapoint.operations === "7"
+          ).iseId;
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
           // Main actor state is in first state datapoint which has readwriteevent (SWITCH_VIRTUAL_RECEIVER)
           if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
             homematicDeviceDiv.appendChild(
-              createButton(
-                "An",
-                "true",
-                stateDeviceInfo.selectedDatapoints.find(
-                  (data) => data.operations === "7"
-                ).iseId,
-                ["hm-unsafe"]
-              )
+              createButton("An", "true", channelStateDatapointId, ["hm-unsafe"])
             );
           }
           homematicDeviceDiv.appendChild(
-            createButton(
-              "Aus",
-              "false",
-              stateDeviceInfo.selectedDatapoints.find(
-                (data) => data.operations === "7"
-              ).iseId
-            )
+            createButton("Aus", "false", channelStateDatapointId)
           );
         }
+        // Find channel status
+        addHmMonitoring(channelStateDatapointId, (valueStr) => {
+          homematicDeviceDiv.classList.toggle(
+            "hm-channel-state-on",
+            valueStr === "true"
+          );
+          homematicDeviceDiv.classList.toggle(
+            "hm-channel-state-off",
+            valueStr === "false"
+          );
+        });
         // Actual state is in first state datapoint which has readevent (SWITCH_TRANSMITTER)
         addHmMonitoring(
-          stateDeviceInfo.selectedDatapoints.find(
-            (data) => data.operations === "5"
-          ).iseId,
+          stateDeviceInfo.unknown
+            .find((channel) => {
+              // Find STATE channel
+              return channel.type === "26";
+            })
+            ?.datapoints.find(
+              // Find first STATE read datapoint
+              (datapoint) =>
+                datapoint.type === "STATE" && datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             homematicDeviceDiv.classList.toggle(
               "hm-power-state-on",
@@ -570,35 +590,62 @@ function renderGui() {
           homematicDeviceDiv.dataset.hmAddress,
           datapointType
         );
+        const channelStateDatapointId = stateDeviceInfo.receiver
+          .find((channel) => {
+            // Find STATE channel
+            return channel.type === "26";
+          })
+          ?.datapoints.find(
+            // Find first STATE readwrite datapoint
+            (datapoint) =>
+              datapoint.type === "STATE" && datapoint.operations === "7"
+          ).iseId;
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
           // Main actor state is in first state datapoint which has readwriteevent (SWITCH_VIRTUAL_RECEIVER)
           if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
             homematicDeviceDiv.appendChild(
-              createButton(
-                "An",
-                "true",
-                stateDeviceInfo.selectedDatapoints.find(
-                  (data) => data.operations === "7"
-                ).iseId,
-                ["hm-unsafe"]
-              )
+              createButton("An", "true", channelStateDatapointId, ["hm-unsafe"])
             );
           }
           homematicDeviceDiv.appendChild(
-            createButton(
-              "Aus",
-              "false",
-              stateDeviceInfo.selectedDatapoints.find(
-                (data) => data.operations === "7"
-              ).iseId
-            )
+            createButton("Aus", "false", channelStateDatapointId)
           );
         }
+        // Find channel status
+        addHmMonitoring(
+          stateDeviceInfo.receiver
+            .find((channel) => {
+              // Find STATE channel
+              return channel.type === "26";
+            })
+            ?.datapoints.find(
+              // Find first STATE readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "STATE" && datapoint.operations === "7"
+            ).iseId,
+          (valueStr) => {
+            homematicDeviceDiv.classList.toggle(
+              "hm-channel-state-on",
+              valueStr === "true"
+            );
+            homematicDeviceDiv.classList.toggle(
+              "hm-channel-state-off",
+              valueStr === "false"
+            );
+          }
+        );
         // Actual state is in second state datapoint which has readevent (SWITCH_TRANSMITTER)
         addHmMonitoring(
-          stateDeviceInfo.selectedDatapoints.filter(
-            (data) => data.operations === "5"
-          )[1].iseId,
+          stateDeviceInfo.unknown
+            .find((channel) => {
+              // Find STATE channel
+              return channel.type === "26";
+            })
+            ?.datapoints.find(
+              // Find first STATE read datapoint
+              (datapoint) =>
+                datapoint.type === "STATE" && datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             homematicDeviceDiv.classList.toggle(
               "hm-power-state-on",
@@ -1011,6 +1058,25 @@ function renderGui() {
 }
 
 /**
+ * @typedef {object} DataPoint
+ * @property {string} iseId
+ * @property {string} type
+ * @property {string} value
+ * @property {string} valuetype
+ * @property {string} valueunit
+ * @property {string} operations operations is readwriteevent:7, readevent:5 for example
+ */
+/**
+ * @typedef {object} Channel
+ * @property {string} name
+ * @property {string} iseId
+ * @property {string} type
+ * @property {string} index
+ * @property {string} direction
+ * @property {DataPoint[]} datapoints
+ */
+
+/**
  *
  * @param {string} hmAddress
  * @param {string} datapointType Find a specific datapoint of this device
@@ -1028,9 +1094,6 @@ function getDeviceInfo(
   let firstActorChannelNode = deviceList_deviceNode?.querySelector(
     'channel[direction="RECEIVER"][visible="true"]'
   );
-  let allActorChannelNode = deviceList_deviceNode?.querySelectorAll(
-    'channel[direction="RECEIVER"][visible="true"]'
-  );
   //  let firstActorChannelIndex =
   //    firstActorChannelNode?.getAttribute("index") ?? overrideIndex;
 
@@ -1038,8 +1101,72 @@ function getDeviceInfo(
     .get("statelist")
     ?.querySelector('device[ise_id="' + deviceIse + '"]');
 
+  const DLallReceiverChannelNode = deviceList_deviceNode?.querySelectorAll(
+    'channel[direction="RECEIVER"][visible="true"]'
+  );
+  const DLallUnknownChannelNode = deviceList_deviceNode?.querySelectorAll(
+    'channel[direction="UNKNOWN"][visible="true"]'
+  );
+  /** @type {{receivers: Channel[], unknown: Channel[]}} */
+  const result = {
+    receivers: [],
+    unknown: [],
+  };
+  for (const DLchannel of DLallReceiverChannelNode) {
+    /** @type {Channel} */
+    let channelConfig = {
+      iseId: DLchannel.getAttribute("ise_id"),
+      name: DLchannel.getAttribute("name"),
+      type: DLchannel.getAttribute("type"),
+      index: DLchannel.getAttribute("index"),
+      direction: DLchannel.getAttribute("direction"),
+      datapoints: [],
+    };
+    const SLchannel = stateList_deviceNode?.querySelector(
+      'channel[ise_id="' + DLchannel.getAttribute("ise_id") + '"]'
+    );
+    for (const SLdatapoint of SLchannel.children) {
+      channelConfig.datapoints.push({
+        iseId: SLdatapoint.getAttribute("ise_id"),
+        type: SLdatapoint.getAttribute("type"),
+        value: SLdatapoint.getAttribute("value"),
+        valuetype: SLdatapoint.getAttribute("valuetype"),
+        valueunit: SLdatapoint.getAttribute("valueunit"),
+        operations: SLdatapoint.getAttribute("operations"),
+      });
+    }
+    result.receivers.push(channelConfig);
+  }
+  for (const DLchannel of DLallUnknownChannelNode) {
+    /** @type {Channel} */
+    let channelConfig = {
+      iseId: DLchannel.getAttribute("ise_id"),
+      name: DLchannel.getAttribute("name"),
+      type: DLchannel.getAttribute("type"),
+      index: DLchannel.getAttribute("index"),
+      direction: DLchannel.getAttribute("direction"),
+      datapoints: [],
+    };
+    const SLchannel = stateList_deviceNode?.querySelector(
+      'channel[ise_id="' + DLchannel.getAttribute("ise_id") + '"]'
+    );
+    for (const SLdatapoint of SLchannel.children) {
+      channelConfig.datapoints.push({
+        iseId: SLdatapoint.getAttribute("ise_id"),
+        type: SLdatapoint.getAttribute("type"),
+        value: SLdatapoint.getAttribute("value"),
+        valuetype: SLdatapoint.getAttribute("valuetype"),
+        valueunit: SLdatapoint.getAttribute("valueunit"),
+        operations: SLdatapoint.getAttribute("operations"),
+      });
+    }
+    result.unknown.push(channelConfig);
+  }
+
   let selectedDatapointNodes;
-  /**@type{{
+  /**
+   * operations is readwriteevent:7, readevent:5 for example
+   * @type{{
         iseId: string;
         name: string;
         operations: string;
@@ -1109,6 +1236,8 @@ function getDeviceInfo(
           ? weekProgramLockDatapointNode?.getAttribute("ise_id")
           : undefined,
     },
+    receiver: result.receivers,
+    unknown: result.unknown,
   };
 }
 
