@@ -143,6 +143,8 @@ function renderGui() {
     const deviceBaseadress = homematicDeviceDiv.dataset.hmAddress;
     let overrideIndex = homematicDeviceDiv.dataset.hmOverrideIndex;
     let subdevice = parseInt(homematicDeviceDiv.dataset.hmSubdevice) || 0;
+    /** Index to use. Default "use first" */
+    let channelIndex = parseInt(homematicDeviceDiv.dataset.hmChannelIndex) || 0;
     let overrideDatapointTypeArr =
       homematicDeviceDiv.dataset.hmDatapointType?.split("|");
     let overrideDatapointTypeLabelArr =
@@ -156,10 +158,18 @@ function renderGui() {
     let labelDiv = document.createElement("div");
     labelDiv.classList.add("label");
     homematicDeviceDiv.appendChild(labelDiv);
+
     if (!cachedDocuments.size) {
       labelDiv.innerText = "Keine Geräte-Daten bekannt";
       continue;
+    } else if (homematicDeviceDiv.dataset.hmChannelIndex !== undefined) {
+      // Override device name when requested explicit channel
+      labelDiv.innerText = deviceInfo.receiver.filter((channel) => {
+        // Find STATE channel
+        return channel.type === "26";
+      })[channelIndex].name;
     } else {
+      // Use device name for label
       labelDiv.innerText = deviceInfo.device.deviceName;
     }
     //homematicDiv.appendChild(document.createTextNode(deviceInfo.deviceName));
@@ -527,11 +537,11 @@ function renderGui() {
           datapointType
         );
         const channelStateDatapointId = stateDeviceInfo.receiver
-          .find((channel) => {
+          .filter((channel) => {
             // Find STATE channel
             return channel.type === "26";
           })
-          ?.datapoints.find(
+          [channelIndex]?.datapoints.find(
             // Find first STATE readwrite datapoint
             (datapoint) =>
               datapoint.type === "STATE" && datapoint.operations === "7"
@@ -591,11 +601,11 @@ function renderGui() {
           datapointType
         );
         const channelStateDatapointId = stateDeviceInfo.receiver
-          .find((channel) => {
+          .filter((channel) => {
             // Find STATE channel
             return channel.type === "26";
           })
-          ?.datapoints.find(
+          [channelIndex]?.datapoints.find(
             // Find first STATE readwrite datapoint
             (datapoint) =>
               datapoint.type === "STATE" && datapoint.operations === "7"
@@ -612,28 +622,16 @@ function renderGui() {
           );
         }
         // Find channel status
-        addHmMonitoring(
-          stateDeviceInfo.receiver
-            .find((channel) => {
-              // Find STATE channel
-              return channel.type === "26";
-            })
-            ?.datapoints.find(
-              // Find first STATE readwrite datapoint
-              (datapoint) =>
-                datapoint.type === "STATE" && datapoint.operations === "7"
-            ).iseId,
-          (valueStr) => {
-            homematicDeviceDiv.classList.toggle(
-              "hm-channel-state-on",
-              valueStr === "true"
-            );
-            homematicDeviceDiv.classList.toggle(
-              "hm-channel-state-off",
-              valueStr === "false"
-            );
-          }
-        );
+        addHmMonitoring(channelStateDatapointId, (valueStr) => {
+          homematicDeviceDiv.classList.toggle(
+            "hm-channel-state-on",
+            valueStr === "true"
+          );
+          homematicDeviceDiv.classList.toggle(
+            "hm-channel-state-off",
+            valueStr === "false"
+          );
+        });
         // Actual state is in second state datapoint which has readevent (SWITCH_TRANSMITTER)
         addHmMonitoring(
           stateDeviceInfo.unknown
