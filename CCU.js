@@ -530,13 +530,11 @@ function renderGui() {
       case "HmIP-PSM-2": // Pluggable Switch with Measuring
       case "HmIP-FSM": // Full flush switch actuator with Measuring
       case "HmIP-BSM": // Switch actuator with Measuring for Brand Switch Systems
+      case "HmIP-DRSI1": // Switch actuator for DIN rail mount - 1 channel
       case "HmIP-USBSM": {
         datapointType = "STATE";
-        let stateDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          datapointType
-        );
-        const channelStateDatapointId = stateDeviceInfo.receiver
+        // Main actor state is in first state datapoint which has readwriteevent (SWITCH_VIRTUAL_RECEIVER)
+        const channelStateDatapointId = deviceInfo.receiver
           .filter((channel) => {
             // Find STATE channel
             return channel.type === "26";
@@ -547,7 +545,6 @@ function renderGui() {
               datapoint.type === "STATE" && datapoint.operations === "7"
           ).iseId;
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
-          // Main actor state is in first state datapoint which has readwriteevent (SWITCH_VIRTUAL_RECEIVER)
           if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
             homematicDeviceDiv.appendChild(
               createButton("An", "true", channelStateDatapointId, ["hm-unsafe"])
@@ -570,71 +567,7 @@ function renderGui() {
         });
         // Actual state is in first state datapoint which has readevent (SWITCH_TRANSMITTER)
         addHmMonitoring(
-          stateDeviceInfo.unknown
-            .find((channel) => {
-              // Find STATE channel
-              return channel.type === "26";
-            })
-            ?.datapoints.find(
-              // Find first STATE read datapoint
-              (datapoint) =>
-                datapoint.type === "STATE" && datapoint.operations === "5"
-            ).iseId,
-          (valueStr) => {
-            homematicDeviceDiv.classList.toggle(
-              "hm-power-state-on",
-              valueStr === "true"
-            );
-            homematicDeviceDiv.classList.toggle(
-              "hm-power-state-off",
-              valueStr === "false"
-            );
-          }
-        );
-        break;
-      }
-      case "HmIP-DRSI1": {
-        // Switch actuator for DIN rail mount - 1 channel
-        datapointType = "STATE";
-        let stateDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          datapointType
-        );
-        const channelStateDatapointId = stateDeviceInfo.receiver
-          .filter((channel) => {
-            // Find STATE channel
-            return channel.type === "26";
-          })
-          [channelIndex]?.datapoints.find(
-            // Find first STATE readwrite datapoint
-            (datapoint) =>
-              datapoint.type === "STATE" && datapoint.operations === "7"
-          ).iseId;
-        if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
-          // Main actor state is in first state datapoint which has readwriteevent (SWITCH_VIRTUAL_RECEIVER)
-          if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
-            homematicDeviceDiv.appendChild(
-              createButton("An", "true", channelStateDatapointId, ["hm-unsafe"])
-            );
-          }
-          homematicDeviceDiv.appendChild(
-            createButton("Aus", "false", channelStateDatapointId)
-          );
-        }
-        // Find channel status
-        addHmMonitoring(channelStateDatapointId, (valueStr) => {
-          homematicDeviceDiv.classList.toggle(
-            "hm-channel-state-on",
-            valueStr === "true"
-          );
-          homematicDeviceDiv.classList.toggle(
-            "hm-channel-state-off",
-            valueStr === "false"
-          );
-        });
-        // Actual state is in second state datapoint which has readevent (SWITCH_TRANSMITTER)
-        addHmMonitoring(
-          stateDeviceInfo.unknown
+          deviceInfo.unknown
             .find((channel) => {
               // Find STATE channel
               return channel.type === "26";
@@ -659,14 +592,18 @@ function renderGui() {
       }
       case "HmIP-SRH": {
         // Window Handle Sensor
-        datapointType = "STATE";
-        let stateDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          datapointType
-        );
         // Actual state is in first state datapoint (ROTARY_HANDLE_TRANSCEIVER)
         addHmMonitoring(
-          stateDeviceInfo.selectedDatapoints[0].iseId,
+          deviceInfo.sender
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "17";
+            })
+            [channelIndex]?.datapoints.find(
+              // Find first STATE readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "STATE" && datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             homematicDeviceDiv.classList.toggle(
               "hm-position-closed",
@@ -687,14 +624,18 @@ function renderGui() {
       case "HMIP-SWDO": // Wireless Window/Door Sensor (optic)
       case "HmIP-SWDO-I": {
         // Wireless Window/Door Sensor integrated
-        datapointType = "STATE";
-        let stateDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          datapointType
-        );
         // Actual state is in first state datapoint (SHUTTER_CONTACT_TRANSCEIVER)
         addHmMonitoring(
-          stateDeviceInfo.selectedDatapoints[0].iseId,
+          deviceInfo.sender
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "37";
+            })
+            [channelIndex]?.datapoints.find(
+              // Find first STATE readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "STATE" && datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             homematicDeviceDiv.classList.toggle(
               "hm-position-closed",
@@ -710,14 +651,19 @@ function renderGui() {
       }
       case "HmIP-SWD": {
         // Watersensor
-        datapointType = "WATERLEVEL_DETECTED";
-        let detectionDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          datapointType
-        );
         // Actual water is in first state datapoint (WATER_DETECTION_TRANSMITTER)
         addHmMonitoring(
-          detectionDeviceInfo.selectedDatapoints[0].iseId,
+          deviceInfo.sender
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "17";
+            })
+            [channelIndex]?.datapoints.find(
+              // Find first STATE readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "WATERLEVEL_DETECTED" &&
+                datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             homematicDeviceDiv.classList.toggle(
               "hm-water-idle",
@@ -729,14 +675,19 @@ function renderGui() {
             );
           }
         );
-        datapointType = "MOISTURE_DETECTED";
-        detectionDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          datapointType
-        );
         // Actual moisture is in first state datapoint (WATER_DETECTION_TRANSMITTER)
         addHmMonitoring(
-          detectionDeviceInfo.selectedDatapoints[0].iseId,
+          deviceInfo.sender
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "17";
+            })
+            [channelIndex]?.datapoints.find(
+              // Find first STATE readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "MOISTURE_DETECTED" &&
+                datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             homematicDeviceDiv.classList.toggle(
               "hm-moisture-idle",
@@ -752,14 +703,19 @@ function renderGui() {
       }
       case "HmIP-SWSD": {
         // Smoke Detector
-        datapointType = "SMOKE_DETECTOR_ALARM_STATUS";
-        let alarmDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          datapointType
-        );
         // Actual smoke is in first state datapoint (SMOKE_DETECTOR)
         addHmMonitoring(
-          alarmDeviceInfo.selectedDatapoints[0].iseId,
+          deviceInfo.unknown
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "17";
+            })
+            [channelIndex]?.datapoints.find(
+              // Find first STATE readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "SMOKE_DETECTOR_ALARM_STATUS" &&
+                datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             alarmOffBtn.style.display = "";
             if (valueStr === "0") {
@@ -784,15 +740,21 @@ function renderGui() {
             ); // Intrusion Detection
           }
         );
-        let detectorCommand = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          "SMOKE_DETECTOR_COMMAND"
-        );
         let alarmOffBtn = homematicDeviceDiv.appendChild(
           createButton(
             "Alarm aus",
             "0",
-            detectorCommand.selectedDatapoints[0].iseId
+            deviceInfo.unknown
+              .filter((channel) => {
+                // Find STATE channel
+                return channel.type === "17";
+              })
+              [channelIndex]?.datapoints.find(
+                // Find first STATE readwrite datapoint
+                (datapoint) =>
+                  datapoint.type === "SMOKE_DETECTOR_COMMAND" &&
+                  datapoint.operations === "2"
+              ).iseId
           )
         );
         // let testBtn = homematicDiv.appendChild(createButton('Test', '3', detectorCommand.selectedDatapoints[0].iseId));
@@ -1102,12 +1064,16 @@ function getDeviceInfo(
   const DLallReceiverChannelNode = deviceList_deviceNode?.querySelectorAll(
     'channel[direction="RECEIVER"][visible="true"]'
   );
+  const DLallSenderChannelNode = deviceList_deviceNode?.querySelectorAll(
+    'channel[direction="SENDER"][visible="true"]'
+  );
   const DLallUnknownChannelNode = deviceList_deviceNode?.querySelectorAll(
     'channel[direction="UNKNOWN"][visible="true"]'
   );
-  /** @type {{receivers: Channel[], unknown: Channel[]}} */
+  /** @type {{receivers: Channel[],sender: Channel[], unknown: Channel[]}} */
   const result = {
     receivers: [],
+    sender: [],
     unknown: [],
   };
   for (const DLchannel of DLallReceiverChannelNode) {
@@ -1134,6 +1100,31 @@ function getDeviceInfo(
       });
     }
     result.receivers.push(channelConfig);
+  }
+  for (const DLchannel of DLallSenderChannelNode) {
+    /** @type {Channel} */
+    let channelConfig = {
+      iseId: DLchannel.getAttribute("ise_id"),
+      name: DLchannel.getAttribute("name"),
+      type: DLchannel.getAttribute("type"),
+      index: DLchannel.getAttribute("index"),
+      direction: DLchannel.getAttribute("direction"),
+      datapoints: [],
+    };
+    const SLchannel = stateList_deviceNode?.querySelector(
+      'channel[ise_id="' + DLchannel.getAttribute("ise_id") + '"]'
+    );
+    for (const SLdatapoint of SLchannel.children) {
+      channelConfig.datapoints.push({
+        iseId: SLdatapoint.getAttribute("ise_id"),
+        type: SLdatapoint.getAttribute("type"),
+        value: SLdatapoint.getAttribute("value"),
+        valuetype: SLdatapoint.getAttribute("valuetype"),
+        valueunit: SLdatapoint.getAttribute("valueunit"),
+        operations: SLdatapoint.getAttribute("operations"),
+      });
+    }
+    result.sender.push(channelConfig);
   }
   for (const DLchannel of DLallUnknownChannelNode) {
     /** @type {Channel} */
@@ -1235,6 +1226,7 @@ function getDeviceInfo(
           : undefined,
     },
     receiver: result.receivers,
+    sender: result.sender,
     unknown: result.unknown,
   };
 }
