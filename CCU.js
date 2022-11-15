@@ -478,46 +478,81 @@ function renderGui() {
           "WHITE",
         ];
 
-        datapointType = "COLOR";
-        let deviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          datapointType
-        );
-
         let bslTop = document.createElement("div");
         bslTop.style.cssText =
           "height: 1em;border: 1px solid black;padding: 0px;margin: 0;";
         homematicDeviceDiv.appendChild(bslTop);
         // top DIMMER_TRANSMITTER is first COLOR
-        addHmMonitoring(deviceInfo.selectedDatapoints[0].iseId, (valueStr) => {
-          bslTop.style.background = hmIpBslColorMap[valueStr];
-        });
+        addHmMonitoring(
+          deviceInfo.unknown
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "27";
+            })[0]
+            ?.datapoints.find(
+              // Find first COLOR readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "COLOR" && datapoint.operations === "5"
+            ).iseId,
+          (valueStr) => {
+            bslTop.style.setProperty("--bslcolor", hmIpBslColorMap[valueStr]);
+            //          bslTop.style.backgroundColor = "rgba(var(--bslcolor), var(--opacity))";
+            bslTop.style.background = hmIpBslColorMap[valueStr];
+          }
+        );
         let bslBottom = document.createElement("div");
         bslBottom.style.cssText =
           "height: 1em;border: 1px solid black;padding: 0px;margin: 0;";
         homematicDeviceDiv.appendChild(bslBottom);
-        // bottom DIMMER_TRANSMITTER is fifth COLOR
-        addHmMonitoring(deviceInfo.selectedDatapoints[4].iseId, (valueStr) => {
-          bslBottom.style.background = hmIpBslColorMap[valueStr];
-        });
-
-        datapointType = "LEVEL";
-        let deviceInfoLevel = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
-          datapointType
+        // bottom DIMMER_TRANSMITTER is second COLOR
+        addHmMonitoring(
+          deviceInfo.unknown
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "27";
+            })[1]
+            ?.datapoints.find(
+              // Find first COLOR readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "COLOR" && datapoint.operations === "5"
+            ).iseId,
+          (valueStr) => {
+            //  bslBottom.style.backgroundColor = "rgba(var(--bslcolor), var(--opacity) )";
+            bslBottom.style.background = hmIpBslColorMap[valueStr];
+          }
         );
         // top DIMMER_TRANSMITTER is first LEVEL
         addHmMonitoring(
-          deviceInfoLevel.selectedDatapoints[0].iseId,
+          deviceInfo.unknown
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "27";
+            })[0]
+            ?.datapoints.find(
+              // Find first STATE readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "LEVEL" && datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             // bslTop.style.opacity = valueStr;
+            // bslTop.style.setProperty("--opacity", valueStr);
           }
         );
-        // bottom DIMMER_TRANSMITTER is fifth LEVEL
+        // bottom DIMMER_TRANSMITTER is second LEVEL
         addHmMonitoring(
-          deviceInfoLevel.selectedDatapoints[4].iseId,
+          deviceInfo.unknown
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "27";
+            })[1]
+            ?.datapoints.find(
+              // Find first STATE readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "LEVEL" && datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             // bslBottom.style.opacity = valueStr;
+            // bslBottom.style.setProperty("--opacity", valueStr);
           }
         );
 
