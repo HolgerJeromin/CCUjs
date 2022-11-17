@@ -158,7 +158,10 @@ function renderGui() {
     if (!cachedDocuments.size) {
       labelDiv.innerText = "Keine Geräte-Daten bekannt";
       continue;
-    } else if (homematicDeviceDiv.dataset.hmChannelIndex !== undefined) {
+    } else if (
+      homematicDeviceDiv.dataset.hmChannelIndex !== undefined &&
+      deviceInfo.receiver.length
+    ) {
       // Override device name when requested explicit channel
       labelDiv.innerText = deviceInfo.receiver.filter((channel) => {
         // Find STATE channel
@@ -764,7 +767,7 @@ function renderGui() {
         // Only uses generic classes in CSS
         break;
       }
-      case "HmIP-RCV-50": {
+      case "HmIP-RCV-50": /* Remote Control Virtual */ {
         // Special
         if (!overrideDatapointTypeArr) {
           homematicDeviceDiv.firstChild.nodeValue = "missing datapoint info";
@@ -772,22 +775,23 @@ function renderGui() {
         }
         homematicDeviceDiv.style.background = "unset";
         for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
-          let deviceInfo = getDeviceInfo(
-            hmAddress,
-            overrideDatapointTypeArr[i],
-            overrideIndex
-          );
+          const channel = deviceInfo.sender.filter((channel) => {
+            // Find STATE channel
+            return channel.type === "17";
+          })[channelIndex];
           if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
             homematicDeviceDiv.appendChild(
               createButton(
                 overrideDatapointTypeLabelArr[i],
                 "1",
-                deviceInfo.selectedDatapoints[overrideIndex].iseId
+                channel?.datapoints.find(
+                  // Find first readwrite datapoint
+                  (datapoint) => datapoint.type === overrideDatapointTypeArr[i]
+                ).iseId
               )
             );
           }
-          homematicDeviceDiv.firstElementChild.firstChild.nodeValue =
-            deviceInfo.selectedDatapoints[overrideIndex].name;
+          labelDiv.textContent = channel.name;
         }
         break;
       }
