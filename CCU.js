@@ -171,7 +171,6 @@ function renderGui() {
     //homematicDiv.appendChild(document.createTextNode(deviceInfo.deviceName));
     homematicDeviceDiv.title = deviceInfo.device.type;
     homematicDeviceDiv.classList.add(deviceInfo.device.type);
-    /** @type string|undefined */
     switch (deviceInfo.device.type) {
       case "HmIP-DRDI3": /* Dimming Actuator for DIN rail mount – 3 channels  */ {
         datapointType = "LEVEL";
@@ -452,7 +451,7 @@ function renderGui() {
               return channel.type === "27";
             })[0]
             ?.datapoints.find(
-              // Find first COLOR readwrite datapoint
+              // Find first readwrite datapoint
               (datapoint) =>
                 datapoint.type === "COLOR" && datapoint.operations === "5"
             ).iseId,
@@ -476,7 +475,7 @@ function renderGui() {
               return channel.type === "27";
             })[1]
             ?.datapoints.find(
-              // Find first COLOR readwrite datapoint
+              // Find first readwrite datapoint
               (datapoint) =>
                 datapoint.type === "COLOR" && datapoint.operations === "5"
             ).iseId,
@@ -495,7 +494,7 @@ function renderGui() {
               return channel.type === "27";
             })[0]
             ?.datapoints.find(
-              // Find first STATE readwrite datapoint
+              // Find first readwrite datapoint
               (datapoint) =>
                 datapoint.type === "LEVEL" && datapoint.operations === "5"
             ).iseId,
@@ -514,7 +513,7 @@ function renderGui() {
               return channel.type === "27";
             })[1]
             ?.datapoints.find(
-              // Find first STATE readwrite datapoint
+              // Find first readwrite datapoint
               (datapoint) =>
                 datapoint.type === "LEVEL" && datapoint.operations === "5"
             ).iseId,
@@ -545,7 +544,7 @@ function renderGui() {
             return channel.type === "26";
           })
           [channelIndex]?.datapoints.find(
-            // Find first STATE readwrite datapoint
+            // Find first readwrite datapoint
             (datapoint) =>
               datapoint.type === "STATE" && datapoint.operations === "7"
           ).iseId;
@@ -578,7 +577,7 @@ function renderGui() {
               return channel.type === "26";
             })
             ?.datapoints.find(
-              // Find first STATE read datapoint
+              // Find first read datapoint
               (datapoint) =>
                 datapoint.type === "STATE" && datapoint.operations === "5"
             ).iseId,
@@ -604,7 +603,7 @@ function renderGui() {
               return channel.type === "17";
             })
             [channelIndex]?.datapoints.find(
-              // Find first STATE readwrite datapoint
+              // Find first readwrite datapoint
               (datapoint) =>
                 datapoint.type === "STATE" && datapoint.operations === "5"
             ).iseId,
@@ -635,7 +634,7 @@ function renderGui() {
               return channel.type === "37";
             })
             [channelIndex]?.datapoints.find(
-              // Find first STATE readwrite datapoint
+              // Find first readwrite datapoint
               (datapoint) =>
                 datapoint.type === "STATE" && datapoint.operations === "5"
             ).iseId,
@@ -661,7 +660,7 @@ function renderGui() {
               return channel.type === "17";
             })
             [channelIndex]?.datapoints.find(
-              // Find first STATE readwrite datapoint
+              // Find first readwrite datapoint
               (datapoint) =>
                 datapoint.type === "WATERLEVEL_DETECTED" &&
                 datapoint.operations === "5"
@@ -685,7 +684,7 @@ function renderGui() {
               return channel.type === "17";
             })
             [channelIndex]?.datapoints.find(
-              // Find first STATE readwrite datapoint
+              // Find first readwrite datapoint
               (datapoint) =>
                 datapoint.type === "MOISTURE_DETECTED" &&
                 datapoint.operations === "5"
@@ -712,7 +711,7 @@ function renderGui() {
               return channel.type === "17";
             })
             [channelIndex]?.datapoints.find(
-              // Find first STATE readwrite datapoint
+              // Find first readwrite datapoint
               (datapoint) =>
                 datapoint.type === "SMOKE_DETECTOR_ALARM_STATUS" &&
                 datapoint.operations === "5"
@@ -751,7 +750,7 @@ function renderGui() {
                 return channel.type === "17";
               })
               [channelIndex]?.datapoints.find(
-                // Find first STATE readwrite datapoint
+                // Find first readwrite datapoint
                 (datapoint) =>
                   datapoint.type === "SMOKE_DETECTOR_COMMAND" &&
                   datapoint.operations === "2"
