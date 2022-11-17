@@ -323,56 +323,68 @@ function renderGui() {
       case "HmIP-FROLL": /* Shutter actuator - flush mount */
       case "HmIP-BROLL": /* Shutter actuator for Brand Switch Systems */ {
         datapointType = "LEVEL";
-        let levelDeviceInfo = getDeviceInfo(
-          hmAddress,
-          datapointType,
-          overrideIndex
-        );
+        const channelLevelDatapointId = deviceInfo.receiver
+          .filter((channel) => {
+            // Find STATE channel
+            return channel.type === "17";
+          })
+          [channelIndex]?.datapoints.find(
+            // Find first readwrite datapoint
+            (datapoint) =>
+              datapoint.type === "LEVEL" && datapoint.operations === "7"
+          ).iseId;
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
-          let stopDeviceInfo = getDeviceInfo(hmAddress, "STOP", overrideIndex);
           homematicDeviceDiv.appendChild(
-            createButton("Hoch", "1", levelDeviceInfo.firstActorChannel.iseId)
+            createButton("Hoch", "1", channelLevelDatapointId)
           );
           if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
             homematicDeviceDiv.appendChild(
               createButton(
                 "Stop",
                 "1",
-                stopDeviceInfo.selectedDatapoints[0].iseId,
+                deviceInfo.receiver
+                  .filter((channel) => {
+                    // Find STATE channel
+                    return channel.type === "17";
+                  })
+                  [channelIndex]?.datapoints.find(
+                    // Find first readwrite datapoint
+                    (datapoint) =>
+                      datapoint.type === "STOP" && datapoint.operations === "2"
+                  ).iseId,
                 ["hm-safe"]
               )
             );
             if (homematicDeviceDiv.dataset.deviceType === "sunblind") {
               homematicDeviceDiv.appendChild(
-                createButton(
-                  "Halb",
-                  "0.5",
-                  levelDeviceInfo.firstActorChannel.iseId
-                )
+                createButton("Halb", "0.5", channelLevelDatapointId)
               );
             } else {
               homematicDeviceDiv.appendChild(
-                createButton(
-                  "Streifen",
-                  "0.22",
-                  levelDeviceInfo.firstActorChannel.iseId,
-                  ["hm-unsafe"]
-                )
+                createButton("Streifen", "0.22", channelLevelDatapointId, [
+                  "hm-unsafe",
+                ])
               );
             }
             homematicDeviceDiv.appendChild(
-              createButton(
-                "Runter",
-                "0",
-                levelDeviceInfo.firstActorChannel.iseId,
-                ["hm-unsafe"]
-              )
+              createButton("Runter", "0", channelLevelDatapointId, [
+                "hm-unsafe",
+              ])
             );
           }
         }
         // Actual level is in first level datapoint (SHUTTER_TRANSMITTER)
         addHmMonitoring(
-          levelDeviceInfo.selectedDatapoints[0].iseId,
+          deviceInfo.unknown
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "17";
+            })
+            [channelIndex]?.datapoints.find(
+              // Find first readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "LEVEL" && datapoint.operations === "5"
+            ).iseId,
           (valueStr) => {
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
