@@ -140,7 +140,7 @@ function renderGui() {
   let allHomematicSysvarDivs = document.querySelectorAll("[data-hm-sysvar]");
 
   for (const homematicDeviceDiv of allHomematicDeviceDivs) {
-    const deviceBaseadress = homematicDeviceDiv.dataset.hmAddress;
+    const hmAddress = homematicDeviceDiv.dataset.hmAddress;
     let overrideIndex = homematicDeviceDiv.dataset.hmOverrideIndex;
     let subdevice = parseInt(homematicDeviceDiv.dataset.hmSubdevice) || 0;
     /** Index to use. Default "use first" */
@@ -150,11 +150,7 @@ function renderGui() {
     let overrideDatapointTypeLabelArr =
       homematicDeviceDiv.dataset.hmDatapointTypeLabel?.split("|");
     let datapointType;
-    let deviceInfo = getDeviceInfo(
-      homematicDeviceDiv.dataset.hmAddress,
-      datapointType,
-      overrideIndex
-    );
+    let deviceInfo = getDeviceInfo(hmAddress, datapointType, overrideIndex);
     let labelDiv = document.createElement("div");
     labelDiv.classList.add("label");
     homematicDeviceDiv.appendChild(labelDiv);
@@ -181,16 +177,12 @@ function renderGui() {
         // Shutter actuator - flush mount
         datapointType = "LEVEL";
         let levelDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
+          hmAddress,
           datapointType,
           overrideIndex
         );
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
-          let stopDeviceInfo = getDeviceInfo(
-            homematicDeviceDiv.dataset.hmAddress,
-            "STOP",
-            overrideIndex
-          );
+          let stopDeviceInfo = getDeviceInfo(hmAddress, "STOP", overrideIndex);
           homematicDeviceDiv.appendChild(
             createButton("Hoch", "1", levelDeviceInfo.firstActorChannel.iseId)
           );
@@ -248,7 +240,7 @@ function renderGui() {
       case "HmIP-DRDI3": {
         datapointType = "LEVEL";
         let levelDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
+          hmAddress,
           datapointType,
           overrideIndex
         );
@@ -326,7 +318,7 @@ function renderGui() {
         {
           datapointType = "SET_POINT_TEMPERATURE";
           let levelDeviceInfo = getDeviceInfo(
-            homematicDeviceDiv.dataset.hmAddress,
+            hmAddress,
             datapointType,
             overrideIndex
           );
@@ -348,7 +340,7 @@ function renderGui() {
         {
           datapointType = "LEVEL";
           let levelDeviceInfo = getDeviceInfo(
-            homematicDeviceDiv.dataset.hmAddress,
+            hmAddress,
             datapointType,
             overrideIndex
           );
@@ -397,16 +389,12 @@ function renderGui() {
         // Shutter actuator for Brand Switch Systems
         datapointType = "LEVEL";
         let levelDeviceInfo = getDeviceInfo(
-          homematicDeviceDiv.dataset.hmAddress,
+          hmAddress,
           datapointType,
           overrideIndex
         );
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
-          let stopDeviceInfo = getDeviceInfo(
-            homematicDeviceDiv.dataset.hmAddress,
-            "STOP",
-            overrideIndex
-          );
+          let stopDeviceInfo = getDeviceInfo(hmAddress, "STOP", overrideIndex);
           homematicDeviceDiv.appendChild(
             createButton("Hoch", "1", levelDeviceInfo.firstActorChannel.iseId)
           );
@@ -479,8 +467,9 @@ function renderGui() {
         ];
 
         let bslTop = document.createElement("div");
+        bslTop.classList.add("topLed");
         bslTop.style.cssText =
-          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;";
+          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--bslTopColor)";
         homematicDeviceDiv.appendChild(bslTop);
         // top DIMMER_TRANSMITTER is first COLOR
         addHmMonitoring(
@@ -495,14 +484,16 @@ function renderGui() {
                 datapoint.type === "COLOR" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
-            bslTop.style.setProperty("--bslcolor", hmIpBslColorMap[valueStr]);
-            //          bslTop.style.backgroundColor = "rgba(var(--bslcolor), var(--opacity))";
-            bslTop.style.background = hmIpBslColorMap[valueStr];
+            homematicDeviceDiv.style.setProperty(
+              "--bslTopColor",
+              hmIpBslColorMap[valueStr]
+            );
           }
         );
         let bslBottom = document.createElement("div");
+        bslBottom.classList.add("bottomLed");
         bslBottom.style.cssText =
-          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;";
+          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--bslBottomColor)";
         homematicDeviceDiv.appendChild(bslBottom);
         // bottom DIMMER_TRANSMITTER is second COLOR
         addHmMonitoring(
@@ -517,8 +508,10 @@ function renderGui() {
                 datapoint.type === "COLOR" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
-            //  bslBottom.style.backgroundColor = "rgba(var(--bslcolor), var(--opacity) )";
-            bslBottom.style.background = hmIpBslColorMap[valueStr];
+            homematicDeviceDiv.style.setProperty(
+              "--bslBottomColor",
+              hmIpBslColorMap[valueStr]
+            );
           }
         );
         // top DIMMER_TRANSMITTER is first LEVEL
@@ -534,8 +527,10 @@ function renderGui() {
                 datapoint.type === "LEVEL" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
-            // bslTop.style.opacity = valueStr;
-            // bslTop.style.setProperty("--opacity", valueStr);
+            homematicDeviceDiv.style.setProperty(
+              "--bslTopDimmervalue",
+              valueStr
+            );
           }
         );
         // bottom DIMMER_TRANSMITTER is second LEVEL
@@ -551,8 +546,10 @@ function renderGui() {
                 datapoint.type === "LEVEL" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
-            // bslBottom.style.opacity = valueStr;
-            // bslBottom.style.setProperty("--opacity", valueStr);
+            homematicDeviceDiv.style.setProperty(
+              "--bslBottomDimmervalue",
+              valueStr
+            );
           }
         );
 
@@ -809,7 +806,7 @@ function renderGui() {
         homematicDeviceDiv.style.background = "unset";
         for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
           let deviceInfo = getDeviceInfo(
-            homematicDeviceDiv.dataset.hmAddress,
+            hmAddress,
             overrideDatapointTypeArr[i],
             overrideIndex
           );
