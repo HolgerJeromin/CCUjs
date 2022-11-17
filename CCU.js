@@ -249,8 +249,7 @@ function renderGui() {
 
         break;
       }
-      case "HmIP-eTRV-C-2": {
-        //Radiator Thermostat Compact
+      case "HmIP-eTRV-C-2": /* Radiator thermostat – compact-2 */ {
         {
           datapointType = "SET_POINT_TEMPERATURE";
           let levelDeviceInfo = getDeviceInfo(
@@ -416,8 +415,7 @@ function renderGui() {
 
         break;
       }
-      case "HmIP-BSL": {
-        // Switch actuator for brand switches – with Signal Lamp
+      case "HmIP-BSL": /* Switch actuator for brand switches – with Signal Lamp */ {
         const hmIpBslColorMap = [
           "gray",
           "BLUE",
@@ -519,13 +517,13 @@ function renderGui() {
         //break;
         // fall through
       }
-      case "HMIP-PS": // Pluggable Switch
-      case "HMIP-PS-2": // Pluggable Switch
-      case "HMIP-PSM": // Pluggable Switch with Measuring
-      case "HmIP-PSM-2": // Pluggable Switch with Measuring
-      case "HmIP-FSM": // Full flush switch actuator with Measuring
-      case "HmIP-BSM": // Switch actuator with Measuring for Brand Switch Systems
-      case "HmIP-DRSI1": // Switch actuator for DIN rail mount - 1 channel
+      case "HMIP-PS": /* Pluggable Switch */
+      case "HMIP-PS-2": /* Pluggable Switch */
+      case "HMIP-PSM": /* Pluggable Switch with Measuring */
+      case "HmIP-PSM-2": /* Pluggable Switch with Measuring */
+      case "HmIP-FSM": /* Full flush switch actuator with Measuring */
+      case "HmIP-BSM": /* Switch actuator with Measuring for Brand Switch Systems */
+      case "HmIP-DRSI1": /* Switch actuator for DIN rail mount - 1 channel */
       case "HmIP-USBSM": {
         datapointType = "STATE";
         // Main actor state is in first state datapoint which has readwriteevent (SWITCH_VIRTUAL_RECEIVER)
@@ -585,8 +583,7 @@ function renderGui() {
         );
         break;
       }
-      case "HmIP-SRH": {
-        // Window Handle Sensor
+      case "HmIP-SRH": /* Window Handle Sensor */ {
         // Actual state is in first state datapoint (ROTARY_HANDLE_TRANSCEIVER)
         addHmMonitoring(
           deviceInfo.sender
@@ -616,9 +613,8 @@ function renderGui() {
         );
         break;
       }
-      case "HMIP-SWDO": // Wireless Window/Door Sensor (optic)
-      case "HmIP-SWDO-I": {
-        // Wireless Window/Door Sensor integrated
+      case "HMIP-SWDO": /* Wireless Window/Door Sensor (optic) */
+      case "HmIP-SWDO-I": /* Wireless Window/Door Sensor integrated */ {
         // Actual state is in first state datapoint (SHUTTER_CONTACT_TRANSCEIVER)
         addHmMonitoring(
           deviceInfo.sender
@@ -644,8 +640,7 @@ function renderGui() {
         );
         break;
       }
-      case "HmIP-SWD": {
-        // Watersensor
+      case "HmIP-SWD": /* Watersensor */ {
         // Actual water is in first state datapoint (WATER_DETECTION_TRANSMITTER)
         addHmMonitoring(
           deviceInfo.sender
@@ -696,8 +691,7 @@ function renderGui() {
         );
         break;
       }
-      case "HmIP-SWSD": {
-        // Smoke Detector
+      case "HmIP-SWSD": /* Smoke Detector */ {
         // Actual smoke is in first state datapoint (SMOKE_DETECTOR)
         addHmMonitoring(
           deviceInfo.unknown
@@ -755,8 +749,7 @@ function renderGui() {
         // let testBtn = homematicDiv.appendChild(createButton('Test', '3', detectorCommand.selectedDatapoints[0].iseId));
         break;
       }
-      case "HmIP-KRC4": {
-        // Keyring Remote Control - 4 Buttons
+      case "HmIP-KRC4": /* Keyring Remote Control - 4 Buttons */ {
         // Only uses generic classes in CSS
         break;
       }
