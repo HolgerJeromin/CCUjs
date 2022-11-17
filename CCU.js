@@ -173,71 +173,7 @@ function renderGui() {
     homematicDeviceDiv.classList.add(deviceInfo.device.type);
     /** @type string|undefined */
     switch (deviceInfo.device.type) {
-      case "HmIP-FROLL": {
-        // Shutter actuator - flush mount
-        datapointType = "LEVEL";
-        let levelDeviceInfo = getDeviceInfo(
-          hmAddress,
-          datapointType,
-          overrideIndex
-        );
-        if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
-          let stopDeviceInfo = getDeviceInfo(hmAddress, "STOP", overrideIndex);
-          homematicDeviceDiv.appendChild(
-            createButton("Hoch", "1", levelDeviceInfo.firstActorChannel.iseId)
-          );
-          if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
-            homematicDeviceDiv.appendChild(
-              createButton(
-                "Halb",
-                "0.5",
-                levelDeviceInfo.firstActorChannel.iseId
-              )
-            );
-            homematicDeviceDiv.appendChild(
-              createButton(
-                "Stop",
-                "1",
-                stopDeviceInfo.selectedDatapoints[0].iseId,
-                ["hm-safe"]
-              )
-            );
-            homematicDeviceDiv.appendChild(
-              createButton(
-                "Runter",
-                "0",
-                levelDeviceInfo.firstActorChannel.iseId,
-                ["hm-unsafe"]
-              )
-            );
-          }
-        }
-        // Actual level is in first level datapoint (SHUTTER_TRANSMITTER)
-        addHmMonitoring(
-          levelDeviceInfo.selectedDatapoints[0].iseId,
-          (valueStr) => {
-            let value = parseFloat(valueStr);
-            if (isNaN(value)) {
-              //homematicDeviceDiv.style.background = 'repeating-linear-gradient(-55deg,#a0a0a0,#a0a0a0 10px,white 10px,white 20px)';
-              homematicDeviceDiv.style.background =
-                "repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px)";
-              homematicDeviceDiv.style.setProperty("--shutter-level", "");
-            } else if (value == 0) {
-              homematicDeviceDiv.style.background = "gray";
-              homematicDeviceDiv.style.setProperty("--shutter-level", "");
-            } else {
-              homematicDeviceDiv.style.background =
-                "linear-gradient(0deg, #A3FF00 " +
-                value * (100 / 100) * 100 +
-                "%, gray 0)";
-              homematicDeviceDiv.style.setProperty("--shutter-level", valueStr);
-            }
-          }
-        );
-
-        break;
-      }
-      case "HmIP-DRDI3": {
+      case "HmIP-DRDI3": /* Dimming Actuator for DIN rail mount – 3 channels  */ {
         datapointType = "LEVEL";
         let levelDeviceInfo = getDeviceInfo(
           hmAddress,
@@ -385,8 +321,8 @@ function renderGui() {
         }
         break;
       }
-      case "HmIP-BROLL": {
-        // Shutter actuator for Brand Switch Systems
+      case "HmIP-FROLL": /* Shutter actuator - flush mount */
+      case "HmIP-BROLL": /* Shutter actuator for Brand Switch Systems */ {
         datapointType = "LEVEL";
         let levelDeviceInfo = getDeviceInfo(
           hmAddress,
@@ -407,14 +343,24 @@ function renderGui() {
                 ["hm-safe"]
               )
             );
-            homematicDeviceDiv.appendChild(
-              createButton(
-                "Streifen",
-                "0.22",
-                levelDeviceInfo.firstActorChannel.iseId,
-                ["hm-unsafe"]
-              )
-            );
+            if (homematicDeviceDiv.dataset.deviceType === "sunblind") {
+              homematicDeviceDiv.appendChild(
+                createButton(
+                  "Halb",
+                  "0.5",
+                  levelDeviceInfo.firstActorChannel.iseId
+                )
+              );
+            } else {
+              homematicDeviceDiv.appendChild(
+                createButton(
+                  "Streifen",
+                  "0.22",
+                  levelDeviceInfo.firstActorChannel.iseId,
+                  ["hm-unsafe"]
+                )
+              );
+            }
             homematicDeviceDiv.appendChild(
               createButton(
                 "Runter",
@@ -437,16 +383,33 @@ function renderGui() {
             } else if (value == 0) {
               homematicDeviceDiv.style.background = "gray";
               homematicDeviceDiv.style.setProperty("--shutter-level", "");
-            } else if (value <= 0.22) {
-              homematicDeviceDiv.style.background =
-                "repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)";
-              homematicDeviceDiv.style.setProperty("--shutter-level", valueStr);
             } else {
-              homematicDeviceDiv.style.background =
-                "linear-gradient(0deg, #A3FF00 " +
-                (value - 0.22) * (100 / 78) * 100 +
-                "%, gray 0)";
-              homematicDeviceDiv.style.setProperty("--shutter-level", valueStr);
+              if (homematicDeviceDiv.dataset.deviceType === "sunblind") {
+                homematicDeviceDiv.style.background =
+                  "linear-gradient(0deg, #A3FF00 " + value * 100 + "%, gray 0)";
+                homematicDeviceDiv.style.setProperty(
+                  "--shutter-level",
+                  valueStr
+                );
+              } else {
+                if (value <= 0.22) {
+                  homematicDeviceDiv.style.background =
+                    "repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)";
+                  homematicDeviceDiv.style.setProperty(
+                    "--shutter-level",
+                    valueStr
+                  );
+                } else {
+                  homematicDeviceDiv.style.background =
+                    "linear-gradient(0deg, #A3FF00 " +
+                    (value - 0.22) * (100 / 78) * 100 +
+                    "%, gray 0)";
+                  homematicDeviceDiv.style.setProperty(
+                    "--shutter-level",
+                    valueStr
+                  );
+                }
+              }
             }
           }
         );
