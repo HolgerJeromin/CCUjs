@@ -112,7 +112,8 @@ const createFetchPromise = (/** @type configFilenameList */ filename) => {
       return cachedDocuments.set(filename, doc);
     })
     .catch((ex) => {
-      outputFnc("Error in request(parsing): " + ex, "color: red;");
+      // specific message already done
+      // outputFnc("Error in request(parsing): " + ex, "color: red;");
     });
 };
 const fetchPromiseList = [];
@@ -1079,7 +1080,7 @@ function getDeviceInfo(
     sender: [],
     unknown: [],
   };
-  for (const DLchannel of DLallReceiverChannelNode) {
+  for (const DLchannel of DLallReceiverChannelNode ?? []) {
     /** @type {Channel} */
     let channelConfig = {
       iseId: DLchannel.getAttribute("ise_id"),
@@ -1104,7 +1105,7 @@ function getDeviceInfo(
     }
     result.receivers.push(channelConfig);
   }
-  for (const DLchannel of DLallSenderChannelNode) {
+  for (const DLchannel of DLallSenderChannelNode ?? []) {
     /** @type {Channel} */
     let channelConfig = {
       iseId: DLchannel.getAttribute("ise_id"),
@@ -1129,7 +1130,7 @@ function getDeviceInfo(
     }
     result.sender.push(channelConfig);
   }
-  for (const DLchannel of DLallUnknownChannelNode) {
+  for (const DLchannel of DLallUnknownChannelNode ?? []) {
     /** @type {Channel} */
     let channelConfig = {
       iseId: DLchannel.getAttribute("ise_id"),
