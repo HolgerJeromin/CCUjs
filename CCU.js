@@ -325,7 +325,6 @@ function renderGui() {
       }
       case "HmIP-FROLL": /* Shutter actuator - flush mount */
       case "HmIP-BROLL": /* Shutter actuator for Brand Switch Systems */ {
-        datapointType = "LEVEL";
         const channelLevelDatapointId = deviceInfo.receiver
           .filter((channel) => {
             // Find STATE channel
@@ -393,6 +392,10 @@ function renderGui() {
                 datapoint.type === "LEVEL" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldValue) {
+              return;
+            }
+            oldValue = valueStr;
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
               homematicDeviceDiv.style.background =
@@ -429,6 +432,7 @@ function renderGui() {
                 }
               }
             }
+            valueDiv.textContent = Math.floor(value * 100) + " %";
           }
         );
 
@@ -451,6 +455,7 @@ function renderGui() {
         bslTop.style.cssText =
           "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--bslTopColor)";
         homematicDeviceDiv.appendChild(bslTop);
+        let oldTopDimmer;
         // top DIMMER_TRANSMITTER is first COLOR
         addHmMonitoring(
           deviceInfo.unknown
@@ -464,6 +469,10 @@ function renderGui() {
                 datapoint.type === "COLOR" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldTopDimmer) {
+              return;
+            }
+            oldTopDimmer = valueStr;
             homematicDeviceDiv.style.setProperty(
               "--bslTopColor",
               hmIpBslColorMap[valueStr]
@@ -475,6 +484,7 @@ function renderGui() {
         bslBottom.style.cssText =
           "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--bslBottomColor)";
         homematicDeviceDiv.appendChild(bslBottom);
+        let oldBottomDimmer;
         // bottom DIMMER_TRANSMITTER is second COLOR
         addHmMonitoring(
           deviceInfo.unknown
@@ -488,12 +498,18 @@ function renderGui() {
                 datapoint.type === "COLOR" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldBottomDimmer) {
+              return;
+            }
+            oldBottomDimmer = valueStr;
             homematicDeviceDiv.style.setProperty(
               "--bslBottomColor",
               hmIpBslColorMap[valueStr]
             );
           }
         );
+
+        let oldTopValue;
         // top DIMMER_TRANSMITTER is first LEVEL
         addHmMonitoring(
           deviceInfo.unknown
@@ -507,12 +523,17 @@ function renderGui() {
                 datapoint.type === "LEVEL" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldTopValue) {
+              return;
+            }
+            oldTopValue = valueStr;
             homematicDeviceDiv.style.setProperty(
               "--bslTopDimmervalue",
               valueStr
             );
           }
         );
+        let oldBottomValue;
         // bottom DIMMER_TRANSMITTER is second LEVEL
         addHmMonitoring(
           deviceInfo.unknown
@@ -526,6 +547,10 @@ function renderGui() {
                 datapoint.type === "LEVEL" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldBottomValue) {
+              return;
+            }
+            oldBottomValue = valueStr;
             homematicDeviceDiv.style.setProperty(
               "--bslBottomDimmervalue",
               valueStr
@@ -1422,6 +1447,7 @@ let hmMonitoring = function () {
 };
 hmMonitoring();
 
+let oldAllOuterElemHtml = "";
 let notificationContainer = document.getElementsByClassName("notifications")[0];
 let hmFetchNotification = function () {
   if (
@@ -1430,10 +1456,19 @@ let hmFetchNotification = function () {
     document.visibilityState === "visible"
   ) {
     urlToDoc(host + baseXMLAPIpath + "systemNotification.cgi").then((doc) => {
-      notificationContainer.textContent = "";
       let systemNotifications = doc.querySelectorAll(
         "systemNotification > notification"
       );
+      let allOuterElemHtml = "";
+      for (const elem of systemNotifications) {
+        allOuterElemHtml += elem.outerHTML;
+      }
+      if (allOuterElemHtml === oldAllOuterElemHtml) {
+        return;
+      }
+      oldAllOuterElemHtml = allOuterElemHtml;
+      notificationContainer.textContent = "";
+
       for (const elem of systemNotifications) {
         let notificationDiv = document.createElement("div");
         let iseId = elem.getAttribute("ise_id");
