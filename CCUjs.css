@@ -21,10 +21,9 @@ body {
 [data-hm-address],
 [data-hm-sysvar] {
   font-size: 0.9rem;
-  display: flex;
-  flex-direction: column;
 
-  /*  display: grid;*/
+  display: grid;
+  grid-auto-rows: min-content max-content auto;
   margin: 0.2em;
   /* padding: 0.5em; */
   border-width: 0.3em;
@@ -65,7 +64,8 @@ body {
 [data-hm-address] > .power,
 [data-hm-address] > .temperature {
   font-size: xx-small;
-  align-self: flex-end;
+  text-align: right;
+  grid-column: -2/-1;
 }
 [data-hm-address].colspan2 {
   grid-column-end: span 2;
@@ -80,6 +80,7 @@ body {
   grid-column-end: span 4;
   display: grid;
   grid-template-columns: repeat(4, auto);
+  grid-template-columns: subgrid;
   grid-gap: 0.2em;
 }
 [data-hm-address].colspan4 > *:first-child {
