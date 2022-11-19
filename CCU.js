@@ -376,6 +376,10 @@ function renderGui() {
             );
           }
         }
+        let valueDiv = document.createElement("div");
+        valueDiv.classList.add("currentValue");
+        homematicDeviceDiv.appendChild(valueDiv);
+        let oldValue;
         // Actual level is in first level datapoint (SHUTTER_TRANSMITTER)
         addHmMonitoring(
           deviceInfo.unknown
