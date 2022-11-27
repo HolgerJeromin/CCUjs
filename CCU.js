@@ -29,6 +29,9 @@ const monitorList = new Map();
  * @param {string} cssText
  */
 const outputFnc = (message, cssText = "") => {
+  if (!outputElem) {
+    return;
+  }
   outputElem.innerHTML = message;
   outputElem.style.cssText = cssText;
 };
@@ -57,7 +60,11 @@ function urlToString(url) {
       return decodedString;
     })
     .catch((ex) => {
-      console.error(ex);
+      if (document.visibilityState === 'hidden') {
+        // probably abort because of unloading state
+        return;
+      }
+      console.error('Failed to fetch', url, ex );
       if (ex instanceof TypeError) {
         let isConfigUrl = false;
         for (const configUrl of configUrlMap.values()) {
