@@ -60,11 +60,11 @@ function urlToString(url) {
       return decodedString;
     })
     .catch((ex) => {
-      if (document.visibilityState === 'hidden') {
+      if (document.visibilityState === "hidden") {
         // probably abort because of unloading state
         return;
       }
-      console.error('Failed to fetch', url, ex );
+      console.error("Failed to fetch", url, ex);
       if (ex instanceof TypeError) {
         let isConfigUrl = false;
         for (const configUrl of configUrlMap.values()) {
@@ -384,7 +384,9 @@ function renderGui() {
         }
         let valueDiv = document.createElement("div");
         valueDiv.classList.add("currentValue");
-        homematicDeviceDiv.appendChild(valueDiv);
+        if(homematicDeviceDiv.dataset.hmHideLevel === undefined){
+          homematicDeviceDiv.appendChild(valueDiv);
+        }
         let oldValue;
         // Actual level is in first level datapoint (SHUTTER_TRANSMITTER)
         addHmMonitoring(
@@ -402,18 +404,21 @@ function renderGui() {
             if (valueStr === oldValue) {
               return;
             }
+            // Disable fallback style from css file
+            homematicDeviceDiv.style.backgroundColor = "initial";
+            homematicDeviceDiv.style.backgroundImage = "initial";
             oldValue = valueStr;
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
-              homematicDeviceDiv.style.background =
+              homematicDeviceDiv.style.backgroundImage =
                 "repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px)";
               homematicDeviceDiv.style.setProperty("--shutter-level", "");
             } else if (value == 0) {
-              homematicDeviceDiv.style.background = "gray";
+              homematicDeviceDiv.style.backgroundColor = "gray";
               homematicDeviceDiv.style.setProperty("--shutter-level", "");
             } else {
               if (homematicDeviceDiv.dataset.deviceType === "sunblind") {
-                homematicDeviceDiv.style.background =
+                homematicDeviceDiv.style.backgroundImage =
                   "linear-gradient(0deg, #A3FF00 " + value * 100 + "%, gray 0)";
                 homematicDeviceDiv.style.setProperty(
                   "--shutter-level",
@@ -421,14 +426,14 @@ function renderGui() {
                 );
               } else {
                 if (value <= 0.22) {
-                  homematicDeviceDiv.style.background =
+                  homematicDeviceDiv.style.backgroundImage =
                     "repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)";
                   homematicDeviceDiv.style.setProperty(
                     "--shutter-level",
                     valueStr
                   );
                 } else {
-                  homematicDeviceDiv.style.background =
+                  homematicDeviceDiv.style.backgroundImage =
                     "linear-gradient(0deg, #A3FF00 " +
                     (value - 0.22) * (100 / 78) * 100 +
                     "%, gray 0)";
@@ -851,7 +856,10 @@ function renderGui() {
     addHmMonitoring(deviceInfo.device.sabotageIseId, (valueStr) => {
       homematicDeviceDiv.classList.toggle("hm-sabotage", valueStr === "true");
     });
-    if (deviceInfo.batteryDatapoint.lowBatIseId) {
+    if (
+      deviceInfo.batteryDatapoint.lowBatIseId &&
+      homematicDeviceDiv.dataset.hmHideBattery === undefined
+    ) {
       let oldLowBatStr, oldOpVoltStr;
       let opVoltDiv = document.createElement("div");
       opVoltDiv.classList.add("opVolt");
@@ -879,7 +887,7 @@ function renderGui() {
         }
       });
     }
-    if (deviceInfo.power.iseId) {
+    if (deviceInfo.power.iseId &&  homematicDeviceDiv.dataset.hmHidePower === undefined      ) {
       let oldPowerStr;
       let powerDiv = document.createElement("div");
       powerDiv.classList.add("power");

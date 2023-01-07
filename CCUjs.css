@@ -23,7 +23,7 @@ body {
   font-size: 0.9rem;
 
   display: grid;
-  grid-auto-rows: min-content max-content auto;
+ /* grid-auto-rows: min-content max-content auto; */
   margin: 0.2em;
   /* padding: 0.5em; */
   border-width: 0.3em;
@@ -64,8 +64,10 @@ body {
 [data-hm-address] > .power,
 [data-hm-address] > .temperature {
   font-size: xx-small;
-  text-align: right;
   grid-column: -2/-1;
+  display:flex;
+  justify-content:flex-end;
+  align-items:flex-end;
 }
 [data-hm-address].colspan2 {
   grid-column-end: span 2;
@@ -95,7 +97,7 @@ body {
   outline: green 2px solid;
 }
 [data-hm-address] {
-  background: repeating-linear-gradient(
+  background-image: repeating-linear-gradient(
     -55deg,
     #f5c7c7,
     #f5c7c7 10px,
