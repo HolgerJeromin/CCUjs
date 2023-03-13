@@ -23,7 +23,7 @@ body {
   font-size: 0.9rem;
 
   display: grid;
- /* grid-auto-rows: min-content max-content auto; */
+  /* grid-auto-rows: min-content max-content auto; */
   margin: 0.2em;
   /* padding: 0.5em; */
   border-width: 0.3em;
@@ -65,19 +65,22 @@ body {
 [data-hm-address] > .temperature {
   font-size: xx-small;
   grid-column: -2/-1;
-  display:flex;
-  justify-content:flex-end;
-  align-items:flex-end;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
 }
+[data-hm-sysvar].colspan2,
 [data-hm-address].colspan2 {
   grid-column-end: span 2;
   display: grid;
   grid-template-columns: repeat(2, auto);
   grid-gap: 0.2em;
 }
+[data-hm-sysvar].colspan2 > *:first-child,
 [data-hm-address].colspan2 > *:first-child {
   grid-column-end: span 2;
 }
+[data-hm-sysvar].colspan4,
 [data-hm-address].colspan4 {
   grid-column-end: span 4;
   display: grid;
@@ -85,6 +88,7 @@ body {
   grid-template-columns: subgrid;
   grid-gap: 0.2em;
 }
+[data-hm-sysvar].colspan4 > *:first-child, 
 [data-hm-address].colspan4 > *:first-child {
   grid-column-end: span 4;
 }

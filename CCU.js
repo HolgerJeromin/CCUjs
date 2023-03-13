@@ -384,7 +384,7 @@ function renderGui() {
         }
         let valueDiv = document.createElement("div");
         valueDiv.classList.add("currentValue");
-        if(homematicDeviceDiv.dataset.hmHideLevel === undefined){
+        if (homematicDeviceDiv.dataset.hmHideLevel === undefined) {
           homematicDeviceDiv.appendChild(valueDiv);
         }
         let oldValue;
@@ -887,7 +887,10 @@ function renderGui() {
         }
       });
     }
-    if (deviceInfo.power.iseId &&  homematicDeviceDiv.dataset.hmHidePower === undefined      ) {
+    if (
+      deviceInfo.power.iseId &&
+      homematicDeviceDiv.dataset.hmHidePower === undefined
+    ) {
       let oldPowerStr;
       let powerDiv = document.createElement("div");
       powerDiv.classList.add("power");
