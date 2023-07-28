@@ -20,7 +20,7 @@ const isoTextdecoder = new TextDecoder("iso-8859-15");
 const outputElem = document.getElementById("output");
 
 /** key is the iseId
- * @type {Map<string, Set<(hmValue: string)=>void>>} */
+ * @type {Map<string, Set<{cb: (hmValue: string)=>void,task: any}>>} */
 const monitorList = new Map();
 
 /**
@@ -254,7 +254,8 @@ function renderGui() {
               );
               valueDiv.innerText = value.toString();
             }
-          }
+          },
+          deviceInfo.device.deviceName
         );
 
         break;
@@ -279,7 +280,8 @@ function renderGui() {
               } else {
                 setpointDiv.innerText = "Sollwert: " + value.toString() + " °C";
               }
-            }
+            },
+            deviceInfo.device.deviceName
           );
         }
         {
@@ -293,14 +295,18 @@ function renderGui() {
           valueDiv.classList.add("currentValue");
           homematicDeviceDiv.appendChild(valueDiv);
           console.log(levelDeviceInfo);
-          addHmMonitoring(levelDeviceInfo.tempDatapoint.iseId, (valueStr) => {
-            let value = parseFloat(valueStr);
-            if (isNaN(value) || value == 0) {
-              valueDiv.innerText = "Messwert: 0 °C";
-            } else {
-              valueDiv.innerText = "Messwert: " + value.toString() + " °C";
-            }
-          });
+          addHmMonitoring(
+            levelDeviceInfo.tempDatapoint.iseId,
+            (valueStr) => {
+              let value = parseFloat(valueStr);
+              if (isNaN(value) || value == 0) {
+                valueDiv.innerText = "Messwert: 0 °C";
+              } else {
+                valueDiv.innerText = "Messwert: " + value.toString() + " °C";
+              }
+            },
+            deviceInfo.device.deviceName
+          );
           var actorDiv = document.createElement("div");
           actorDiv.classList.add("currentValue");
           homematicDeviceDiv.appendChild(actorDiv);
@@ -325,7 +331,8 @@ function renderGui() {
                 "hm-channel-state-on",
                 value != 0
               );
-            }
+            },
+            deviceInfo.device.deviceName
           );
         }
         break;
@@ -445,7 +452,8 @@ function renderGui() {
               }
             }
             valueDiv.textContent = Math.floor(value * 100) + " %";
-          }
+          },
+          deviceInfo.device.deviceName
         );
 
         break;
@@ -489,7 +497,8 @@ function renderGui() {
               "--bslTopColor",
               hmIpBslColorMap[valueStr]
             );
-          }
+          },
+          deviceInfo.device.deviceName
         );
         let bslBottom = document.createElement("div");
         bslBottom.classList.add("bottomLed");
@@ -518,7 +527,8 @@ function renderGui() {
               "--bslBottomColor",
               hmIpBslColorMap[valueStr]
             );
-          }
+          },
+          deviceInfo.device.deviceName
         );
 
         let oldTopValue;
@@ -543,7 +553,8 @@ function renderGui() {
               "--bslTopDimmervalue",
               valueStr
             );
-          }
+          },
+          deviceInfo.device.deviceName
         );
         let oldBottomValue;
         // bottom DIMMER_TRANSMITTER is second LEVEL
@@ -567,7 +578,8 @@ function renderGui() {
               "--bslBottomDimmervalue",
               valueStr
             );
-          }
+          },
+          deviceInfo.device.deviceName
         );
 
         //break;
@@ -604,16 +616,20 @@ function renderGui() {
           );
         }
         // Find channel status
-        addHmMonitoring(channelStateDatapointId, (valueStr) => {
-          homematicDeviceDiv.classList.toggle(
-            "hm-channel-state-on",
-            valueStr === "true"
-          );
-          homematicDeviceDiv.classList.toggle(
-            "hm-channel-state-off",
-            valueStr === "false"
-          );
-        });
+        addHmMonitoring(
+          channelStateDatapointId,
+          (valueStr) => {
+            homematicDeviceDiv.classList.toggle(
+              "hm-channel-state-on",
+              valueStr === "true"
+            );
+            homematicDeviceDiv.classList.toggle(
+              "hm-channel-state-off",
+              valueStr === "false"
+            );
+          },
+          deviceInfo.device.deviceName
+        );
         // Actual state is in first state datapoint which has readevent (SWITCH_TRANSMITTER)
         addHmMonitoring(
           deviceInfo.unknown
@@ -635,7 +651,8 @@ function renderGui() {
               "hm-power-state-off",
               valueStr === "false"
             );
-          }
+          },
+          deviceInfo.device.deviceName
         );
         break;
       }
@@ -665,7 +682,8 @@ function renderGui() {
               "hm-position-open",
               valueStr === "2"
             );
-          }
+          },
+          deviceInfo.device.deviceName
         );
         break;
       }
@@ -692,7 +710,8 @@ function renderGui() {
               "hm-position-open",
               valueStr === "1"
             );
-          }
+          },
+          deviceInfo.device.deviceName
         );
         break;
       }
@@ -719,7 +738,8 @@ function renderGui() {
               "hm-water-detected",
               valueStr === "true"
             );
-          }
+          },
+          deviceInfo.device.deviceName
         );
         // Actual moisture is in first state datapoint (WATER_DETECTION_TRANSMITTER)
         addHmMonitoring(
@@ -743,7 +763,8 @@ function renderGui() {
               "hm-moisture-detected",
               valueStr === "true"
             );
-          }
+          },
+          deviceInfo.device.deviceName
         );
         break;
       }
@@ -783,7 +804,8 @@ function renderGui() {
               "hm-smoke-intrusion",
               valueStr === "2"
             ); // Intrusion Detection
-          }
+          },
+          deviceInfo.device.deviceName
         );
         let alarmOffBtn = homematicDeviceDiv.appendChild(
           createButton(
@@ -847,15 +869,23 @@ function renderGui() {
         break;
       }
     }
-    addHmMonitoring(deviceInfo.device.unreachableIseId, (valueStr) => {
-      homematicDeviceDiv.classList.toggle(
-        "hm-unreachable",
-        valueStr === "true"
-      );
-    });
-    addHmMonitoring(deviceInfo.device.sabotageIseId, (valueStr) => {
-      homematicDeviceDiv.classList.toggle("hm-sabotage", valueStr === "true");
-    });
+    addHmMonitoring(
+      deviceInfo.device.unreachableIseId,
+      (valueStr) => {
+        homematicDeviceDiv.classList.toggle(
+          "hm-unreachable",
+          valueStr === "true"
+        );
+      },
+      deviceInfo.device.deviceName
+    );
+    addHmMonitoring(
+      deviceInfo.device.sabotageIseId,
+      (valueStr) => {
+        homematicDeviceDiv.classList.toggle("hm-sabotage", valueStr === "true");
+      },
+      deviceInfo.device.deviceName
+    );
     if (
       deviceInfo.batteryDatapoint.lowBatIseId &&
       homematicDeviceDiv.dataset.hmHideBattery === undefined
@@ -864,28 +894,42 @@ function renderGui() {
       let opVoltDiv = document.createElement("div");
       opVoltDiv.classList.add("opVolt");
       homematicDeviceDiv.appendChild(opVoltDiv);
-      addHmMonitoring(deviceInfo.batteryDatapoint.lowBatIseId, (valueStr) => {
-        if (valueStr === oldLowBatStr) {
-          return;
-        }
-        oldLowBatStr = valueStr;
-        homematicDeviceDiv.classList.toggle("hm-low-bat", valueStr === "true");
-        homematicDeviceDiv.classList.toggle("hm-full-bat", valueStr !== "true");
-      });
-      addHmMonitoring(deviceInfo.batteryDatapoint.opVoltIseId, (valueStr) => {
-        if (valueStr === oldOpVoltStr) {
-          return;
-        }
-        oldOpVoltStr = valueStr;
-        let opVolt = parseFloat(valueStr);
-        if (!Number.isNaN(opVolt) && opVolt !== 0) {
-          opVoltDiv.innerText =
-            opVolt.toLocaleString(undefined, {
-              maximumFractionDigits: 1,
-              minimumFractionDigits: 1,
-            }) + " V";
-        }
-      });
+      addHmMonitoring(
+        deviceInfo.batteryDatapoint.lowBatIseId,
+        (valueStr) => {
+          if (valueStr === oldLowBatStr) {
+            return;
+          }
+          oldLowBatStr = valueStr;
+          homematicDeviceDiv.classList.toggle(
+            "hm-low-bat",
+            valueStr === "true"
+          );
+          homematicDeviceDiv.classList.toggle(
+            "hm-full-bat",
+            valueStr !== "true"
+          );
+        },
+        deviceInfo.device.deviceName
+      );
+      addHmMonitoring(
+        deviceInfo.batteryDatapoint.opVoltIseId,
+        (valueStr) => {
+          if (valueStr === oldOpVoltStr) {
+            return;
+          }
+          oldOpVoltStr = valueStr;
+          let opVolt = parseFloat(valueStr);
+          if (!Number.isNaN(opVolt) && opVolt !== 0) {
+            opVoltDiv.innerText =
+              opVolt.toLocaleString(undefined, {
+                maximumFractionDigits: 1,
+                minimumFractionDigits: 1,
+              }) + " V";
+          }
+        },
+        deviceInfo.device.deviceName
+      );
     }
     if (
       deviceInfo.power.iseId &&
@@ -895,22 +939,26 @@ function renderGui() {
       let powerDiv = document.createElement("div");
       powerDiv.classList.add("power");
       homematicDeviceDiv.appendChild(powerDiv);
-      addHmMonitoring(deviceInfo.power.iseId, (valueStr) => {
-        if (valueStr === oldPowerStr) {
-          return;
-        }
-        oldPowerStr = valueStr;
-        let power = parseFloat(valueStr);
-        if (!Number.isNaN(power)) {
-          powerDiv.innerText =
-            power.toLocaleString(undefined, {
-              maximumFractionDigits: 2,
-              minimumFractionDigits: 2,
-            }) +
-            " " +
-            deviceInfo.power.valueunit;
-        }
-      });
+      addHmMonitoring(
+        deviceInfo.power.iseId,
+        (valueStr) => {
+          if (valueStr === oldPowerStr) {
+            return;
+          }
+          oldPowerStr = valueStr;
+          let power = parseFloat(valueStr);
+          if (!Number.isNaN(power)) {
+            powerDiv.innerText =
+              power.toLocaleString(undefined, {
+                maximumFractionDigits: 2,
+                minimumFractionDigits: 2,
+              }) +
+              " " +
+              deviceInfo.power.valueunit;
+          }
+        },
+        deviceInfo.device.deviceName
+      );
     }
     if (false && deviceInfo.weekProgramm.iseId) {
       let oldWeekStr;
@@ -918,13 +966,17 @@ function renderGui() {
       weekDiv.innerText = String.fromCharCode(0xd83d, 0xdcc5);
       weekDiv.classList.add("hm-week-program-icon");
       labelDiv.append(" ", weekDiv);
-      addHmMonitoring(deviceInfo.weekProgramm.iseId, (valueStr) => {
-        if (valueStr === oldWeekStr) {
-          return;
-        }
-        oldWeekStr = valueStr;
-        weekDiv.setAttribute("hm-week-program-lock", valueStr);
-      });
+      addHmMonitoring(
+        deviceInfo.weekProgramm.iseId,
+        (valueStr) => {
+          if (valueStr === oldWeekStr) {
+            return;
+          }
+          oldWeekStr = valueStr;
+          weekDiv.setAttribute("hm-week-program-lock", valueStr);
+        },
+        deviceInfo.device.deviceName
+      );
     }
   }
 
@@ -978,7 +1030,8 @@ function renderGui() {
                   sysvarButtonTrue.classList.remove("hm-selected");
                   sysvarButtonFalse.classList.add("hm-selected");
                 }
-              }
+              },
+              homematicSysvarDiv.dataset.hmSysvar
             );
           }
           break;
@@ -1008,7 +1061,8 @@ function renderGui() {
                     }) + systemVariable.getAttribute("unit");
                   valueSpan.innerText = homematicSysvarDiv.title;
                 }
-              }
+              },
+              homematicSysvarDiv.dataset.hmSysvar
             );
           }
           break;
@@ -1049,7 +1103,8 @@ function renderGui() {
                     allButtons[index].classList.remove("hm-selected");
                   }
                 }
-              }
+              },
+              homematicSysvarDiv.dataset.hmSysvar
             );
           }
           break;
@@ -1431,8 +1486,9 @@ function getHomematicValue(ise_id) {
  *
  * @param {string|undefined} iseId
  * @param {(value: string)=>void} callback
+ * @param {string} friendlyName
  */
-function addHmMonitoring(iseId, callback) {
+function addHmMonitoring(iseId, callback, friendlyName) {
   if (!iseId) {
     return;
   }
@@ -1441,7 +1497,12 @@ function addHmMonitoring(iseId, callback) {
     subSet = new Set();
     monitorList.set(iseId, subSet);
   }
-  subSet.add(callback);
+  subSet.add({
+    cb: callback,
+    task: console.createTask
+      ? console.createTask(friendlyName + callback.name)
+      : { run: (f) => f() },
+  });
 }
 
 let hmMonitoring = function () {
@@ -1453,9 +1514,9 @@ let hmMonitoring = function () {
     getMultipleHomematicValue(Array.from(monitorList.keys())).then(
       (resultMap) => {
         for (const [iseId, hmValue] of resultMap) {
-          const cbList = monitorList.get(iseId);
-          for (const cb of cbList) {
-            cb(hmValue);
+          const taskList = monitorList.get(iseId);
+          for (const taskObj of taskList) {
+            taskObj.task?.run(() => taskObj.cb(hmValue));
           }
         }
       }
