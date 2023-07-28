@@ -339,8 +339,8 @@ function renderGui() {
         }
         break;
       }
-      case "HmIP-FROLL": /* Shutter actuator - flush mount */
-      case "HmIP-BROLL": /* Shutter actuator for Brand Switch Systems */ {
+      case "HmIP-FROLL": /* Homematic IP Blind Actuator, flush-mount */
+      case "HmIP-BROLL": /* Homematic IP Blind Actuator for brand switch systems, flush-mount */ {
         const channelLevelDatapointId = deviceInfo.receiver
           .filter((channel) => {
             // Find STATE channel
@@ -460,7 +460,7 @@ function renderGui() {
 
         break;
       }
-      case "HmIP-BSL": /* Switch actuator for brand switches – with Signal Lamp */ {
+      case "HmIP-BSL": /* Homematic IP Switch Actuator with Signal Lamp - for brand switches */ {
         const hmIpBslColorMap = [
           "gray",
           "BLUE",
@@ -587,13 +587,14 @@ function renderGui() {
         //break;
         // fall through
       }
-      case "HMIP-PS": /* Pluggable Switch */
+      case "HMIP-PS": /* Homematic IP Pluggable Switch */
       case "HMIP-PS-2": /* Pluggable Switch */
-      case "HMIP-PSM": /* Pluggable Switch with Measuring */
-      case "HmIP-PSM-2": /* Pluggable Switch with Measuring */
-      case "HmIP-FSM": /* Full flush switch actuator with Measuring */
-      case "HmIP-BSM": /* Switch actuator with Measuring for Brand Switch Systems */
-      case "HmIP-DRSI1": /* Switch actuator for DIN rail mount - 1 channel */
+      case "HMIP-PSM": /* Homematic IP Pluggable Switch and Meter */
+      case "HmIP-PSM-2": /* Homematic IP Pluggable Switch and Meter */
+      case "HmIP-FSM": /* Homematic IP Switch Actuator with power measurement, flush-mount */
+      case "HmIP-BSM": /* Homematic IP Switch Actuator with power measurement */
+      case "HmIP-DRSI1": /* Homematic IP Switch Actuator for DIN rail mount - 1 channel */
+      case "HmIP-PCBS-BAT": /* Homematic IP Switch Circuit for battery operation */
       case "HmIP-USBSM": {
         datapointType = "STATE";
         // Main actor state is in first state datapoint which has readwriteevent (SWITCH_VIRTUAL_RECEIVER)
@@ -658,7 +659,7 @@ function renderGui() {
         );
         break;
       }
-      case "HmIP-SRH": /* Window Handle Sensor */ {
+      case "HmIP-SRH": /* Homematic IP Rotary Handle Sensor */ {
         // Actual state is in first state datapoint (ROTARY_HANDLE_TRANSCEIVER)
         addHmMonitoring(
           deviceInfo.sender
@@ -689,8 +690,8 @@ function renderGui() {
         );
         break;
       }
-      case "HMIP-SWDO": /* Wireless Window/Door Sensor (optic) */
-      case "HmIP-SWDO-I": /* Wireless Window/Door Sensor integrated */ {
+      case "HMIP-SWDO": /* Homematic IP Window / Door Contact - optical */
+      case "HmIP-SWDO-I": /* Homematic IP Window / Door Contact - invisible installation */ {
         // Actual state is in first state datapoint (SHUTTER_CONTACT_TRANSCEIVER)
         addHmMonitoring(
           deviceInfo.sender
@@ -717,7 +718,7 @@ function renderGui() {
         );
         break;
       }
-      case "HmIP-SWD": /* Watersensor */ {
+      case "HmIP-SWD": /* Homematic IP Water Sensor */ {
         // Actual water is in first state datapoint (WATER_DETECTION_TRANSMITTER)
         addHmMonitoring(
           deviceInfo.sender
@@ -770,7 +771,7 @@ function renderGui() {
         );
         break;
       }
-      case "HmIP-SWSD": /* Smoke Detector */ {
+      case "HmIP-SWSD": /* Homematic IP Smoke Detector */ {
         // Actual smoke is in first state datapoint (SMOKE_DETECTOR)
         addHmMonitoring(
           deviceInfo.unknown
@@ -829,7 +830,7 @@ function renderGui() {
         // let testBtn = homematicDiv.appendChild(createButton('Test', '3', detectorCommand.selectedDatapoints[0].iseId));
         break;
       }
-      case "HmIP-KRC4": /* Keyring Remote Control - 4 Buttons */ {
+      case "HmIP-KRC4": /* Homematic IP Key Ring Remote Control - 4 buttons */ {
         // Only uses generic classes in CSS
         break;
       }
