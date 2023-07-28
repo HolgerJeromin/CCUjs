@@ -50,6 +50,8 @@ function urlToString(url) {
   return fetch(url)
     .then((response) => {
       if (response && response.ok) {
+        // Reset state to handle errors a few days in the future
+        newWindowOpened=false;
         return response.arrayBuffer();
       } else {
         return Promise.reject(new Error("Something went wrong in the request"));
