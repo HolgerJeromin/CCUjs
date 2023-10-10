@@ -50,8 +50,13 @@ function urlToString(url) {
   return fetch(url)
     .then((response) => {
       if (response && response.ok) {
-        // Reset state to handle errors a few days in the future
-        newWindowOpened=false;
+        if (newWindowOpened) {
+          setTimeout(() => {
+            // Reset state to handle errors a few days in the future
+            newWindowOpened = false;
+          }, 15000);
+        }
+        outputFnc("");
         return response.arrayBuffer();
       } else {
         return Promise.reject(new Error("Something went wrong in the request"));
@@ -177,7 +182,7 @@ function renderGui() {
         // Find STATE channel
         return channel.type === "26";
       })[channelIndex].name;
-    } else {
+    } else if (deviceInfo.device.deviceName) {
       // Use device name for label
       labelDiv.innerText = deviceInfo.device.deviceName;
     }
@@ -864,10 +869,17 @@ function renderGui() {
       }
       default: {
         const errorDiv = document.createElement("div");
-        errorDiv.innerHTML =
-          'Aktor des Typs <span style="color:red;">' +
-          deviceInfo.device.type +
-          "</span> nicht bekannt.";
+        if (deviceInfo.device.type) {
+          errorDiv.innerHTML =
+            'Aktor des Typs <span style="color:red;">' +
+            deviceInfo.device.type +
+            "</span> nicht bekannt.";
+        } else {
+          errorDiv.innerHTML =
+            'Aktor <span style="color:red;">' +
+            hmAddress +
+            "</span> nicht bekannt.";
+        }
         homematicDeviceDiv.appendChild(errorDiv);
         break;
       }
