@@ -693,6 +693,19 @@ function renderGui() {
           },
           deviceInfo.device.deviceName
         );
+        if (deviceInfo.energyCounter.iseId) {
+          homematicDeviceDiv.addEventListener("click", (evt) => {
+            getHomematicValue(deviceInfo.energyCounter.iseId).then((value) => {
+              alert(
+                "Energiezähler: " +
+                  Number(value).toFixed(2) +
+                  deviceInfo.energyCounter.valueunit +
+                  "\n" +
+                  new Date().toLocaleString()
+              );
+            });
+          });
+        }
         break;
       }
       case "HmIP-SRH": /* Homematic IP Rotary Handle Sensor */ {
@@ -1328,6 +1341,9 @@ function getDeviceInfo(
   let powerDatapointNode = stateList_deviceNode?.querySelector(
     'datapoint[type="' + "POWER" + '"]'
   );
+  let energycounterDatapointNode = stateList_deviceNode?.querySelector(
+    'datapoint[type="' + "ENERGY_COUNTER" + '"]'
+  );
   let tempDatapointNode = stateList_deviceNode?.querySelector(
     'datapoint[type="' + "ACTUAL_TEMPERATURE" + '"]'
   );
@@ -1369,6 +1385,11 @@ function getDeviceInfo(
       iseId: powerDatapointNode?.getAttribute("ise_id"),
       name: powerDatapointNode?.getAttribute("name"),
       valueunit: powerDatapointNode?.getAttribute("valueunit"),
+    },
+    energyCounter: {
+      iseId: energycounterDatapointNode?.getAttribute("ise_id"),
+      name: energycounterDatapointNode?.getAttribute("name"),
+      valueunit: energycounterDatapointNode?.getAttribute("valueunit"),
     },
     weekProgramm: {
       iseId:
@@ -1422,6 +1443,7 @@ function clickHandler(evt) {
   if (message && !confirm(message)) {
     return;
   }
+  evt.stopPropagation();
   setHomematicValue(target.dataset.hmActorDatapointId, target.value).then(
     (doc) => {
       /*
