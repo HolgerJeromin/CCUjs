@@ -463,6 +463,37 @@ function renderGui() {
           deviceInfo.device.deviceName
         );
 
+        let oldProcess;
+        addHmMonitoring(
+          deviceInfo.unknown
+            .filter((channel) => {
+              // Find STATE channel
+              return channel.type === "17";
+            })
+            [channelIndex]?.datapoints.find(
+              // Find first readwrite datapoint
+              (datapoint) =>
+                datapoint.type === "ACTIVITY_STATE" &&
+                datapoint.operations === "5"
+            ).iseId,
+          (valueStr) => {
+            if (valueStr === oldProcess) {
+              return;
+            }
+            oldProcess = valueStr;
+            homematicDeviceDiv.classList.toggle(
+              "activityStable",
+              valueStr === "3"
+            );
+            homematicDeviceDiv.classList.toggle("activityUp", valueStr === "1");
+            homematicDeviceDiv.classList.toggle(
+              "activityDown",
+              valueStr === "2"
+            );
+          },
+          deviceInfo.device.deviceName
+        );
+
         break;
       }
       case "HmIP-BSL": /* Homematic IP Switch Actuator with Signal Lamp - for brand switches */ {
