@@ -283,19 +283,6 @@ body {
   font-weight: bold;
   animation: pulse 2s infinite;
 }
-@keyframes pulse {
-  0% {
-    transform: scale(0.9);
-  }
-
-  70% {
-    transform: scale(1);
-  }
-
-  100% {
-    transform: scale(0.9);
-  }
-}
 
 @media (prefers-reduced-motion: no-preference) {
   /* .pendingRequest {
@@ -303,9 +290,9 @@ body {
   } */
   .pendingRequest .label::after {
     content: "";
-    --size: 1.4ex;
-    width: var(--size);
-    height: var(--size);
+    --loading-spinner-size: 1.4ex;
+    width: var(--loading-spinner-size);
+    height: var(--loading-spinner-size);
     border-width: 2px;
     border-style: solid;
     border-color: var(--hm-state-active-color) var(--hm-state-inactive-color);
@@ -314,15 +301,6 @@ body {
     box-sizing: border-box;
     animation: rotation 1s ease-in-out infinite;
     margin-left: 5px;
-  }
-
-  @keyframes rotation {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
   }
 
   [data-hm-address].HmIP-BROLL.activityDown,
@@ -345,21 +323,38 @@ body {
   [data-hm-address].HmIP-BROLL.activityDown {
     animation-name: BrollAnimDown;
   }
-  @keyframes BrollAnimUp {
-    0% {
-      background-position-y: 0%;
-    }
-    100% {
-      background-position-y: 100%;
-    }
+
+  [data-hm-address] {
+    --drum-color: #64b5f6;
   }
-  @keyframes BrollAnimDown {
-    0% {
-      background-position-y: 100%;
-    }
-    100% {
-      background-position-y: 0%;
-    }
+  
+  [data-hm-address].spinningWaterConsumer.consumer-active .label::after {
+    content: "";
+    display: inline-block;
+    margin-left: 5px;
+    vertical-align: top;
+    --tubler-size: 4ex;
+    width: var(--tubler-size);
+    height: var(--tubler-size);
+    background-color: var(--drum-color);
+    background-image: linear-gradient(
+        to right,
+        #0004 0%,
+        #0004 49%,
+        #0000 50%,
+        #0000 100%
+      ),
+      linear-gradient(135deg, var(--drum-color) 50%, #607d8b 51%);
+    background-size: 30px 100%, 90px 80px;
+    background-size: calc(var(--tubler-size) / 3) 100%,
+      var(--tubler-size) calc(var(--tubler-size) - var(--tubler-size) * 0.1);
+    border-radius: 50%;
+    background-repeat: repeat, no-repeat;
+    background-position: 0 0;
+    box-sizing: border-box;
+    border: 3px solid darkgray;
+    /*box-shadow: 0 0 0 4px #999 inset, 0 0 6px 6px #0004 inset;*/
+    animation: spinningRotation 3s ease-in-out infinite;
   }
 }
 
@@ -416,4 +411,61 @@ body {
     white 10px,
     white 20px
   );
+}
+
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.9);
+  }
+
+  70% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(0.9);
+  }
+}
+
+@keyframes rotation {
+0% {
+  transform: rotate(0deg);
+}
+100% {
+  transform: rotate(360deg);
+}
+}
+
+@keyframes spinningRotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(360deg);
+  }
+  75% {
+    transform: rotate(750deg);
+  }
+  100% {
+    transform: rotate(1800deg);
+  }
+}
+
+
+@keyframes BrollAnimUp {
+  0% {
+    background-position-y: 0%;
+  }
+  100% {
+    background-position-y: 100%;
+  }
+}
+@keyframes BrollAnimDown {
+  0% {
+    background-position-y: 100%;
+  }
+  100% {
+    background-position-y: 0%;
+  }
 }

@@ -1017,6 +1017,7 @@ function renderGui() {
       let powerDiv = document.createElement("div");
       powerDiv.classList.add("power");
       homematicDeviceDiv.appendChild(powerDiv);
+      const minPower = parseFloat(homematicDeviceDiv.dataset.hmMinpower);
       addHmMonitoring(
         deviceInfo.power.iseId,
         (valueStr) => {
@@ -1033,6 +1034,11 @@ function renderGui() {
               }) +
               " " +
               deviceInfo.power.valueunit;
+
+              homematicDeviceDiv.classList.toggle(
+                "consumer-active",
+                minPower && !isNaN(minPower) && power > minPower
+              );
           }
         },
         deviceInfo.device.deviceName
