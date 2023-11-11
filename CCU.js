@@ -358,7 +358,7 @@ function renderGui() {
           ).iseId;
         if (homematicDeviceDiv.dataset.hmReadonly === undefined) {
           homematicDeviceDiv.appendChild(
-            createButton("Hoch", "1", channelLevelDatapointId)
+            createButton("Hoch", "1", channelLevelDatapointId, ["hm-button-up"])
           );
           if (homematicDeviceDiv.dataset.hmSafeStateOnly === undefined) {
             homematicDeviceDiv.appendChild(
@@ -378,7 +378,7 @@ function renderGui() {
                 ["hm-safe"]
               )
             );
-            if (homematicDeviceDiv.dataset.deviceType === "sunblind") {
+            if (deviceInfo.device.type === "HmIP-FROLL") {
               homematicDeviceDiv.appendChild(
                 createButton("Halb", "0.5", channelLevelDatapointId)
               );
@@ -392,6 +392,7 @@ function renderGui() {
             homematicDeviceDiv.appendChild(
               createButton("Runter", "0", channelLevelDatapointId, [
                 "hm-unsafe",
+                "hm-button-down",
               ])
             );
           }
@@ -418,43 +419,28 @@ function renderGui() {
             if (valueStr === oldValue) {
               return;
             }
-            // Disable fallback style from css file
-            homematicDeviceDiv.style.backgroundColor = "initial";
-            homematicDeviceDiv.style.backgroundImage = "initial";
             oldValue = valueStr;
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
-              homematicDeviceDiv.style.backgroundImage =
-                "repeating-linear-gradient(-55deg,#f5c7c7,#f5c7c7 10px,white 10px,white 20px)";
-              homematicDeviceDiv.style.setProperty("--shutter-level", "");
-            } else if (value == 0) {
-              homematicDeviceDiv.style.backgroundColor = "gray";
+              // Default has an error stripe
+              homematicDeviceDiv.classList.add("communicationError");
               homematicDeviceDiv.style.setProperty("--shutter-level", "");
             } else {
-              if (homematicDeviceDiv.dataset.deviceType === "sunblind") {
-                homematicDeviceDiv.style.backgroundImage =
-                  "linear-gradient(0deg, #A3FF00 " + value * 100 + "%, gray 0)";
-                homematicDeviceDiv.style.setProperty(
-                  "--shutter-level",
-                  valueStr
-                );
-              } else {
-                if (value <= 0.22) {
-                  homematicDeviceDiv.style.backgroundImage =
-                    "repeating-linear-gradient(gray, gray 20px, #A3FF00 20px, #A3FF00 25px)";
-                  homematicDeviceDiv.style.setProperty(
-                    "--shutter-level",
-                    valueStr
-                  );
+              homematicDeviceDiv.style.setProperty(
+                "--shutter-level",
+                value.toFixed(2)
+              );
+              homematicDeviceDiv.style.setProperty(
+                "--shutter-level-percent",
+                (value * 100).toFixed(1) + "%"
+              );
+              if (deviceInfo.device.type === "HmIP-BROLL") {
+                if (value <= 0.22 && value >= 0.01) {
+                  homematicDeviceDiv.classList.add("stripes");
+                  homematicDeviceDiv.classList.remove("halfHeight");
                 } else {
-                  homematicDeviceDiv.style.backgroundImage =
-                    "linear-gradient(0deg, #A3FF00 " +
-                    (value - 0.22) * (100 / 78) * 100 +
-                    "%, gray 0)";
-                  homematicDeviceDiv.style.setProperty(
-                    "--shutter-level",
-                    valueStr
-                  );
+                  homematicDeviceDiv.classList.add("halfHeight");
+                  homematicDeviceDiv.classList.remove("stripes");
                 }
               }
             }
@@ -695,15 +681,48 @@ function renderGui() {
         );
         if (deviceInfo.energyCounter.iseId) {
           homematicDeviceDiv.addEventListener("click", (evt) => {
-            getHomematicValue(deviceInfo.energyCounter.iseId).then((value) => {
-              alert(
-                "Energiezähler: " +
-                  Number(value).toFixed(2) +
-                  deviceInfo.energyCounter.valueunit +
-                  "\n" +
-                  new Date().toLocaleString()
-              );
-            });
+            // No text select
+            evt.preventDefault();
+            homematicDeviceDiv.classList.add("pendingRequest");
+
+            getHomematicValue(deviceInfo.energyCounter.iseId).then(
+              (valueStr) => {
+                homematicDeviceDiv.classList.remove("pendingRequest");
+                const value = Number(valueStr);
+                if (isNaN(value)) {
+                  return;
+                }
+                const dialog =
+                  document.getElementById("powerPopover") ??
+                  document.createElement("div");
+                dialog.popover = "auto";
+                dialog.id = "powerPopover";
+
+                dialog.innerHTML = `
+              <button autofocus popovertarget="powerPopover">Schließen</button>
+              <h1>${deviceInfo.device.deviceName}</h1>
+              <ul>
+              <li>Energiezähler: ${
+                value.toFixed(2) + deviceInfo.energyCounter.valueunit
+              }
+              <button onclick="navigator.clipboard.writeText((${valueStr}).toLocaleString(undefined,{ maximumFractionDigits: 2 }))">kopieren</button>
+              </ul>
+              ${new Date().toLocaleString()}
+              `;
+                document.body.append(dialog);
+                dialog.showPopover();
+
+                console.log(
+                  "Energiezähler " +
+                    deviceInfo.device.deviceName +
+                    ": " +
+                    value.toFixed(2) +
+                    deviceInfo.energyCounter.valueunit +
+                    "\n" +
+                    new Date().toLocaleString()
+                );
+              }
+            );
           });
         }
         break;
@@ -889,7 +908,7 @@ function renderGui() {
           homematicDeviceDiv.firstChild.nodeValue = "missing datapoint info";
           break;
         }
-        homematicDeviceDiv.style.background = "unset";
+        homematicDeviceDiv.classList.add("virtualRemote");
         for (let i = 0; i < overrideDatapointTypeArr.length; i++) {
           const channel = deviceInfo.sender.filter((channel) => {
             // Find STATE channel
@@ -1531,6 +1550,7 @@ function getMultipleHomematicValue(iseIds) {
 /**
  *
  * @param {string} ise_id
+ * @returns {Promise<string>}
  */
 function getHomematicValue(ise_id) {
   if (!ise_id) {
