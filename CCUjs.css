@@ -147,7 +147,7 @@ body {
 [data-hm-address][data-hm-hide-actor-state] {
   background: unset;
 }
-[data-hm-address].virtualRemote{
+[data-hm-address].virtualRemote {
   background: var(--hm-state-inactive-color);
 }
 
@@ -298,8 +298,31 @@ body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .pendingRequest {
+  /* .pendingRequest {
     animation: pulse 1s infinite;
+  } */
+  .pendingRequest .label::after {
+    content: "";
+    --size: 1.4ex;
+    width: var(--size);
+    height: var(--size);
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--hm-state-active-color) var(--hm-state-inactive-color);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s ease-in-out infinite;
+    margin-left: 5px;
+  }
+
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   [data-hm-address].HmIP-BROLL.activityDown,
