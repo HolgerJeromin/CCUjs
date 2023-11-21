@@ -423,7 +423,8 @@ function renderGui() {
             let value = parseFloat(valueStr);
             if (isNaN(value)) {
               // Default has an error stripe
-              homematicDeviceDiv.classList.add("communicationError");
+              homematicDeviceDiv.classList.remove("halfHeight");
+              homematicDeviceDiv.classList.remove("stripes");
               homematicDeviceDiv.style.setProperty("--shutter-level", "");
             } else {
               homematicDeviceDiv.style.setProperty(
@@ -1035,10 +1036,10 @@ function renderGui() {
               " " +
               deviceInfo.power.valueunit;
 
-              homematicDeviceDiv.classList.toggle(
-                "consumer-active",
-                minPower && !isNaN(minPower) && power > minPower
-              );
+            homematicDeviceDiv.classList.toggle(
+              "consumer-active",
+              minPower && !isNaN(minPower) && power > minPower
+            );
           }
         },
         deviceInfo.device.deviceName
@@ -1453,24 +1454,27 @@ function clickHandler(evt) {
   if (target.classList.contains("hm-safe")) {
     // Skip confirmation
   } else if (
-    labelDiv.firstChild.nodeValue.includes("Vera") ||
-    labelDiv.firstChild.nodeValue.includes("Laura")
-  ) {
-    message = "Wirklich einen Aktor bei den Kindern schalten?";
-  } else if (
     target.parentElement.dataset.hmPotentiallyUnsafeStateConfirm !==
       undefined &&
     target.classList.contains("hm-unsafe")
   ) {
     message = "Den Aktor wirklich schalten?";
+  } else if (target.parentElement.dataset.hmRequireConfirmation !== undefined) {
+    message = "Den Aktor wirklich schalten?";
   }
-
+  evt.stopPropagation();
   if (message && !confirm(message)) {
     return;
   }
   evt.stopPropagation();
+  target.parentElement.classList.add("pendingRequest");
   setHomematicValue(target.dataset.hmActorDatapointId, target.value).then(
     (doc) => {
+      target.parentElement.classList.remove("pendingRequest");
+      target.parentElement.classList.add("interactionFeedback");
+      window.setTimeout((evt) => {
+        target.parentElement.classList.remove("interactionFeedback");
+      }, 800);
       /*
       outputFnc(
         'Success in writing value: '

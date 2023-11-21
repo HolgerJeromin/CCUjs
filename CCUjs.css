@@ -17,14 +17,18 @@
 body {
   font-family: sans-serif;
   max-width: 800px;
-  background: white;
+  background-color: white;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: lightgray;
+    background-color: lightgray;
   }
 }
+[popover] {
+  border-width: 1px;
+}
+
 .actors {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(70px, auto));
@@ -125,30 +129,34 @@ body {
 .hm-sysvar-value-list.hm-selected {
   outline: var(--hm-active-outline-color) 2px solid;
 }
-[data-hm-address].hm-channel-state-on {
-  background: var(--hm-state-active-color);
+[data-hm-address].hm-channel-state-on > .label {
+  background-color: var(--hm-state-active-color);
+  background-image: none;
 }
-[data-hm-address].hm-channel-state-on > button[value="true"] {
+[data-hm-address].hm-channel-state-off > .label {
+  background-color: var(--hm-state-inactive-color);
+  background-image: none;
+}
+[data-hm-address].hm-power-state-on {
+  background-color: var(--hm-state-active-color);
+  background-image: none;
+}
+[data-hm-address].hm-power-state-off {
+  background-color: var(--hm-state-inactive-color);
+  background-image: none;
+}
+[data-hm-address].hm-channel-state-on > button[value="true"],
+[data-hm-address].hm-channel-state-off > button[value="false"]{
   display: none;
-}
-[data-hm-address].hm-channel-state-off {
-  background: var(--hm-state-inactive-color);
-}
-[data-hm-address].hm-channel-state-off > button[value="false"] {
-  display: none;
-}
-[data-hm-address].hm-power-state-on > .label {
-  background: var(--hm-state-active-color);
-}
-[data-hm-address].hm-power-state-off > .label {
-  background: var(--hm-state-inactive-color);
 }
 
 [data-hm-address][data-hm-hide-actor-state] {
-  background: unset;
+  background-color: transparent;
+  background-image: none;
 }
 [data-hm-address].virtualRemote {
-  background: var(--hm-state-inactive-color);
+  background-color: var(--hm-state-inactive-color);
+  background-image: none;
 }
 
 [data-hm-address].HmIP-BROLL.stripes {
@@ -176,52 +184,67 @@ body {
 }
 
 [data-hm-address].hm-position-closed {
-  background: var(--hm-idle-color);
+  background-color: var(--hm-idle-color);
+  background-image: none;
 }
 [data-hm-address].hm-position-tilted {
-  background: var(--hm-information-color);
+  background-color: var(--hm-information-color);
+  background-image: none;
 }
 [data-hm-address].hm-position-open {
-  background: var(--hm-alarm-color);
+  background-color: var(--hm-alarm-color);
+  background-image: none;
 }
 
 [data-hm-address].hm-smoke-idle {
-  background: var(--hm-idle-color);
+  background-color: var(--hm-idle-color);
+  background-image: none;
 }
 [data-hm-address].hm-smoke-primary {
-  background: var(--hm-alarm-color);
+  background-color: var(--hm-alarm-color);
+  background-image: none;
 }
 [data-hm-address].hm-smoke-secondary {
-  background: var(--hm-warning-color);
+  background-color: var(--hm-warning-color);
+  background-image: none;
 }
 [data-hm-address].hm-smoke-intrusion {
-  background: var(--hm-information-color);
+  background-color: var(--hm-information-color);
+  background-image: none;
 }
 
 [data-hm-address].hm-moisture-idle {
-  background: var(--hm-idle-color);
+  background-color: var(--hm-idle-color);
+  background-image: none;
 }
 [data-hm-address].hm-water-idle {
-  background: var(--hm-idle-color);
+  background-color: var(--hm-idle-color);
+  background-image: none;
 }
 [data-hm-address].hm-moisture-detected {
-  background: var(--hm-warning-color);
+  background-color: var(--hm-warning-color);
+  background-image: none;
 }
 [data-hm-address].hm-water-detected {
-  background: var(--hm-alarm-color);
+  background-color: var(--hm-alarm-color);
+  background-image: none;
 }
 
 [data-hm-address].hm-full-bat {
   border-color: var(--hm-bat-full);
+  background-image: none;
 }
 [data-hm-address].hm-low-bat {
   border-color: var(--hm-bat-low);
+  background-image: none;
 }
 [data-hm-address].HmIP-KRC4 {
-  background: var(--hm-idle-color);
+  background-color: var(--hm-idle-color);
+  background-image: none;
 }
 [data-hm-address].hm-low-bat.HmIP-KRC4 {
-  background: var(--hm-bat-low);
+  background-color: var(--hm-bat-low);
+  background-image: none;
 }
 [data-hm-address].hm-unreachable {
   opacity: 0.55;
@@ -234,7 +257,8 @@ body {
 }
 [data-hm-address].hm-sabotage::after {
   content: "Sabotage";
-  background: var(--hm-alarm-color);
+  background-color: var(--hm-alarm-color);
+  background-image: none;
   padding: 1px;
 }
 .notification > .hm-sabotage {
@@ -283,12 +307,19 @@ body {
   font-weight: bold;
   animation: pulse 2s infinite;
 }
+[data-hm-address].interactionFeedback .label::after,
+[data-hm-sysvar].interactionFeedback .label::after {
+  content: "✔";
+  margin-left: 5px;
+  position: absolute;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   /* .pendingRequest {
     animation: pulse 1s infinite;
   } */
-  .pendingRequest .label::after {
+  [data-hm-address].pendingRequest .label::after,
+  [data-hm-sysvar].pendingRequest .label::after {
     content: "";
     --loading-spinner-size: 1.4ex;
     width: var(--loading-spinner-size);
@@ -327,8 +358,9 @@ body {
   [data-hm-address] {
     --drum-color: #64b5f6;
   }
-  
-  [data-hm-address].spinningWaterConsumer.consumer-active .label::after {
+
+  [data-hm-address].washingMachine.consumer-active .label::after,
+  [data-hm-address].tumbleDryer.consumer-active .label::after {
     content: "";
     display: inline-block;
     margin-left: 5px;
@@ -354,7 +386,11 @@ body {
     box-sizing: border-box;
     border: 3px solid darkgray;
     /*box-shadow: 0 0 0 4px #999 inset, 0 0 6px 6px #0004 inset;*/
-    animation: spinningRotation 3s ease-in-out infinite;
+    animation: waschingMaschineRotation 3s ease-in-out infinite;
+  }
+  [data-hm-address].tumbleDryer.consumer-active .label::after {
+    --drum-color: white;
+    animation: rotation 1.5s ease-in-out infinite;
   }
 }
 
@@ -401,7 +437,6 @@ body {
   }
 }
 */
-[data-hm-address].communicationError,
 [data-hm-address] {
   /* error stripe as a default */
   background-image: repeating-linear-gradient(
@@ -412,7 +447,6 @@ body {
     white 20px
   );
 }
-
 
 @keyframes pulse {
   0% {
@@ -429,15 +463,15 @@ body {
 }
 
 @keyframes rotation {
-0% {
-  transform: rotate(0deg);
-}
-100% {
-  transform: rotate(360deg);
-}
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes spinningRotation {
+@keyframes waschingMaschineRotation {
   0% {
     transform: rotate(0deg);
   }
@@ -451,7 +485,6 @@ body {
     transform: rotate(1800deg);
   }
 }
-
 
 @keyframes BrollAnimUp {
   0% {
