@@ -82,7 +82,7 @@ function urlToString(url) {
         }
         if (!newWindowOpened && isConfigUrl) {
           alert(
-            "Erlaube Zugriff in dem folgendem Aufruf und geh dann zurück zu dieser App."
+            "ccu.js: Erlaube Zugriff in dem folgendem Aufruf und geh dann zurück zu dieser App."
           );
           let anchorElem = document.createElement("a");
           anchorElem.href = url;
@@ -681,6 +681,7 @@ function renderGui() {
           deviceInfo.device.deviceName
         );
         if (deviceInfo.energyCounter.iseId) {
+          homematicDeviceDiv.style.cursor = "pointer";
           homematicDeviceDiv.addEventListener("click", (evt) => {
             // No text select
             evt.preventDefault();
@@ -699,17 +700,22 @@ function renderGui() {
                 dialog.popover = "auto";
                 dialog.id = "powerPopover";
 
-                dialog.innerHTML = `
+                let dialogStr = `
               <button autofocus popovertarget="powerPopover">Schließen</button>
-              <h1>${deviceInfo.device.deviceName}</h1>
+              <h1>${deviceInfo.device.deviceName}</h1>`;
+                dialogStr += `
               <ul>
               <li>Energiezähler: ${
                 value.toFixed(2) + deviceInfo.energyCounter.valueunit
-              }
-              <button onclick="navigator.clipboard.writeText((${valueStr}).toLocaleString(undefined,{ maximumFractionDigits: 2 }))">kopieren</button>
+              }`;
+                if (navigator.clipboard) {
+                  dialogStr += `<button onclick="navigator.clipboard?.writeText((${valueStr}).toLocaleString(undefined,{ maximumFractionDigits: 2, useGrouping: false }))">kopieren</button>`;
+                }
+                dialogStr += `
               </ul>
               ${new Date().toLocaleString()}
               `;
+                dialog.innerHTML = dialogStr;
                 document.body.append(dialog);
                 dialog.showPopover();
 
@@ -929,6 +935,36 @@ function renderGui() {
           }
           labelDiv.textContent = channel.name;
         }
+        if (homematicDeviceDiv.dataset.hmRelatedDevice) {
+          const relatedDeviceInfo = getDeviceInfo(
+            homematicDeviceDiv.dataset.hmRelatedDevice
+          );
+
+          // Actual state is in first state datapoint which has readevent (SWITCH_TRANSMITTER)
+          addHmMonitoring(
+            relatedDeviceInfo.unknown
+              .find((channel) => {
+                // Find STATE channel
+                return channel.type === "26";
+              })
+              ?.datapoints.find(
+                // Find first read datapoint
+                (datapoint) =>
+                  datapoint.type === "STATE" && datapoint.operations === "5"
+              ).iseId,
+            (valueStr) => {
+              homematicDeviceDiv.classList.toggle(
+                "hm-power-state-on",
+                valueStr === "true"
+              );
+              homematicDeviceDiv.classList.toggle(
+                "hm-power-state-off",
+                valueStr === "false"
+              );
+            },
+            relatedDeviceInfo.device.deviceName
+          );
+        }
         break;
       }
       default: {
@@ -965,14 +1001,8 @@ function renderGui() {
       },
       deviceInfo.device.deviceName
     );
-    if (
-      deviceInfo.batteryDatapoint.lowBatIseId &&
-      homematicDeviceDiv.dataset.hmHideBattery === undefined
-    ) {
+    if (deviceInfo.batteryDatapoint.lowBatIseId) {
       let oldLowBatStr, oldOpVoltStr;
-      let opVoltDiv = document.createElement("div");
-      opVoltDiv.classList.add("opVolt");
-      homematicDeviceDiv.appendChild(opVoltDiv);
       addHmMonitoring(
         deviceInfo.batteryDatapoint.lowBatIseId,
         (valueStr) => {
@@ -991,24 +1021,29 @@ function renderGui() {
         },
         deviceInfo.device.deviceName
       );
-      addHmMonitoring(
-        deviceInfo.batteryDatapoint.opVoltIseId,
-        (valueStr) => {
-          if (valueStr === oldOpVoltStr) {
-            return;
-          }
-          oldOpVoltStr = valueStr;
-          let opVolt = parseFloat(valueStr);
-          if (!Number.isNaN(opVolt) && opVolt !== 0) {
-            opVoltDiv.innerText =
-              opVolt.toLocaleString(undefined, {
-                maximumFractionDigits: 1,
-                minimumFractionDigits: 1,
-              }) + " V";
-          }
-        },
-        deviceInfo.device.deviceName
-      );
+      if (homematicDeviceDiv.dataset.hmHideBattery === undefined) {
+        let opVoltDiv = document.createElement("div");
+        opVoltDiv.classList.add("opVolt");
+        homematicDeviceDiv.appendChild(opVoltDiv);
+        addHmMonitoring(
+          deviceInfo.batteryDatapoint.opVoltIseId,
+          (valueStr) => {
+            if (valueStr === oldOpVoltStr) {
+              return;
+            }
+            oldOpVoltStr = valueStr;
+            let opVolt = parseFloat(valueStr);
+            if (!Number.isNaN(opVolt) && opVolt !== 0) {
+              opVoltDiv.innerText =
+                opVolt.toLocaleString(undefined, {
+                  maximumFractionDigits: 1,
+                  minimumFractionDigits: 1,
+                }) + " V";
+            }
+          },
+          deviceInfo.device.deviceName
+        );
+      }
     }
     if (
       deviceInfo.power.iseId &&

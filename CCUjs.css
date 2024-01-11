@@ -145,6 +145,12 @@ body {
   background-color: var(--hm-state-inactive-color);
   background-image: none;
 }
+[data-hm-address].HmIP-BSM > button[value="false"]{
+  display: none;
+}
+[data-hm-address].HmIP-BSM.hm-channel-state-on > button[value="false"]{
+  display: block;
+}
 [data-hm-address].hm-channel-state-on > button[value="true"],
 [data-hm-address].hm-channel-state-off > button[value="false"]{
   display: none;
@@ -154,7 +160,7 @@ body {
   background-color: transparent;
   background-image: none;
 }
-[data-hm-address].virtualRemote {
+[data-hm-address].virtualRemote:not(.hm-power-state-on):not(.hm-power-state-off) {
   background-color: var(--hm-state-inactive-color);
   background-image: none;
 }
