@@ -425,14 +425,14 @@ function renderGui() {
               // Default has an error stripe
               homematicDeviceDiv.classList.remove("halfHeight");
               homematicDeviceDiv.classList.remove("stripes");
-              homematicDeviceDiv.style.setProperty("--shutter-level", "");
+              homematicDeviceDiv.style.setProperty("--hm-shutter-level", "");
             } else {
               homematicDeviceDiv.style.setProperty(
-                "--shutter-level",
+                "--hm-shutter-level",
                 value.toFixed(2)
               );
               homematicDeviceDiv.style.setProperty(
-                "--shutter-level-percent",
+                "--hm-shutter-level-percent",
                 (value * 100).toFixed(1) + "%"
               );
               if (deviceInfo.device.type === "HmIP-BROLL") {
@@ -498,7 +498,7 @@ function renderGui() {
         let bslTop = document.createElement("div");
         bslTop.classList.add("topLed");
         bslTop.style.cssText =
-          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--bslTopColor)";
+          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--hm-bsl-top-color)";
         homematicDeviceDiv.appendChild(bslTop);
         let oldTopDimmer;
         // top DIMMER_TRANSMITTER is first COLOR
@@ -519,7 +519,7 @@ function renderGui() {
             }
             oldTopDimmer = valueStr;
             homematicDeviceDiv.style.setProperty(
-              "--bslTopColor",
+              "--hm-bsl-top-color",
               hmIpBslColorMap[valueStr]
             );
           },
@@ -528,7 +528,7 @@ function renderGui() {
         let bslBottom = document.createElement("div");
         bslBottom.classList.add("bottomLed");
         bslBottom.style.cssText =
-          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--bslBottomColor)";
+          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--hm-bsl-bottom-color)";
         homematicDeviceDiv.appendChild(bslBottom);
         let oldBottomDimmer;
         // bottom DIMMER_TRANSMITTER is second COLOR
@@ -549,7 +549,7 @@ function renderGui() {
             }
             oldBottomDimmer = valueStr;
             homematicDeviceDiv.style.setProperty(
-              "--bslBottomColor",
+              "--hm-bsl-bottom-color",
               hmIpBslColorMap[valueStr]
             );
           },
@@ -575,7 +575,7 @@ function renderGui() {
             }
             oldTopValue = valueStr;
             homematicDeviceDiv.style.setProperty(
-              "--bslTopDimmervalue",
+              "--hm-bsl-top-dimmer-value",
               valueStr
             );
           },
@@ -600,7 +600,7 @@ function renderGui() {
             }
             oldBottomValue = valueStr;
             homematicDeviceDiv.style.setProperty(
-              "--bslBottomDimmervalue",
+              "--hm-bsl-bottom-dimmer-value",
               valueStr
             );
           },
@@ -717,7 +717,7 @@ function renderGui() {
               `;
                 dialog.innerHTML = dialogStr;
                 document.body.append(dialog);
-                dialog.showPopover();
+                dialog.showPopover?.();
 
                 console.log(
                   "Energiezähler " +
@@ -965,6 +965,66 @@ function renderGui() {
             relatedDeviceInfo.device.deviceName
           );
         }
+        break;
+      }
+      case "HmIP-STE2-PCB": {
+        labelDiv.textContent =
+          deviceInfo.sender.filter((channel) => {
+            // Find STATE channel
+            return channel.type === "26";
+          })[channelIndex]?.name ?? deviceInfo.device.deviceName;
+
+        let valueDiv = document.createElement("div");
+        valueDiv.classList.add("mainValue");
+        if (homematicDeviceDiv.dataset.hmHideValue === undefined) {
+          homematicDeviceDiv.appendChild(valueDiv);
+        }
+        let oldValue;
+        const actualTemp = deviceInfo.sender
+          .filter((channel) => {
+            // Find STATE channel
+            return channel.type === "26";
+          })
+          [channelIndex]?.datapoints.find(
+            // Find first readwrite datapoint
+            (datapoint) =>
+              datapoint.type === "ACTUAL_TEMPERATURE" &&
+              datapoint.operations === "5"
+          );
+        addHmMonitoring(
+          actualTemp.iseId,
+          (valueStr) => {
+            if (valueStr === oldValue) {
+              return;
+            }
+            oldValue = valueStr;
+            let value = parseFloat(valueStr);
+            if (isNaN(value)) {
+              // Default has an error stripe
+              homematicDeviceDiv.style.setProperty("--hm-actual-temp", "");
+            } else {
+              homematicDeviceDiv.style.setProperty(
+                "--hm-actual-temp",
+                value.toFixed(2)
+              );
+            }
+            if (homematicDeviceDiv.dataset.hmMaxValue) {
+              homematicDeviceDiv.classList.toggle(
+                "hm-value-overflow",
+                value > parseFloat(homematicDeviceDiv.dataset.hmMaxValue)
+              );
+            }
+            if (homematicDeviceDiv.dataset.hmMinValue) {
+              homematicDeviceDiv.classList.toggle(
+                "hm-value-underflow",
+                value < parseFloat(homematicDeviceDiv.dataset.hmMinValue)
+              );
+            }
+            valueDiv.textContent = value + " " + actualTemp.valueunit;
+          },
+          deviceInfo.device.deviceName
+        );
+
         break;
       }
       default: {

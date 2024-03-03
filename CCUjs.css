@@ -86,6 +86,9 @@ body {
   justify-content: flex-end;
   align-items: flex-end;
 }
+[data-hm-address] > .mainValue {
+  text-align: center;
+}
 [data-hm-sysvar].colspan2,
 [data-hm-address].colspan2 {
   grid-column-end: span 2;
@@ -145,14 +148,14 @@ body {
   background-color: var(--hm-state-inactive-color);
   background-image: none;
 }
-[data-hm-address].HmIP-BSM > button[value="false"]{
+[data-hm-address].HmIP-BSM > button[value="false"] {
   display: none;
 }
-[data-hm-address].HmIP-BSM.hm-channel-state-on > button[value="false"]{
+[data-hm-address].HmIP-BSM.hm-channel-state-on > button[value="false"] {
   display: block;
 }
 [data-hm-address].hm-channel-state-on > button[value="true"],
-[data-hm-address].hm-channel-state-off > button[value="false"]{
+[data-hm-address].hm-channel-state-off > button[value="false"] {
   display: none;
 }
 
@@ -160,7 +163,9 @@ body {
   background-color: transparent;
   background-image: none;
 }
-[data-hm-address].virtualRemote:not(.hm-power-state-on):not(.hm-power-state-off) {
+[data-hm-address].virtualRemote:not(.hm-power-state-on):not(
+    .hm-power-state-off
+  ) {
   background-color: var(--hm-state-inactive-color);
   background-image: none;
 }
@@ -177,14 +182,14 @@ body {
   background-image: linear-gradient(
     0deg,
     var(--hm-flower-color)
-      calc(((var(--shutter-level-percent) - 22%) * (100 / 78))),
+      calc(((var(--hm-shutter-level-percent) - 22%) * (100 / 78))),
     var(--hm-shutter-color) 0
   );
 }
 [data-hm-address].HmIP-FROLL {
   background-image: linear-gradient(
     0deg,
-    var(--hm-flower-color) var(--shutter-level-percent),
+    var(--hm-flower-color) var(--hm-shutter-level-percent),
     var(--hm-shutter-color) 0
   );
 }
@@ -252,6 +257,19 @@ body {
   background-color: var(--hm-bat-low);
   background-image: none;
 }
+[data-hm-address].HmIP-STE2-PCB {
+  background-color: var(--hm-idle-color);
+  background-image: none;
+}
+[data-hm-address].HmIP-STE2-PCB.hm-value-overflow {
+  background-color: var(--hm-alarm-color);
+  background-image: none;
+}
+[data-hm-address].HmIP-STE2-PCB.hm-value-underflow {
+  background-color: var(--hm-alarm-color);
+  background-image: none;
+}
+
 [data-hm-address].hm-unreachable {
   opacity: 0.55;
 }
