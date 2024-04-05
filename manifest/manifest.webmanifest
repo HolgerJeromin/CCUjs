@@ -8,13 +8,13 @@
       "src": "manifest_logo_haus196x196.webp",
       "sizes": "196x196",
       "type": "image/webp",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
       "src": "manifest_logo_haus196x196.jpg",
       "sizes": "196x196",
       "type": "image/jpg",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ],
   "display": "minimal-ui",
