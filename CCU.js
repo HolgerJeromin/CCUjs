@@ -243,11 +243,17 @@ function renderGui() {
         let valueDiv = document.createElement("div");
         valueDiv.classList.add("currentValue");
         homematicDeviceDiv.appendChild(valueDiv);
+
+        let oldState;
         // Todo adjust channel wise mapping
         addHmMonitoring(
           levelDeviceInfo.selectedDatapoints[actuatorChannelDatapointIndex]
             .iseId,
           (valueStr) => {
+            if (valueStr === oldState) {
+              return;
+            }
+            oldState = valueStr;
             let value = parseFloat(valueStr);
             if (isNaN(value) || value == 0) {
               homematicDeviceDiv.classList.toggle("hm-channel-state-on", false);
@@ -278,9 +284,14 @@ function renderGui() {
           var setpointDiv = document.createElement("div");
           setpointDiv.classList.add("currentValue");
           homematicDeviceDiv.appendChild(setpointDiv);
+          let oldState;
           addHmMonitoring(
             levelDeviceInfo.selectedDatapoints[0].iseId,
             (valueStr) => {
+              if (valueStr === oldState) {
+                return;
+              }
+              oldState = valueStr;
               let value = parseFloat(valueStr);
               if (isNaN(value) || value == 0) {
                 setpointDiv.innerText = "Sollwert: 0 °C";
@@ -317,10 +328,15 @@ function renderGui() {
           var actorDiv = document.createElement("div");
           actorDiv.classList.add("currentValue");
           homematicDeviceDiv.appendChild(actorDiv);
+          let oldState;
           // Todo adjust channel wise mapping
           addHmMonitoring(
             levelDeviceInfo.selectedDatapoints[0].iseId,
             (valueStr) => {
+              if (valueStr === oldState) {
+                return;
+              }
+              oldState = valueStr;
               let value = parseFloat(valueStr);
               if (isNaN(value) || value == 0) {
                 actorDiv.innerText = "Ventilstellung: 0 %";
@@ -641,10 +657,15 @@ function renderGui() {
             createButton("Aus", "false", channelStateDatapointId)
           );
         }
+        let oldStateValue;
         // Find channel status
         addHmMonitoring(
           channelStateDatapointId,
           (valueStr) => {
+            if (valueStr === oldStateValue) {
+              return;
+            }
+            oldStateValue = valueStr;
             homematicDeviceDiv.classList.toggle(
               "hm-channel-state-on",
               valueStr === "true"
@@ -656,6 +677,7 @@ function renderGui() {
           },
           deviceInfo.device.deviceName
         );
+        let oldPowerValue;
         // Actual state is in first state datapoint which has readevent (SWITCH_TRANSMITTER)
         addHmMonitoring(
           deviceInfo.unknown
@@ -669,6 +691,10 @@ function renderGui() {
                 datapoint.type === "STATE" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldPowerValue) {
+              return;
+            }
+            oldPowerValue = valueStr;
             homematicDeviceDiv.classList.toggle(
               "hm-power-state-on",
               valueStr === "true"
@@ -735,6 +761,7 @@ function renderGui() {
         break;
       }
       case "HmIP-SRH": /* Homematic IP Rotary Handle Sensor */ {
+        let oldValue;
         // Actual state is in first state datapoint (ROTARY_HANDLE_TRANSCEIVER)
         addHmMonitoring(
           deviceInfo.sender
@@ -748,6 +775,10 @@ function renderGui() {
                 datapoint.type === "STATE" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldValue) {
+              return;
+            }
+            oldValue = valueStr;
             homematicDeviceDiv.classList.toggle(
               "hm-position-closed",
               valueStr === "0"
@@ -767,6 +798,7 @@ function renderGui() {
       }
       case "HMIP-SWDO": /* Homematic IP Window / Door Contact - optical */
       case "HmIP-SWDO-I": /* Homematic IP Window / Door Contact - invisible installation */ {
+        let oldValue;
         // Actual state is in first state datapoint (SHUTTER_CONTACT_TRANSCEIVER)
         addHmMonitoring(
           deviceInfo.sender
@@ -780,6 +812,10 @@ function renderGui() {
                 datapoint.type === "STATE" && datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldValue) {
+              return;
+            }
+            oldValue = valueStr;
             homematicDeviceDiv.classList.toggle(
               "hm-position-closed",
               valueStr === "0"
@@ -794,6 +830,7 @@ function renderGui() {
         break;
       }
       case "HmIP-SWD": /* Homematic IP Water Sensor */ {
+        let oldWaterValue;
         // Actual water is in first state datapoint (WATER_DETECTION_TRANSMITTER)
         addHmMonitoring(
           deviceInfo.sender
@@ -808,6 +845,10 @@ function renderGui() {
                 datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldWaterValue) {
+              return;
+            }
+            oldWaterValue = valueStr;
             homematicDeviceDiv.classList.toggle(
               "hm-water-idle",
               valueStr === "false"
@@ -819,6 +860,7 @@ function renderGui() {
           },
           deviceInfo.device.deviceName
         );
+        let oldMoistureValue;
         // Actual moisture is in first state datapoint (WATER_DETECTION_TRANSMITTER)
         addHmMonitoring(
           deviceInfo.sender
@@ -833,6 +875,10 @@ function renderGui() {
                 datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldMoistureValue) {
+              return;
+            }
+            oldMoistureValue = valueStr;
             homematicDeviceDiv.classList.toggle(
               "hm-moisture-idle",
               valueStr === "false"
@@ -847,6 +893,7 @@ function renderGui() {
         break;
       }
       case "HmIP-SWSD": /* Homematic IP Smoke Detector */ {
+        let oldValue
         // Actual smoke is in first state datapoint (SMOKE_DETECTOR)
         addHmMonitoring(
           deviceInfo.unknown
@@ -861,6 +908,10 @@ function renderGui() {
                 datapoint.operations === "5"
             ).iseId,
           (valueStr) => {
+            if (valueStr === oldValue) {
+              return;
+            }
+            oldValue = valueStr;
             alarmOffBtn.style.display = "";
             if (valueStr === "0") {
               // Idle Off
@@ -940,6 +991,7 @@ function renderGui() {
             homematicDeviceDiv.dataset.hmRelatedDevice
           );
 
+          let oldState;
           // Actual state is in first state datapoint which has readevent (SWITCH_TRANSMITTER)
           addHmMonitoring(
             relatedDeviceInfo.unknown
@@ -953,6 +1005,10 @@ function renderGui() {
                   datapoint.type === "STATE" && datapoint.operations === "5"
               ).iseId,
             (valueStr) => {
+              if (valueStr === oldState) {
+                return;
+              }
+              oldState = valueStr;
               homematicDeviceDiv.classList.toggle(
                 "hm-power-state-on",
                 valueStr === "true"
@@ -1044,9 +1100,14 @@ function renderGui() {
         break;
       }
     }
+    let oldUnreachable;
     addHmMonitoring(
       deviceInfo.device.unreachableIseId,
       (valueStr) => {
+        if (valueStr === oldUnreachable) {
+          return;
+        }
+        oldUnreachable = valueStr;
         homematicDeviceDiv.classList.toggle(
           "hm-unreachable",
           valueStr === "true"
@@ -1054,9 +1115,14 @@ function renderGui() {
       },
       deviceInfo.device.deviceName
     );
+    let oldSabotage;
     addHmMonitoring(
       deviceInfo.device.sabotageIseId,
       (valueStr) => {
+        if (valueStr === oldSabotage) {
+          return;
+        }
+        oldSabotage = valueStr;
         homematicDeviceDiv.classList.toggle("hm-sabotage", valueStr === "true");
       },
       deviceInfo.device.deviceName
