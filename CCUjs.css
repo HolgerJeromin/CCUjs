@@ -1,11 +1,11 @@
 :root {
   /** Having dark buttons and white is very ugly so disable right now */
   color-scheme: light;
-  --hm-shutter-color: gray;
+  --hm-shutter-color: rgb(175 174 174);
   --hm-flower-color: rgb(163, 255, 0);
   --hm-state-active-color: yellow;
-  --hm-state-inactive-color: gray;
-  --hm-active-outline-color: green;
+  --hm-state-inactive-color: rgb(175 174 174);
+  --hm-active-outline-color: blue;
   --hm-idle-color: green;
   --hm-alarm-color: red;
   --hm-warning-color: indianred;
@@ -125,6 +125,14 @@ body {
   grid-column-end: span 4;
 }
 
+[data-hm-sysvar].colspan4.sysvar-type-20 {
+  grid-template-columns: repeat(4, auto);
+}
+[data-hm-sysvar].sysvar-type-20 .hm-sysvar-content {
+  font-style: italic;
+  margin-top: 0;
+}
+
 .hm-sysvar-boolean {
   outline: rgba(0, 0, 0, 0.2) 1px solid;
 }
@@ -132,6 +140,7 @@ body {
 .hm-sysvar-value-list.hm-selected {
   outline: var(--hm-active-outline-color) 2px solid;
 }
+
 [data-hm-address].hm-channel-state-on > .label {
   background-color: var(--hm-state-active-color);
   background-image: none;
@@ -140,10 +149,12 @@ body {
   background-color: var(--hm-state-inactive-color);
   background-image: none;
 }
-[data-hm-address].hm-power-state-on {
+[data-hm-address].hm-power-state-on,
+[data-hm-sysvar].hm-power-state-on {
   background-color: var(--hm-state-active-color);
   background-image: none;
 }
+[data-hm-sysvar].hm-power-state-off,
 [data-hm-address].hm-power-state-off {
   background-color: var(--hm-state-inactive-color);
   background-image: none;
@@ -277,7 +288,7 @@ body {
   opacity: 0.55;
 }
 .hm-sabotage {
-  animation: blinkingDiv 1.2s infinite;
+  animation: hm-animation-sabotage 1.2s infinite;
 }
 [data-hm-address].hm-sabotage::after {
   content: "Sabotage";
@@ -305,7 +316,7 @@ body {
   display: none;
 }
 
-@keyframes blinkingDiv {
+@keyframes hm-animation-sabotage {
   0% {
     opacity: 1;
   }
@@ -354,10 +365,12 @@ body {
     border-radius: 50%;
     display: inline-block;
     box-sizing: border-box;
-    animation: rotation 1s ease-in-out infinite;
+    animation: fullRotation 1s ease-in-out infinite;
     margin-left: 5px;
   }
 
+  [data-hm-address].HmIP-FROLL.activityDown,
+  [data-hm-address].HmIP-FROLL.activityUp,
   [data-hm-address].HmIP-BROLL.activityDown,
   [data-hm-address].HmIP-BROLL.activityUp {
     background-image: repeating-linear-gradient(
@@ -372,11 +385,13 @@ body {
     animation-timing-function: linear;
     animation-iteration-count: infinite;
   }
+  [data-hm-address].HmIP-FROLL.activityUp,
   [data-hm-address].HmIP-BROLL.activityUp {
-    animation-name: BrollAnimUp;
+    animation-name: FBrollAnimUp;
   }
+  [data-hm-address].HmIP-FROLL.activityDown,
   [data-hm-address].HmIP-BROLL.activityDown {
-    animation-name: BrollAnimDown;
+    animation-name: FBrollAnimDown;
   }
 
   [data-hm-address] {
@@ -410,11 +425,11 @@ body {
     box-sizing: border-box;
     border: 3px solid darkgray;
     /*box-shadow: 0 0 0 4px #999 inset, 0 0 6px 6px #0004 inset;*/
-    animation: waschingMaschineRotation 3s ease-in-out infinite;
+    animation: washingMaschineRotation 3s ease-in-out infinite;
   }
   [data-hm-address].tumbleDryer.consumer-active .label::after {
     --drum-color: white;
-    animation: rotation 1.5s ease-in-out infinite;
+    animation: fullRotation 1.5s ease-in-out infinite;
   }
 }
 
@@ -486,7 +501,7 @@ body {
   }
 }
 
-@keyframes rotation {
+@keyframes fullRotation {
   0% {
     transform: rotate(0deg);
   }
@@ -495,7 +510,7 @@ body {
   }
 }
 
-@keyframes waschingMaschineRotation {
+@keyframes washingMaschineRotation {
   0% {
     transform: rotate(0deg);
   }
@@ -510,7 +525,7 @@ body {
   }
 }
 
-@keyframes BrollAnimUp {
+@keyframes FBrollAnimUp {
   0% {
     background-position-y: 0%;
   }
@@ -518,7 +533,7 @@ body {
     background-position-y: 100%;
   }
 }
-@keyframes BrollAnimDown {
+@keyframes FBrollAnimDown {
   0% {
     background-position-y: 100%;
   }
