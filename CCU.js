@@ -893,7 +893,7 @@ function renderGui() {
         break;
       }
       case "HmIP-SWSD": /* Homematic IP Smoke Detector */ {
-        let oldValue
+        let oldValue;
         // Actual smoke is in first state datapoint (SMOKE_DETECTOR)
         addHmMonitoring(
           deviceInfo.unknown
@@ -1385,6 +1385,42 @@ function renderGui() {
           homematicSysvarDiv.appendChild(errorDiv);
           break;
         }
+      }
+
+      if (homematicSysvarDiv.dataset.hmRelatedDevice) {
+        const relatedDeviceInfo = getDeviceInfo(
+          homematicSysvarDiv.dataset.hmRelatedDevice
+        );
+
+        let oldPowerState;
+        // Actual state is in first state datapoint which has readevent (SWITCH_TRANSMITTER)
+        addHmMonitoring(
+          relatedDeviceInfo.unknown
+            .find((channel) => {
+              // Find STATE channel
+              return channel.type === "26";
+            })
+            ?.datapoints.find(
+              // Find first read datapoint
+              (datapoint) =>
+                datapoint.type === "STATE" && datapoint.operations === "5"
+            ).iseId,
+          (valueStr) => {
+            if (valueStr === oldPowerState) {
+              return;
+            }
+            oldPowerState = valueStr;
+            homematicSysvarDiv.classList.toggle(
+              "hm-power-state-on",
+              valueStr === "true"
+            );
+            homematicSysvarDiv.classList.toggle(
+              "hm-power-state-off",
+              valueStr === "false"
+            );
+          },
+          relatedDeviceInfo.device.deviceName
+        );
       }
     }
   }
