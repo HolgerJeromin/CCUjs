@@ -513,10 +513,9 @@ function renderGui() {
 
         let bslTop = document.createElement("div");
         bslTop.classList.add("topLed");
-        bslTop.style.cssText =
-          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--hm-bsl-top-color)";
         homematicDeviceDiv.appendChild(bslTop);
         let oldTopDimmer;
+        // //////////////////  Color  //////////////////
         // top DIMMER_TRANSMITTER is first COLOR
         addHmMonitoring(
           deviceInfo.unknown
@@ -543,8 +542,6 @@ function renderGui() {
         );
         let bslBottom = document.createElement("div");
         bslBottom.classList.add("bottomLed");
-        bslBottom.style.cssText =
-          "height: 1em;border: 1px solid black;padding: 0px;margin: 0;background-color:var(--hm-bsl-bottom-color)";
         homematicDeviceDiv.appendChild(bslBottom);
         let oldBottomDimmer;
         // bottom DIMMER_TRANSMITTER is second COLOR

@@ -316,6 +316,20 @@ body {
   display: none;
 }
 
+.HmIP-BSL > div.topLed,
+.HmIP-BSL > div.bottomLed {
+  height: 1em;
+  border: 1px solid black;
+  padding: 0px;
+  margin: 0;
+}
+.HmIP-BSL > div.topLed {
+  background-color: var(--hm-bsl-top-color);
+}
+.HmIP-BSL > div.bottomLed {
+  background-color: var(--hm-bsl-bottom-color);
+}
+
 @keyframes hm-animation-sabotage {
   0% {
     opacity: 1;
