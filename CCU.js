@@ -1235,6 +1235,9 @@ function renderGui() {
       labelDiv.classList.add("label");
       labelDiv.innerText = systemVariable.getAttribute("name");
       homematicSysvarDiv.append(labelDiv);
+      homematicSysvarDiv.classList.add(
+        "sysvar-type-" + systemVariable.getAttribute("type")
+      );
       switch (systemVariable.getAttribute("type")) {
         case "2" /** boolean */:
           {
@@ -1349,6 +1352,25 @@ function renderGui() {
                     allButtons[index].classList.remove("hm-selected");
                   }
                 }
+              },
+              homematicSysvarDiv.dataset.hmSysvar
+            );
+          }
+          break;
+        case "20" /** string */:
+          {
+            let oldValue;
+            const text = document.createElement("div");
+            text.classList.add("hm-sysvar-content");
+            homematicSysvarDiv.append(text);
+            addHmMonitoring(
+              systemVariable.getAttribute("ise_id"),
+              (valueStr) => {
+                if (valueStr === oldValue) {
+                  return;
+                }
+                oldValue = valueStr;
+                text.textContent = valueStr;
               },
               homematicSysvarDiv.dataset.hmSysvar
             );
