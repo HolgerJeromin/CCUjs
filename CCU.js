@@ -1051,8 +1051,9 @@ function renderGui() {
               return;
             }
             oldValue = valueStr;
-            let value = parseFloat(valueStr);
-            if (isNaN(value)) {
+            // float value of exactly 0 is most probably "unknown"
+            const value = parseFloat(valueStr);
+            if (isNaN(value) || value === 0) {
               // Default has an error stripe
               homematicDeviceDiv.style.setProperty("--hm-actual-temp", "");
             } else {
@@ -1060,19 +1061,20 @@ function renderGui() {
                 "--hm-actual-temp",
                 value.toFixed(2)
               );
+              if (homematicDeviceDiv.dataset.hmMaxValue) {
+                homematicDeviceDiv.classList.toggle(
+                  "hm-value-overflow",
+                  value > parseFloat(homematicDeviceDiv.dataset.hmMaxValue)
+                );
+              }
+              if (homematicDeviceDiv.dataset.hmMinValue) {
+                homematicDeviceDiv.classList.toggle(
+                  "hm-value-underflow",
+                  value < parseFloat(homematicDeviceDiv.dataset.hmMinValue)
+                );
+              }
             }
-            if (homematicDeviceDiv.dataset.hmMaxValue) {
-              homematicDeviceDiv.classList.toggle(
-                "hm-value-overflow",
-                value > parseFloat(homematicDeviceDiv.dataset.hmMaxValue)
-              );
-            }
-            if (homematicDeviceDiv.dataset.hmMinValue) {
-              homematicDeviceDiv.classList.toggle(
-                "hm-value-underflow",
-                value < parseFloat(homematicDeviceDiv.dataset.hmMinValue)
-              );
-            }
+            
             valueDiv.textContent = value + " " + actualTemp.valueunit;
           },
           deviceInfo.device.deviceName
