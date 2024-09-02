@@ -25,9 +25,6 @@ body {
     background-color: lightgray;
   }
 }
-[popover] {
-  border-width: 1px;
-}
 
 .actors {
   display: grid;
@@ -222,16 +219,16 @@ body {
   background-color: var(--hm-idle-color);
   background-image: none;
 }
-[data-hm-address].hm-smoke-primary {
-  background-color: var(--hm-alarm-color);
+[data-hm-address].hm-smoke-intrusion {
+  background-color: var(--hm-information-color);
   background-image: none;
 }
 [data-hm-address].hm-smoke-secondary {
   background-color: var(--hm-warning-color);
   background-image: none;
 }
-[data-hm-address].hm-smoke-intrusion {
-  background-color: var(--hm-information-color);
+[data-hm-address].hm-smoke-primary {
+  background-color: var(--hm-alarm-color);
   background-image: none;
 }
 
