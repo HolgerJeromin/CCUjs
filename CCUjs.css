@@ -409,6 +409,8 @@ body {
     --drum-color: #64b5f6;
   }
 
+  [data-hm-address].washingMachine.consumer-idle .label::after,
+  [data-hm-address].tumbleDryer.consumer-idle .label::after,
   [data-hm-address].washingMachine.consumer-active .label::after,
   [data-hm-address].tumbleDryer.consumer-active .label::after {
     content: "";
@@ -436,10 +438,15 @@ body {
     box-sizing: border-box;
     border: 3px solid darkgray;
     /*box-shadow: 0 0 0 4px #999 inset, 0 0 6px 6px #0004 inset;*/
+  }
+  [data-hm-address].washingMachine.consumer-active .label::after {
     animation: washingMaschineRotation 3s ease-in-out infinite;
   }
+  [data-hm-address].tumbleDryer.consumer-idle .label::after,
   [data-hm-address].tumbleDryer.consumer-active .label::after {
     --drum-color: white;
+  }
+  [data-hm-address].tumbleDryer.consumer-active .label::after {
     animation: fullRotation 1.5s ease-in-out infinite;
   }
 }

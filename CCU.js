@@ -1199,6 +1199,10 @@ function renderGui() {
               "consumer-active",
               minPower && !isNaN(minPower) && power > minPower
             );
+            homematicDeviceDiv.classList.toggle(
+              "consumer-idle",
+              minPower && power > 0.5 && power < minPower
+            );
           }
         },
         deviceInfo.device.deviceName
