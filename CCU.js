@@ -1074,7 +1074,6 @@ function renderGui() {
                 );
               }
             }
-            
             valueDiv.textContent = value + " " + actualTemp.valueunit;
           },
           deviceInfo.device.deviceName
@@ -1285,11 +1284,49 @@ function renderGui() {
           break;
         case "4" /** number */:
           {
-            const sysvarMeter = document.createElement("meter");
-            sysvarMeter.setAttribute("min", systemVariable.getAttribute("min"));
-            sysvarMeter.setAttribute("max", systemVariable.getAttribute("max"));
-            let valueSpan = document.createElement("span");
-            homematicSysvarDiv.append(sysvarMeter, valueSpan);
+            let sysvarElement;
+            let sysvarLabel = document.createElement("span");
+            if (homematicSysvarDiv.dataset.hmReadonly !== undefined) {
+              sysvarElement = document.createElement("meter");
+              sysvarElement.setAttribute(
+                "min",
+                systemVariable.getAttribute("min")
+              );
+              sysvarElement.setAttribute(
+                "max",
+                systemVariable.getAttribute("max")
+              );
+            } else {
+              sysvarElement = document.createElement("input");
+              sysvarElement.type = "number";
+              sysvarElement.setAttribute(
+                "min",
+                systemVariable.getAttribute("min")
+              );
+              sysvarElement.setAttribute(
+                "max",
+                systemVariable.getAttribute("max")
+              );
+              sysvarElement.addEventListener("change", (evt) => {
+                const target = sysvarElement;
+
+                target.parentElement.classList.add("pendingRequest");
+                setHomematicValue(
+                  systemVariable.getAttribute("ise_id"),
+                  target.value
+                ).then((_doc) => {
+                  target.parentElement.classList.remove("pendingRequest");
+                  target.parentElement.classList.add("interactionFeedback");
+                  window.setTimeout((_evt) => {
+                    target.parentElement.classList.remove(
+                      "interactionFeedback"
+                    );
+                  }, 800);
+                });
+              });
+            }
+            homematicSysvarDiv.append(sysvarElement, sysvarLabel);
+
             let oldValue;
             addHmMonitoring(
               systemVariable.getAttribute("ise_id"),
@@ -1300,14 +1337,15 @@ function renderGui() {
                 oldValue = valueStr;
                 let value = parseFloat(valueStr);
                 if (isNaN(value)) {
-                  sysvarMeter.value = 0;
+                  sysvarElement.value = 0;
                 } else {
-                  sysvarMeter.value = value;
+                  sysvarElement.value = value;
                   homematicSysvarDiv.title =
                     value.toLocaleString(undefined, {
                       //minimumFractionDigits: 1
                     }) + systemVariable.getAttribute("unit");
-                  valueSpan.innerText = homematicSysvarDiv.title;
+                  if (sysvarLabel)
+                    sysvarLabel.innerText = homematicSysvarDiv.title;
                 }
               },
               homematicSysvarDiv.dataset.hmSysvar
@@ -1690,17 +1728,9 @@ function clickHandler(evt) {
     (doc) => {
       target.parentElement.classList.remove("pendingRequest");
       target.parentElement.classList.add("interactionFeedback");
-      window.setTimeout((evt) => {
+      window.setTimeout((_evt) => {
         target.parentElement.classList.remove("interactionFeedback");
       }, 800);
-      /*
-      outputFnc(
-        'Success in writing value: '
-        + (doc ? doc.firstElementChild?.firstElementChild?.getAttribute('new_value'):'')
-        + ', to ise id: '
-        + (doc? doc.firstElementChild?.firstElementChild?.getAttribute('id') : ''),
-        'color: green;');
-    */
     }
   );
 }
